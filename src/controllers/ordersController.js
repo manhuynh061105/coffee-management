@@ -1,63 +1,87 @@
 let orders = [];
 
-export const createOrder = (req, res) => {
-  const { userId, products } = req.body;
+export const createOrder = async (req, res) => {
+  try {
+    const { userId, items } = req.body;
 
-  if (!userId || !products) {
-    return res.status(400).json({
+    if (!userId || !items) {
+      return res.status(400).json({
+        success: false,
+        message: "Thiếu userId hoặc items"
+      });
+    }
+
+    // tính tổng (tạm)
+    const total = items.reduce((sum, item) => {
+      return sum + item.quantity * 20000;
+    }, 0);
+
+    const newOrder = await Order.create({
+      userId,
+      items,
+      total
+    });
+
+    res.status(201).json({
+      success: true,
+      message: "Tạo đơn hàng thành công",
+      data: newOrder
+    });
+
+  } catch (error) {
+    res.status(500).json({
       success: false,
-      message: "Thiếu userId hoặc products"
+      message: "Server error"
     });
   }
-
-  // tính tổng tiền (fake)
-  const total = products.reduce((sum, item) => {
-    return sum + item.quantity * 20000; // tạm fix giá
-  }, 0);
-
-  const newOrder = {
-    id: "o" + (orders.length + 1),
-    userId,
-    products,
-    total,
-    status: "pending"
-  };
-
-  orders.push(newOrder);
-
-  res.status(201).json({
-    success: true,
-    message: "Tạo đơn hàng thành công",
-    data: newOrder
-  });
 };
 
-export const getOrders = (req, res) => {
-  res.json({
-    success: true,
-    message: "Lấy danh sách đơn hàng thành công",
-    data: orders
-  });
-};
+export const getOrders = async (req, res) => {
+  try {
+    const orders = await Order.find();
 
-export const updateOrderStatus = (req, res) => {
-  const { id } = req.params;
-  const { status } = req.body;
+    res.json({
+      success: true,
+      message: "Lấy danh sách đơn hàng thành công",
+      data: orders
+    });
 
-  const order = orders.find(o => o.id === id);
-
-  if (!order) {
-    return res.status(404).json({
+  } catch (error) {
+    res.status(500).json({
       success: false,
-      message: "Không tìm thấy đơn hàng"
+      message: "Server error"
     });
   }
+};
 
-  order.status = status;
+export const updateOrderStatus = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { status } = req.body;
 
-  res.json({
-    success: true,
-    message: "Cập nhật trạng thái thành công",
-    data: order
-  });
+    const order = await Order.findByIdAndUpdate(
+      id,
+      { status },
+      { new: true }
+    );
+
+    if (!order) {
+      return res.status(404).json({
+        success: false,
+        message: "Không tìm thấy đơn hàng"
+      });
+    }
+
+    res.json({
+      success: true,
+      message: "Cập nhật trạng thái thành công",
+      data: order
+    });
+
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Server error"
+    });
+  }
 };
