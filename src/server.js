@@ -1,6 +1,7 @@
 import express from "express";
 import dotenv from "dotenv";
 import cors from "cors";
+import mongoose from "mongoose";
 import productRoutes from "./routes/productsRoutes.js";
 import orderRoutes from "./routes/ordersRoutes.js";
 
@@ -23,6 +24,10 @@ app.get("/", (req, res) => {
   });
 });
 
+mongoose.connect("mongodb://127.0.0.1:27017/coffee");
+mongoose.connection.on("connected", () => {
+  console.log("MongoDB connected");
+});
 // Port
 const PORT = process.env.PORT || 3000;
 

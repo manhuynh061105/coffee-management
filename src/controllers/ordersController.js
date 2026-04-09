@@ -1,3 +1,5 @@
+import Order from "../models/Order.js";
+
 let orders = [];
 
 export const createOrder = async (req, res) => {
@@ -29,6 +31,8 @@ export const createOrder = async (req, res) => {
     });
 
   } catch (error) {
+    console.log(error);
+
     res.status(500).json({
       success: false,
       message: "Server error"
