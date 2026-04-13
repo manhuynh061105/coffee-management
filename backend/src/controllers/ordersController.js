@@ -52,7 +52,15 @@ export const createOrder = async (req, res) => {
 
 export const getOrders = async (req, res) => {
   try {
-    const orders = await Order.find();
+    const {status} = req.query;
+
+    let filter = {};
+
+    if (status) {
+      filter.status = status;
+    }
+
+    const orders = await Order.find(filter);
 
     res.json({
       success: true,
