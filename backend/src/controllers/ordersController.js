@@ -107,3 +107,30 @@ export const updateOrderStatus = async (req, res) => {
     });
   }
 };
+
+export const getStats = async (req, res) => {
+  try {
+    const orders = await Order.find();
+
+    const totalOrders = orders.length;
+
+    const totalRevenue = orders.reduce((sum, order) => {
+      return sum + order.total;
+    }, 0);
+
+    res.json({
+      success: true,
+      message: "Thống kê thành công",
+      data: {
+        totalOrders,
+        totalRevenue
+      }
+    });
+
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Server error"
+    });
+  }
+};
