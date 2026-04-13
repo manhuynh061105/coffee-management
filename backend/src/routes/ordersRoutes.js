@@ -9,8 +9,8 @@ import {
 const router = express.Router();
 
 router.post("/", createOrder);
+router.get("/stats", getStats);
 router.get("/", getOrders);
 router.put("/:id", updateOrderStatus);
-router.get("/stats", getStats);
 
 export default router;
