@@ -1,22 +1,32 @@
 import Order from "../models/Order.js";
+import Product from "../models/product.js";
 
 let orders = [];
 
 export const createOrder = async (req, res) => {
   try {
     const { userId, items } = req.body;
-
+    let total = 0;
+    
     if (!userId || !items) {
       return res.status(400).json({
         success: false,
         message: "Thiếu userId hoặc items"
       });
     }
+    
+    for (const item of items) {
+      const product = await Product.findById(item.productId);
 
-    // tính tổng (tạm)
-    const total = items.reduce((sum, item) => {
-      return sum + item.quantity * 20000;
-    }, 0);
+      if (!product) {
+        return res.status(404).json({
+          success: false,
+          message: "Sản phẩm không tồn tại"
+        });
+      }
+
+      total += product.price * item.quantity;
+    }
 
     const newOrder = await Order.create({
       userId,
