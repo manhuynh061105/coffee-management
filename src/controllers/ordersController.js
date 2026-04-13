@@ -76,7 +76,7 @@ export const updateOrderStatus = async (req, res) => {
       });
     }
 
-    res.json({
+    res.status(200).json({
       success: true,
       message: "Cập nhật trạng thái thành công",
       data: order

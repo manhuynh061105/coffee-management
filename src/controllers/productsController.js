@@ -22,6 +22,20 @@ export const createProduct = async (req, res) => {
   try {
     const { name, price, category } = req.body;
 
+    if (!name || price === undefined) {
+      return res.status(400).json({
+        success: false,
+        message: "Thiếu name hoặc price"
+      });
+    }
+
+    if (typeof price !== "number") {
+      return res.status(400).json({
+        success: false,
+        message: "Price phải là số"
+      });
+    }
+
     const product = await Product.create({
       name,
       price,
