@@ -4,6 +4,7 @@ import cors from "cors";
 import mongoose from "mongoose";
 import productRoutes from "./routes/productsRoutes.js";
 import orderRoutes from "./routes/ordersRoutes.js";
+import authRoutes from './routes/authRoutes.js';
 
 dotenv.config();
 
@@ -17,10 +18,20 @@ app.use("/api/products", productRoutes);
 
 app.use("/api/orders", orderRoutes);
 
+app.use('/api/auth', authRoutes);
+
 // Test route
 app.get("/", (req, res) => {
   res.json({
     message: "Coffee Management API is running ☕"
+  });
+});
+
+// Middleware xử lý Route không tồn tại
+app.use((req, res) => {
+  res.status(404).json({
+    success: false,
+    message: "Đường dẫn (Route) không tồn tại"
   });
 });
 
