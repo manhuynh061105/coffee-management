@@ -20,26 +20,27 @@ export const getProducts = async (req, res) => {
 
 export const createProduct = async (req, res) => {
   try {
+    // 1. Lấy dữ liệu từ body và file từ multer
     const { name, price, category } = req.body;
+    const image = req.file ? req.file.filename : "default-coffee.jpg";
 
-    if (!name || price === undefined) {
+    // 2. Ép kiểu price sang Number (vì FormData luôn gửi lên String)
+    const numericPrice = Number(price);
+
+    // 3. Kiểm tra các trường bắt buộc
+    if (!name || isNaN(numericPrice) || !category) {
       return res.status(400).json({
         success: false,
-        message: "Thiếu name hoặc price"
+        message: "Vui lòng nhập đầy đủ Name, Price (phải là số) và Category"
       });
     }
 
-    if (typeof price !== "number") {
-      return res.status(400).json({
-        success: false,
-        message: "Price phải là số"
-      });
-    }
-
+    // 4. Tạo sản phẩm mới trong Database
     const product = await Product.create({
       name,
-      price,
-      category
+      price: numericPrice,
+      category,
+      image // Đã bao gồm ảnh ở đây
     });
 
     res.status(201).json({
@@ -49,9 +50,10 @@ export const createProduct = async (req, res) => {
     });
 
   } catch (error) {
+    console.error("Lỗi Create Product:", error.message);
     res.status(500).json({
       success: false,
-      message: "Server error"
+      message: "Server error: " + error.message
     });
   }
 };
