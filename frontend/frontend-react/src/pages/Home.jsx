@@ -37,7 +37,11 @@ const Home = () => {
                 <div className="text p-2 text-center">
                   <h5 className="text-uppercase">{item.name}</h5>
                   <p className="text-danger fw-bold">{item.price.toLocaleString()}₫</p>
-                  <button onClick={() => addToCart(item)} className="btn btn-primary w-100">Đặt hàng</button>
+                  <button onClick={() => {
+                      console.log("=== BẮT ĐẦU CLICK NÚT ===");
+                      console.log("Sản phẩm được chọn:", item);
+                      addToCart(item);
+                    }} className="btn btn-primary w-100">Đặt hàng</button>
                 </div>
               </div>
             </div>

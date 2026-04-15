@@ -9,9 +9,10 @@ const Header = () => {
   const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
 
   const handleLogout = () => {
-    localStorage.clear();
-    navigate('/login');
-    window.location.reload();
+    localStorage.removeItem('user');
+    localStorage.removeItem('token');
+    // Không cần xóa cart_id trong local, để dành lần sau user đó quay lại
+    window.location.href = '/login';
   };
 
   return (

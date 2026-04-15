@@ -5,6 +5,7 @@ import mongoose from "mongoose";
 import productRoutes from "./routes/productsRoutes.js";
 import orderRoutes from "./routes/ordersRoutes.js";
 import authRoutes from './routes/authRoutes.js';
+import cartRoutes from './routes/cartRoutes.js';
 
 dotenv.config();
 
@@ -19,6 +20,8 @@ app.use("/api/products", productRoutes);
 app.use("/api/orders", orderRoutes);
 
 app.use('/api/auth', authRoutes);
+
+app.use('/api/cart', cartRoutes);
 
 // Test route
 app.get("/", (req, res) => {
