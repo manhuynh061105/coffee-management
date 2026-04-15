@@ -1,4 +1,6 @@
 import express from "express";
+import multer from "multer";
+import path from "path";
 import {
   getProducts,
   createProduct,
@@ -9,13 +11,31 @@ import { verifyToken, isAdmin } from "../middlewares/authMiddleware.js";
 
 const router = express.Router();
 
-// 1. Ai cũng có thể xem danh sách sản phẩm (Public)
-router.get("/", getProducts);
+// --- Cấu hình Multer tối ưu ---
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    // Thầy dùng đường dẫn tương đối từ gốc project, 
+    // hãy chắc chắn em đã tạo thư mục: backend/public/img
+    cb(null, 'public/img'); 
+  },
+  filename: (req, file, cb) => {
+    // Chỉ giữ lại đuôi file, tên file thay bằng timestamp để tránh lỗi ký tự lạ
+    const fileExt = path.extname(file.originalname);
+    const fileName = Date.now() + fileExt;
+    cb(null, fileName);
+  }
+});
 
-// 2. Chỉ Admin mới được thực hiện các thao tác này (Private)
-// Lưu ý: Đã xóa các dòng thừa không có middleware phía trên
-router.post("/", verifyToken, isAdmin, createProduct);
-router.put("/:id", verifyToken, isAdmin, updateProduct);
+const upload = multer({ 
+  storage: storage,
+  // Thêm giới hạn dung lượng file (ví dụ 5MB) để bảo vệ server
+  limits: { fileSize: 5 * 1024 * 1024 } 
+});
+
+// Các Routes giữ nguyên
+router.get("/", getProducts);
+router.post("/", verifyToken, isAdmin, upload.single('image'), createProduct);
+router.put("/:id", verifyToken, isAdmin, upload.single('image'), updateProduct);
 router.delete("/:id", verifyToken, isAdmin, deleteProduct);
 
 export default router;
