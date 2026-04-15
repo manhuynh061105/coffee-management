@@ -1,11 +1,9 @@
-// Cấu hình URL Backend
 const API_BASE = 'http://localhost:3000/api/auth';
 
-// --- HÀM ĐĂNG NHẬP (Khớp với login.html) ---
+// --- HÀM ĐĂNG NHẬP ---
 async function handleLogin(event) {
-    event.preventDefault(); // Chặn load lại trang
+    event.preventDefault(); 
     
-    // Lấy đúng ID từ HTML của em
     const username = document.getElementById('username').value;
     const password = document.getElementById('password').value;
 
@@ -19,9 +17,9 @@ async function handleLogin(event) {
         const result = await response.json();
 
         if (result.success) {
-            // Lưu token và thông tin user vào localStorage
-            localStorage.setItem('token', result.token);
-            localStorage.setItem('user', JSON.stringify(result.data));
+            // SỬA Ở ĐÂY: Truy cập vào result.data.token theo đúng Backend của em
+            localStorage.setItem('token', result.data.token);
+            localStorage.setItem('user', JSON.stringify(result.data.user));
             
             alert('Chào mừng bạn quay trở lại!');
             window.location.href = 'index.html';
@@ -34,6 +32,7 @@ async function handleLogin(event) {
     }
 }
 
+// --- HÀM ĐĂNG KÝ ---
 async function handleRegister(event) {
     event.preventDefault();
     
@@ -41,20 +40,16 @@ async function handleRegister(event) {
     const password = document.getElementById('password').value;
     const confirmPassword = document.getElementById('confirmPassword').value;
 
-    // 1. Kiểm tra khớp mật khẩu
     if (password !== confirmPassword) {
-        return alert("Mật khẩu xác nhận không khớp!");
+        alert("Mật khẩu xác nhận không khớp!");
+        return; 
     }
 
     try {
         const response = await fetch(`${API_BASE}/register`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ 
-                username: username, 
-                password: password 
-                // Nếu Backend có lưu fullname/phone thì thêm vào đây
-            })
+            body: JSON.stringify({ username, password })
         });
 
         const result = await response.json();
@@ -67,5 +62,6 @@ async function handleRegister(event) {
         }
     } catch (error) {
         console.error('Lỗi kết nối:', error);
+        alert('Lỗi kết nối server!');
     }
 }

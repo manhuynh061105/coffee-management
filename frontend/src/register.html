@@ -6,20 +6,14 @@
     <title>Đăng Ký - Beans Café</title>
     <link rel="shortcut icon" href="./img/logo.jpg" type="image/x-icon">
 
-    <!-- Bootstrap 5 -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-
-    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
-    <!-- Main CSS -->
     <link rel="stylesheet" href="./css/main.css">
-    <link rel="stylesheet" href="./css/index.css">
 
     <style>
         .auth-container {
             min-height: 100vh;
-            background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url('../img/banner.jpg');
+            background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url('./img/banner.jpg');
             background-size: cover;
             background-position: center;
             display: flex;
@@ -29,12 +23,12 @@
             background: rgba(255, 255, 255, 0.95);
             border-radius: 12px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-            max-width: 460px;
+            max-width: 420px;
             width: 100%;
             margin: 0 auto;
         }
         .logo-auth {
-            max-width: 180px;
+            max-width: 150px;
         }
     </style>
 </head>
@@ -45,39 +39,27 @@
         <div class="auth-card p-5 mx-auto">
             <div class="text-center mb-4">
                 <img src="./img/logo.jpg" alt="Beans Café" class="logo-auth mb-3">
-                <h3 class="text-primary fw-bold">Beans Café</h3>
-                <p class="text-muted">Tạo tài khoản mới</p>
+                <h3 class="text-primary fw-bold">Đăng Ký Tài Khoản</h3>
             </div>
 
             <form id="registerForm">
-                <div class="row">
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label">Họ và tên</label>
-                        <input type="text" id="fullname" class="form-control form-control-lg" placeholder="Nguyễn Văn A" required>
-                    </div>
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label">Số điện thoại</label>
-                        <input type="tel" id="phone" class="form-control form-control-lg" placeholder="0xxx xxx xxx" required>
-                    </div>
-                </div>
-
                 <div class="mb-3">
-                    <label class="form-label">Tên đăng nhập (hoặc Email)</label>
-                    <input type="text" id="username" class="form-control form-control-lg" placeholder="example@gmail.com" required>
+                    <label class="form-label">Tên đăng nhập</label>
+                    <input type="text" id="username" class="form-control" placeholder="Nhập tên đăng nhập" required>
                 </div>
 
                 <div class="mb-3">
                     <label class="form-label">Mật khẩu</label>
-                    <input type="password" id="password" class="form-control form-control-lg" placeholder="Nhập mật khẩu" required>
+                    <input type="password" id="password" class="form-control" placeholder="Ít nhất 6 ký tự" required>
                 </div>
 
                 <div class="mb-4">
                     <label class="form-label">Xác nhận mật khẩu</label>
-                    <input type="password" id="confirmPassword" class="form-control form-control-lg" placeholder="Nhập lại mật khẩu" required>
+                    <input type="password" id="confirmPassword" class="form-control" placeholder="Nhập lại mật khẩu" required>
                 </div>
 
                 <button type="submit" class="btn btn-primary w-100 py-3 fw-bold rounded-pill">
-                    ĐĂNG KÝ
+                    ĐĂNG KÝ NGAY
                 </button>
             </form>
 
@@ -86,22 +68,15 @@
                     <a href="./login.html" class="text-primary fw-semibold text-decoration-none">Đăng nhập</a>
                 </p>
             </div>
-
-            <hr class="my-4">
-
-            <div class="text-center">
-                <button class="btn btn-outline-secondary w-100 mb-2">
-                    <i class="fab fa-google me-2"></i> Đăng ký bằng Google
-                </button>
-            </div>
         </div>
     </div>
 </div>
 
 <script src="./js/auth.js"></script>
 <script>
+    // Chỉ cần dòng này, vì logic so khớp pass thầy đã đưa vào auth.js ở trên
     document.getElementById('registerForm').addEventListener('submit', handleRegister);
 </script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
 </body>
 </html>
