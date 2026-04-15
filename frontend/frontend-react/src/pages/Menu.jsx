@@ -58,7 +58,9 @@ const Menu = () => {
   return (
     <div className="menu-page">
       <Header />
-      
+
+      <div style={{ height: '40px' }}></div>
+
       {/* Background Header nhỏ cho trang Menu */}
       <div className="bg-dark py-5 mb-5 mt-5">
         <div className="container text-center text-white">
