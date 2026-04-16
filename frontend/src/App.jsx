@@ -1,17 +1,20 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 
+// 1. Import Component ScrollToTop (Nhớ tạo file này như thầy hướng dẫn ở trên nhé)
+import ScrollToTop from './components/ScrollToTop'; 
+
 // Import các trang
 import Home from './pages/Home';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Cart from './pages/Cart';
-import AddProduct from './pages/AddProduct'; // Trang mới
+import AddProduct from './pages/AddProduct';
 import Menu from './pages/Menu';
 import ProductDetail from './pages/ProductDetail';
 
 // Import Component bảo vệ
-import AdminRoute from './components/AdminRoute'; // Component check role admin
+import AdminRoute from './components/AdminRoute';
 
 // Import CSS
 import './index.css'; 
@@ -19,8 +22,11 @@ import './index.css';
 function App() {
   return (
     <Router>
+      {/* 2. ĐẶT Ở ĐÂY: Bên trong Router nhưng ngoài Routes */}
+      <ScrollToTop /> 
+
       <Routes>
-        {/* --- Public Routes (Ai cũng vào được) --- */}
+        {/* --- Public Routes --- */}
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
@@ -28,7 +34,7 @@ function App() {
         <Route path="/menu" element={<Menu />} />
         <Route path="/product/:id" element={<ProductDetail />} />
         
-        {/* --- Admin Routes (Chỉ Admin mới vào được) --- */}
+        {/* --- Admin Routes --- */}
         <Route 
           path="/admin/add-product" 
           element={
@@ -38,9 +44,6 @@ function App() {
           } 
         />
         
-        {/* Trang Menu (Nếu em sắp làm) */}
-        <Route path="/menu" element={<div className="text-center mt-5">Trang Menu đang phát triển...</div>} />
-
         {/* Trang 404 */}
         <Route path="*" element={
           <div className="text-center mt-5">
