@@ -18,6 +18,36 @@ export const getProducts = async (req, res) => {
   }
 };
 
+// --- Lấy chi tiết 1 sản phẩm ---
+export const getProductById = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // Tìm sản phẩm theo ID trong Database
+    const product = await Product.findById(id);
+
+    if (!product) {
+      return res.status(404).json({
+        success: false,
+        message: "Rất tiếc, không tìm thấy sản phẩm này"
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Lấy chi tiết sản phẩm thành công",
+      data: product
+    });
+
+  } catch (error) {
+    console.error("Lỗi Get Product By Id:", error.message);
+    res.status(500).json({
+      success: false,
+      message: "Server error: ID không hợp lệ hoặc lỗi hệ thống"
+    });
+  }
+};
+
 export const createProduct = async (req, res) => {
   try {
     // 1. Lấy dữ liệu từ body và file từ multer

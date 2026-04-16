@@ -7,7 +7,6 @@ import { Link } from 'react-router-dom';
 const Cart = () => {
   const { cart, updateQuantity, removeFromCart } = useCart();
   
-  // Khai báo URL Backend để lấy ảnh từ server (cổng 3000)
   const BACKEND_URL = 'http://localhost:3000';
 
   const totalAmount = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
@@ -45,8 +44,11 @@ const Cart = () => {
                     {cart.map(item => (
                       <tr key={item._id}>
                         <td>
-                          <div className="d-flex align-items-center">
-                            {/* CẬP NHẬT: Nối BACKEND_URL để hiển thị ảnh từ server */}
+                          {/* Bọc cả Ảnh và Tên vào Link hướng về trang chi tiết */}
+                          <Link 
+                            to={`/product/${item._id}`} 
+                            className="d-flex align-items-center text-decoration-none text-dark cart-item-link"
+                          >
                             <img 
                               src={`${BACKEND_URL}/img/${item.image || 'bac-xiu.jpg'}`} 
                               alt={item.name} 
@@ -56,8 +58,8 @@ const Cart = () => {
                               style={{ objectFit: 'cover' }}
                               onError={(e) => { e.target.src = '/img/default-coffee.jpg' }}
                             />
-                            <span className="fw-bold">{item.name}</span>
-                          </div>
+                            <span className="fw-bold product-name-link">{item.name}</span>
+                          </Link>
                         </td>
                         <td>{item.price?.toLocaleString()}₫</td>
                         <td>
@@ -102,6 +104,20 @@ const Cart = () => {
           </div>
         )}
       </div>
+
+      {/* Style bổ sung để làm đẹp liên kết trong giỏ hàng */}
+      <style>{`
+        .cart-item-link:hover .product-name-link {
+          color: #0d6efd; /* Màu primary của bootstrap */
+          text-decoration: underline;
+        }
+        .cart-item-link img {
+          transition: transform 0.2s;
+        }
+        .cart-item-link:hover img {
+          transform: scale(1.05);
+        }
+      `}</style>
 
       <Footer />
     </div>
