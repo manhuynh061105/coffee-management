@@ -8,6 +8,7 @@ import Register from './pages/Register';
 import Cart from './pages/Cart';
 import AddProduct from './pages/AddProduct'; // Trang mới
 import Menu from './pages/Menu';
+import ProductDetail from './pages/ProductDetail';
 
 // Import Component bảo vệ
 import AdminRoute from './components/AdminRoute'; // Component check role admin
@@ -25,6 +26,7 @@ function App() {
         <Route path="/register" element={<Register />} />
         <Route path="/cart" element={<Cart />} />
         <Route path="/menu" element={<Menu />} />
+        <Route path="/product/:id" element={<ProductDetail />} />
         
         {/* --- Admin Routes (Chỉ Admin mới vào được) --- */}
         <Route 
