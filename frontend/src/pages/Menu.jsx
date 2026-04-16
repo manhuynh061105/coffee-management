@@ -53,12 +53,14 @@ const Menu = () => {
     <div className="menu-page">
       <Header />
 
-      <div style={{ height: '40px' }}></div>
-
-      <div className="bg-dark py-5 mb-5 mt-5">
-        <div className="container text-center text-white">
-          <h1 className="display-4 fw-bold text-uppercase">Thực đơn của chúng tôi</h1>
-          <p className="lead opacity-75">Hương vị đậm đà trong từng giọt cà phê</p>
+      {/* Gộp phần đệm và phần tiêu đề vào một khối duy nhất */}
+      <div className="bg-dark pt-5"> 
+        {/* pt-5 ở đây sẽ thay thế cho cái div 40px cũ, tạo khoảng cách an toàn dưới Header */}
+        <div className="py-5 mt-4"> {/* mt-4 giúp đẩy chữ xuống dưới Header một chút nữa */}
+          <div className="container text-center text-white">
+            <h1 className="display-4 fw-bold text-uppercase">Thực đơn của chúng tôi</h1>
+            <p className="lead opacity-75">Hương vị đậm đà trong từng giọt cà phê</p>
+          </div>
         </div>
       </div>
 
