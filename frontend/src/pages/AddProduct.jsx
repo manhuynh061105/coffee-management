@@ -52,6 +52,9 @@ const AddProduct = () => {
   return (
     <div className="container-fluid p-0">
       <Header />
+
+      <div style={{ height: '50px' }}></div>
+      
       <div className="container my-5" style={{ maxWidth: '600px' }}>
         <div className="card shadow p-4">
           <h2 className="text-center mb-4 text-primary">Thêm Sản Phẩm Mới</h2>
