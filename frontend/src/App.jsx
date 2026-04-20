@@ -10,6 +10,7 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import Cart from './pages/Cart';
 import AddProduct from './pages/AddProduct';
+import AdminProducts from './pages/AdminProducts';
 import Menu from './pages/Menu';
 import ProductDetail from './pages/ProductDetail';
 
@@ -42,6 +43,14 @@ function App() {
               <AddProduct />
             </AdminRoute>
           } 
+        />
+        <Route
+          path="/admin/products"
+          element={
+            <AdminRoute>
+              <AdminProducts />
+            </AdminRoute>
+          }
         />
         
         {/* Trang 404 */}
