@@ -82,11 +82,21 @@ const Header = () => {
               {user ? (
                 <>
                   {user.role === 'admin' && (
-                    <li>
-                      <Link className="dropdown-item py-2 fw-bold text-primary" to="/admin/add-product">
-                        <i className="fa-solid fa-plus-circle me-2"></i>Thêm sản phẩm
-                      </Link>
-                    </li>
+                    <>
+                      <li>
+                        <Link
+                          className="dropdown-item py-2 fw-bold text-primary" to="/admin/add-product">
+                          <i className="fa-solid fa-plus-circle me-2"></i>Thêm sản phẩm
+                        </Link>
+                      </li>
+
+                      <li>
+                        <Link
+                          className="dropdown-item py-2 fw-bold text-success" to="/admin/products">
+                          <i className="fa-solid fa-pen-to-square me-2"></i>Quản lý sản phẩm
+                        </Link>
+                      </li>
+                    </>
                   )}
                   <li><hr className="dropdown-divider" /></li>
                   <li>
