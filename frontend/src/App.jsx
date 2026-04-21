@@ -53,6 +53,14 @@ function App() {
             </AdminRoute>
           }
         />
+        <Route
+          path="/admin/dashboard"
+          element={
+            <AdminRoute>
+              <AdminDashboard />
+            </AdminRoute>
+          }
+        />
         
         {/* Trang 404 */}
         <Route path="*" element={
