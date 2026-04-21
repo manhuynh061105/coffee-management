@@ -11,6 +11,7 @@ import Register from './pages/Register';
 import Cart from './pages/Cart';
 import AddProduct from './pages/AddProduct';
 import AdminProducts from './pages/AdminProducts';
+import AdminDashboard from './pages/AdminDashboard';
 import Menu from './pages/Menu';
 import ProductDetail from './pages/ProductDetail';
 
@@ -49,6 +50,14 @@ function App() {
           element={
             <AdminRoute>
               <AdminProducts />
+            </AdminRoute>
+          }
+        />
+        <Route
+          path="/admin/dashboard"
+          element={
+            <AdminRoute>
+              <AdminDashboard />
             </AdminRoute>
           }
         />
