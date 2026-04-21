@@ -11,6 +11,7 @@ import Register from './pages/Register';
 import Cart from './pages/Cart';
 import AddProduct from './pages/AddProduct';
 import AdminProducts from './pages/AdminProducts';
+import AdminDashboard from './pages/AdminDashboard';
 import Menu from './pages/Menu';
 import ProductDetail from './pages/ProductDetail';
 

@@ -96,6 +96,13 @@ const Header = () => {
                           <i className="fa-solid fa-pen-to-square me-2"></i>Quản lý sản phẩm
                         </Link>
                       </li>
+
+                      <li>
+                        <Link
+                          className="dropdown-item py-2 fw-bold text-danger" to="/admin/dashboard">
+                          <i className="fa-solid fa-chart-line me-2"></i>Dashboard
+                        </Link>
+                      </li>
                     </>
                   )}
                   <li><hr className="dropdown-divider" /></li>
