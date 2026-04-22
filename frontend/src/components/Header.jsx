@@ -16,11 +16,10 @@ const Header = () => {
   };
 
   return (
-    // 1. Tăng py-1 lên py-2 hoặc py-3 để Header to lên theo chiều dọc
     <header className="py-2 shadow-sm w-100 position-fixed top-0 start-0" style={{ backgroundColor: '#1a1a1a', zIndex: 1000 }}>
       <div className="container d-flex justify-content-between align-items-center">
         
-        {/* LOGO - Tăng nhẹ kích thước logo */}
+        {/* LOGO */}
         <div className="logo">
           <Link to="/" className="d-block">
             <img src="/img/logo.jpg" alt="Logo" width="60" className="rounded" style={{ objectFit: 'cover' }} />
@@ -29,8 +28,7 @@ const Header = () => {
 
         {/* NAVIGATION GROUP */}
         <div className="d-flex align-items-center">
-          {/* 2. Dùng gap-4 để giãn đều các li trong ul */}
-          <ul className="nav align-items-center mb-0 d-flex style={{ gap: '25px' }}">
+          <ul className="nav align-items-center mb-0 d-flex">
             <li className="nav-item">
               <Link to="/" className="nav-link text-white fw-bold nav-link-custom px-0">Trang chủ</Link>
             </li>
@@ -64,7 +62,6 @@ const Header = () => {
             </li>
           </ul>
 
-          {/* 3. Dùng ms-5 (margin start) để đẩy cụm User ra xa cụm Menu */}
           <div className="dropdown ms-5">
             <button 
               className="btn btn-outline-light rounded-pill px-4 py-2 dropdown-toggle d-flex align-items-center" 
@@ -81,30 +78,35 @@ const Header = () => {
             <ul className="dropdown-menu dropdown-menu-end shadow border-0 mt-2" aria-labelledby="userDropdown">
               {user ? (
                 <>
+                  {/* MỤC LỊCH SỬ ĐƠN HÀNG (Dành cho tất cả User đã đăng nhập) */}
+                  <li>
+                    <Link className="dropdown-item py-2 fw-bold text-dark" to="/order-history">
+                      <i className="fa-solid fa-clock-rotate-left me-2 text-primary"></i>Lịch sử đơn hàng
+                    </Link>
+                  </li>
+
                   {user.role === 'admin' && (
                     <>
+                      <li><hr className="dropdown-divider" /></li>
+                      <li className="dropdown-header text-uppercase small text-muted">Quản trị</li>
                       <li>
-                        <Link
-                          className="dropdown-item py-2 fw-bold text-primary" to="/admin/add-product">
+                        <Link className="dropdown-item py-2 fw-bold text-primary" to="/admin/add-product">
                           <i className="fa-solid fa-plus-circle me-2"></i>Thêm sản phẩm
                         </Link>
                       </li>
-
                       <li>
-                        <Link
-                          className="dropdown-item py-2 fw-bold text-success" to="/admin/products">
+                        <Link className="dropdown-item py-2 fw-bold text-success" to="/admin/products">
                           <i className="fa-solid fa-pen-to-square me-2"></i>Quản lý sản phẩm
                         </Link>
                       </li>
-
                       <li>
-                        <Link
-                          className="dropdown-item py-2 fw-bold text-danger" to="/admin/dashboard">
+                        <Link className="dropdown-item py-2 fw-bold text-danger" to="/admin/dashboard">
                           <i className="fa-solid fa-chart-line me-2"></i>Dashboard
                         </Link>
                       </li>
                     </>
                   )}
+                  
                   <li><hr className="dropdown-divider" /></li>
                   <li>
                     <button className="dropdown-item py-2 text-danger" onClick={handleLogout}>
@@ -123,14 +125,16 @@ const Header = () => {
         </div>
       </div>
 
-      {/* Inline CSS để giãn các item trong Nav dễ dàng hơn */}
       <style>{`
         .nav {
-          gap: 30px; /* Giãn khoảng cách giữa Trang chủ, Menu và Cart */
+          gap: 30px;
         }
         .nav-link-custom {
           font-size: 0.95rem;
           letter-spacing: 0.5px;
+        }
+        .dropdown-item:hover {
+          background-color: #f8f9fa;
         }
       `}</style>
     </header>

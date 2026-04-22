@@ -2,14 +2,23 @@ import React from 'react';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import { useCart } from '../context/CartContext';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom'; // Thêm useNavigate
 
 const Cart = () => {
-  const { cart, updateQuantity, removeFromCart } = useCart();
+  // Lấy thêm totalAmount từ Context để code gọn hơn
+  const { cart, updateQuantity, removeFromCart, totalAmount } = useCart();
+  const navigate = useNavigate(); // Khởi tạo điều hướng
   
   const BACKEND_URL = 'http://localhost:3000';
 
-  const totalAmount = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  // Hàm xử lý khi nhấn thanh toán
+  const handleCheckout = () => {
+    if (cart.length === 0) {
+      alert("Giỏ hàng của bạn đang trống!");
+      return;
+    }
+    navigate('/checkout'); // Chuyển hướng sang trang thanh toán
+  };
 
   return (
     <div className="page-wrapper">
@@ -44,7 +53,6 @@ const Cart = () => {
                     {cart.map(item => (
                       <tr key={item._id}>
                         <td>
-                          {/* Bọc cả Ảnh và Tên vào Link hướng về trang chi tiết */}
                           <Link 
                             to={`/product/${item._id}`} 
                             className="d-flex align-items-center text-decoration-none text-dark cart-item-link"
@@ -93,7 +101,11 @@ const Cart = () => {
                 <div className="mb-3">
                   <small className="text-muted">* Phí vận chuyển sẽ được tính khi thanh toán.</small>
                 </div>
-                <button className="btn btn-primary w-100 py-3 rounded-pill fw-bold shadow">
+                {/* CẬP NHẬT: Nút thanh toán gọi hàm handleCheckout */}
+                <button 
+                  onClick={handleCheckout}
+                  className="btn btn-primary w-100 py-3 rounded-pill fw-bold shadow"
+                >
                   TIẾN HÀNH THANH TOÁN
                 </button>
                 <Link to="/menu" className="btn btn-link w-100 mt-2 text-decoration-none text-muted">
@@ -105,10 +117,9 @@ const Cart = () => {
         )}
       </div>
 
-      {/* Style bổ sung để làm đẹp liên kết trong giỏ hàng */}
       <style>{`
         .cart-item-link:hover .product-name-link {
-          color: #0d6efd; /* Màu primary của bootstrap */
+          color: #0d6efd; 
           text-decoration: underline;
         }
         .cart-item-link img {
