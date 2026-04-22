@@ -1,7 +1,6 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 
-// 1. Import Component ScrollToTop (Nhớ tạo file này như thầy hướng dẫn ở trên nhé)
 import ScrollToTop from './components/ScrollToTop'; 
 
 // Import các trang
@@ -14,17 +13,18 @@ import AdminProducts from './pages/AdminProducts';
 import AdminDashboard from './pages/AdminDashboard';
 import Menu from './pages/Menu';
 import ProductDetail from './pages/ProductDetail';
+import Checkout from './pages/Checkout'; 
+import OrderSuccess from './pages/OrderSuccess'; 
+import OrderHistory from './pages/OrderHistory';
 
 // Import Component bảo vệ
 import AdminRoute from './components/AdminRoute';
 
-// Import CSS
 import './index.css'; 
 
 function App() {
   return (
     <Router>
-      {/* 2. ĐẶT Ở ĐÂY: Bên trong Router nhưng ngoài Routes */}
       <ScrollToTop /> 
 
       <Routes>
@@ -35,6 +35,11 @@ function App() {
         <Route path="/cart" element={<Cart />} />
         <Route path="/menu" element={<Menu />} />
         <Route path="/product/:id" element={<ProductDetail />} />
+        
+        {/* --- BƯỚC 2: THÊM ROUTE CHECKOUT Ở ĐÂY --- */}
+        <Route path="/checkout" element={<Checkout />} />
+        <Route path="/order-success" element={<OrderSuccess />} />
+        <Route path="/order-history" element={<OrderHistory />} />
         
         {/* --- Admin Routes --- */}
         <Route 

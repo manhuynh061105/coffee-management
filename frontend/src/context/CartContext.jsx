@@ -20,18 +20,13 @@ export const CartProvider = ({ children }) => {
     const checkAuth = () => {
       const currentId = getUserIdFromStorage();
       if (currentId !== userId) {
-        console.log("🔄 Phát hiện thay đổi User:", currentId);
         setUserId(currentId);
-        
-        // Nếu Logout (currentId null), xóa sạch giỏ hàng trong State
-        if (!currentId) {
-          setCart([]);
-        }
+        if (!currentId) setCart([]);
       }
     };
 
-    checkAuth(); // Kiểm tra ngay khi load
-    const interval = setInterval(checkAuth, 1000); // Kiểm tra mỗi giây (đề phòng login/logout không reload trang)
+    checkAuth();
+    const interval = setInterval(checkAuth, 1000);
     return () => clearInterval(interval);
   }, [userId]);
 
@@ -41,21 +36,13 @@ export const CartProvider = ({ children }) => {
       const currentId = getUserIdFromStorage();
       if (!currentId) return;
 
-      // Bước A: Ưu tiên lấy từ LocalStorage để hiện UI nhanh
       const localData = localStorage.getItem(`cart_${currentId}`);
-      if (localData) {
-        setCart(JSON.parse(localData));
-      } else {
-        setCart([]); // Reset giỏ nếu user mới chưa có localData
-      }
+      if (localData) setCart(JSON.parse(localData));
 
-      // Bước B: Đồng bộ từ Server về
       try {
-        console.log(`📡 Đang kéo dữ liệu Server cho: ${currentId}`);
         const res = await axios.get(`http://localhost:3000/api/cart/${currentId}`);
         if (res.data.success && res.data.data?.items) {
           const serverItems = res.data.data.items;
-          // Chỉ cập nhật nếu server có đồ, tránh ghi đè rỗng lên local
           if (serverItems.length > 0) {
             setCart(serverItems);
             localStorage.setItem(`cart_${currentId}`, JSON.stringify(serverItems));
@@ -69,13 +56,12 @@ export const CartProvider = ({ children }) => {
     loadCartData();
   }, [userId]);
 
-  // 3. Hàm Sync lên Server (Dùng ID trực tiếp để tránh lỗi stale state)
+  // 3. Hàm Sync lên Server
   const syncCartWithServer = async (newCart) => {
     const currentId = getUserIdFromStorage();
     if (!currentId) return;
 
     try {
-      console.log("📤 Đang lưu giỏ hàng vào DB cho user:", currentId);
       await axios.post('http://localhost:3000/api/cart', {
         userId: currentId,
         items: newCart
@@ -88,12 +74,14 @@ export const CartProvider = ({ children }) => {
   // 4. Tự động lưu LocalStorage mỗi khi giỏ hàng thay đổi
   useEffect(() => {
     const currentId = getUserIdFromStorage();
-    if (currentId && cart.length > 0) {
+    if (currentId) {
       localStorage.setItem(`cart_${currentId}`, JSON.stringify(cart));
     }
   }, [cart]);
 
-  // --- Các hàm thao tác ---
+  // --- CÁC HÀM THAO TÁC ---
+
+  // Thêm vào giỏ
   const addToCart = (product) => {
     const currentId = getUserIdFromStorage();
     if (!currentId) {
@@ -111,12 +99,12 @@ export const CartProvider = ({ children }) => {
       } else {
         updatedCart = [...prevCart, { ...product, quantity: 1 }];
       }
-      
       syncCartWithServer(updatedCart);
       return updatedCart;
     });
   };
 
+  // Cập nhật số lượng
   const updateQuantity = (productId, amount) => {
     setCart(prevCart => {
       const updatedCart = prevCart.map(item => {
@@ -132,6 +120,7 @@ export const CartProvider = ({ children }) => {
     });
   };
 
+  // Xóa 1 sản phẩm
   const removeFromCart = (productId) => {
     setCart(prevCart => {
       const updatedCart = prevCart.filter(item => item._id !== productId);
@@ -140,8 +129,42 @@ export const CartProvider = ({ children }) => {
     });
   };
 
+  // --- MỚI: Xóa sạch giỏ hàng (Sau khi thanh toán thành công) ---
+  const clearCart = async () => {
+    const currentId = getUserIdFromStorage();
+    
+    // 1. Xóa trong State UI
+    setCart([]);
+    
+    // 2. Xóa trong LocalStorage
+    if (currentId) {
+      localStorage.removeItem(`cart_${currentId}`);
+      
+      // 3. Xóa trên Server
+      try {
+        await axios.post('http://localhost:3000/api/cart', {
+          userId: currentId,
+          items: [] // Gửi mảng rỗng để reset giỏ hàng trong DB
+        });
+        console.log("✅ Đã clear giỏ hàng thành công!");
+      } catch (error) {
+        console.error("❌ Lỗi clear giỏ hàng server:", error.message);
+      }
+    }
+  };
+
+  // Tính tổng tiền (Tiện ích thêm)
+  const totalAmount = cart.reduce((total, item) => total + (item.price * item.quantity), 0);
+
   return (
-    <CartContext.Provider value={{ cart, addToCart, updateQuantity, removeFromCart }}>
+    <CartContext.Provider value={{ 
+      cart, 
+      addToCart, 
+      updateQuantity, 
+      removeFromCart, 
+      clearCart, 
+      totalAmount 
+    }}>
       {children}
     </CartContext.Provider>
   );
