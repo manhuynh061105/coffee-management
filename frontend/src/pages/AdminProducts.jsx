@@ -1,25 +1,34 @@
 import React, { useEffect, useState } from "react";
+import Header from "../components/Header"; // Đảm bảo đúng đường dẫn
+import Footer from "../components/Footer"; // Đảm bảo đúng đường dẫn
 
 const AdminProducts = () => {
   const BACKEND_URL = "http://localhost:3000";
 
   const [products, setProducts] = useState([]);
   const [editingProduct, setEditingProduct] = useState(null);
-
   const [formData, setFormData] = useState({
     name: "",
     price: "",
     category: "",
   });
 
-  // Load danh sách sản phẩm
+  // Lấy token từ localStorage
+  const token = localStorage.getItem("token");
+
+  // Hàm tạo Headers chung (để tái sử dụng)
+  const getAuthHeaders = () => ({
+    "Content-Type": "application/json",
+    "Authorization": `Bearer ${token}` // Gửi token lên Backend
+  });
+
   const fetchProducts = async () => {
     try {
       const res = await fetch(`${BACKEND_URL}/api/products`);
       const data = await res.json();
       setProducts(data.data || []);
     } catch (error) {
-      console.log("Lỗi tải sản phẩm:", error);
+      console.error("Lỗi tải sản phẩm:", error);
     }
   };
 
@@ -27,27 +36,51 @@ const AdminProducts = () => {
     fetchProducts();
   }, []);
 
-  // Xóa sản phẩm
   const handleDelete = async (id) => {
-    const confirmDelete = window.confirm("Bạn có chắc muốn xoá sản phẩm này?");
-    if (!confirmDelete) return;
+    if (!window.confirm("Bạn có chắc muốn xoá sản phẩm này?")) return;
 
     try {
-      await fetch(`${BACKEND_URL}/api/products/${id}`, {
+      const res = await fetch(`${BACKEND_URL}/api/products/${id}`, {
         method: "DELETE",
+        headers: getAuthHeaders(), // Thêm Token vào đây
       });
+      const result = await res.json();
 
-      alert("Xoá thành công");
-      fetchProducts();
+      if (result.success) {
+        alert("Xoá thành công!");
+        fetchProducts();
+      } else {
+        alert("Lỗi: " + (result.message || "Bạn không có quyền thực hiện hành động này"));
+      }
     } catch (error) {
-      console.log("Lỗi xoá sản phẩm:", error);
+      console.error("Lỗi xoá sản phẩm:", error);
     }
   };
 
-  // Mở form sửa
+  const handleUpdate = async (e) => {
+    e.preventDefault();
+    try {
+      const res = await fetch(`${BACKEND_URL}/api/products/${editingProduct._id}`, {
+        method: "PUT",
+        headers: getAuthHeaders(), // Thêm Token vào đây
+        body: JSON.stringify(formData),
+      });
+
+      const result = await res.json();
+      if (result.success) {
+        alert("Cập nhật thành công!");
+        setEditingProduct(null);
+        fetchProducts();
+      } else {
+        alert("Lỗi: " + result.message);
+      }
+    } catch (error) {
+      console.error("Lỗi cập nhật:", error);
+    }
+  };
+
   const handleEditClick = (product) => {
     setEditingProduct(product);
-
     setFormData({
       name: product.name || "",
       price: product.price || "",
@@ -55,141 +88,99 @@ const AdminProducts = () => {
     });
   };
 
-  // Input change
   const handleChange = (e) => {
+    const { name, value } = e.target;
     setFormData({
       ...formData,
-      [e.target.name]:
-        e.target.name === "price"
-          ? Number(e.target.value)
-          : e.target.value,
+      [name]: name === "price" 
+        ? Number(value) 
+        : name === "category" 
+          ? value.toLowerCase() // Tự động chuyển thành chữ thường ở đây
+          : value,
     });
   };
 
-  // Update sản phẩm
-  const handleUpdate = async (e) => {
-    e.preventDefault();
-
-    try {
-      await fetch(`${BACKEND_URL}/api/products/${editingProduct._id}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(formData),
-      });
-
-      alert("Cập nhật thành công");
-
-      setEditingProduct(null);
-      fetchProducts();
-    } catch (error) {
-      console.log("Lỗi cập nhật:", error);
-    }
-  };
-
   return (
-    <div className="container py-5">
-      <h2 className="text-center text-primary fw-bold mb-4">
-        Quản lý sản phẩm
-      </h2>
+    <div className="page-wrapper">
+      {/* 1. THÊM HEADER */}
+      <div className="bg-dark"><Header /></div>
 
-      {/* TABLE */}
-      <div className="table-responsive">
-        <table className="table table-bordered table-hover shadow">
-          <thead className="table-dark text-center">
-            <tr>
-              <th>Tên sản phẩm</th>
-              <th>Giá</th>
-              <th>Danh mục</th>
-              <th>Hành động</th>
-            </tr>
-          </thead>
+      <div className="container py-5 mt-5" style={{ minHeight: '80vh' }}>
+        <div className="d-flex justify-content-between align-items-center mb-4">
+          <h2 className="text-primary fw-bold">BẢNG ĐIỀU KHIỂN ADMIN</h2>
+          <span className="text-muted">Quản lý kho hàng Beans Café</span>
+        </div>
 
-          <tbody>
-            {products.map((item) => (
-              <tr key={item._id}>
-                <td>{item.name}</td>
-                <td>{item.price?.toLocaleString()}₫</td>
-                <td>{item.category}</td>
-
-                <td className="text-center">
-                  <button
-                    className="btn btn-warning btn-sm me-2"
-                    onClick={() => handleEditClick(item)}
-                  >
-                    Sửa
-                  </button>
-
-                  <button
-                    className="btn btn-danger btn-sm"
-                    onClick={() => handleDelete(item._id)}
-                  >
-                    Xoá
-                  </button>
-                </td>
+        {/* BẢNG DANH SÁCH */}
+        <div className="table-responsive shadow-sm rounded-3">
+          <table className="table table-hover align-middle bg-white mb-0">
+            <thead className="table-dark">
+              <tr>
+                <th className="ps-4">Sản phẩm</th>
+                <th>Giá</th>
+                <th>Danh mục</th>
+                <th className="text-center">Hành động</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {products.map((item) => (
+                <tr key={item._id}>
+                  <td className="ps-4 fw-bold">{item.name}</td>
+                  <td className="text-danger fw-bold">{item.price?.toLocaleString()}₫</td>
+                  <td><span className="badge bg-light text-dark border">{item.category}</span></td>
+                  <td className="text-center">
+                    <button className="btn btn-outline-warning btn-sm me-2 px-3" onClick={() => handleEditClick(item)}>
+                      Sửa
+                    </button>
+                    <button className="btn btn-outline-danger btn-sm px-3" onClick={() => handleDelete(item._id)}>
+                      Xoá
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        {/* --- POP-UP MODAL EDIT --- */}
+        {editingProduct && (
+          <div className="custom-modal-overlay">
+            <div className="custom-modal-content fade-in-up" style={{ maxWidth: '500px' }}>
+              <div className="d-flex justify-content-between align-items-center mb-4 border-bottom pb-2">
+                <h4 className="fw-bold text-primary mb-0">Chỉnh sửa sản phẩm</h4>
+                <button className="btn-close" onClick={() => setEditingProduct(null)}></button>
+              </div>
+
+              <form onSubmit={handleUpdate}>
+                <div className="mb-3">
+                  <label className="form-label fw-bold">Tên món</label>
+                  <input type="text" name="name" className="form-control" value={formData.name} onChange={handleChange} required />
+                </div>
+                <div className="mb-3">
+                  <label className="form-label fw-bold">Giá bán</label>
+                  <input type="number" name="price" className="form-control" value={formData.price} onChange={handleChange} required />
+                </div>
+                <div className="mb-4">
+                  <label className="form-label fw-bold">Danh mục</label>
+                  <select name="category" className="form-select" value={formData.category} onChange={handleChange} required >
+                    <option value="Coffee">Coffee</option>
+                    <option value="Tea">Tea</option>
+                    <option value="Cake">Cake</option>
+                    <option value="Smoothie">Smoothie</option>
+                  </select>
+                </div>
+                <div className="d-grid gap-2">
+                  <button type="submit" className="btn btn-primary fw-bold">CẬP NHẬT NGAY</button>
+                  <button type="button" className="btn btn-light" onClick={() => setEditingProduct(null)}>HỦY</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
       </div>
 
-      {/* FORM EDIT */}
-      {editingProduct && (
-        <div className="card shadow p-4 mt-5">
-          <h4 className="mb-4">Chỉnh sửa sản phẩm</h4>
-
-          <form onSubmit={handleUpdate}>
-            <div className="mb-3">
-              <label>Tên sản phẩm</label>
-              <input
-                type="text"
-                name="name"
-                className="form-control"
-                value={formData.name}
-                onChange={handleChange}
-                required
-              />
-            </div>
-
-            <div className="mb-3">
-              <label>Giá</label>
-              <input
-                type="number"
-                name="price"
-                className="form-control"
-                value={formData.price}
-                onChange={handleChange}
-                required
-              />
-            </div>
-
-            <div className="mb-3">
-              <label>Danh mục</label>
-              <input
-                type="text"
-                name="category"
-                className="form-control"
-                value={formData.category}
-                onChange={handleChange}
-                required
-              />
-            </div>
-
-            <button className="btn btn-primary me-2">
-              Cập nhật
-            </button>
-
-            <button
-              type="button"
-              className="btn btn-secondary"
-              onClick={() => setEditingProduct(null)}
-            >
-              Huỷ
-            </button>
-          </form>
-        </div>
-      )}
+      {/* 2. THÊM FOOTER */}
+      <Footer />
     </div>
   );
 };

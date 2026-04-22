@@ -4,18 +4,24 @@ import {
   getOrders,
   updateOrderStatus,
   getStats,
-  getOrdersByUser // 1. Thêm hàm này vào phần import
+  getOrdersByUser,
+  getOrderById,
+  deleteOrder
 } from "../controllers/ordersController.js";
+// Import middleware bảo mật (Thay đổi đường dẫn cho đúng với project của em)
+import { verifyToken, isAdmin } from "../middlewares/authMiddleware.js";
 
 const router = express.Router();
 
-router.post("/", createOrder);
-router.get("/stats", getStats);
-router.get("/", getOrders);
+// --- ROUTE CHO USER (Cần đăng nhập) ---
+router.post("/", verifyToken, createOrder); 
+router.get("/user/:userId", verifyToken, getOrdersByUser); 
 
-// 2. THÊM ROUTE NÀY: Để người dùng xem lịch sử của chính họ
-router.get("/user/:userId", getOrdersByUser); 
-
-router.put("/:id", updateOrderStatus);
+// --- ROUTE CHO ADMIN (Bắt buộc phải là Admin) ---
+router.get("/stats", verifyToken, isAdmin, getStats); 
+router.get("/", verifyToken, isAdmin, getOrders); 
+router.get("/:id", verifyToken, isAdmin, getOrderById); 
+router.put("/:id", verifyToken, updateOrderStatus); 
+router.delete("/:id", verifyToken, isAdmin, deleteOrder); 
 
 export default router;
