@@ -1,10 +1,12 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
+import { useModal } from '../context/ModalContext'; // 1. Import useModal
 
 const Header = () => {
   const navigate = useNavigate();
   const { cart } = useCart();
+  const { openAddProduct } = useModal(); // 2. Lấy hàm mở Pop-up
   
   const user = JSON.parse(localStorage.getItem('user'));
   const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
@@ -78,7 +80,6 @@ const Header = () => {
             <ul className="dropdown-menu dropdown-menu-end shadow border-0 mt-2" aria-labelledby="userDropdown">
               {user ? (
                 <>
-                  {/* MỤC LỊCH SỬ ĐƠN HÀNG (Dành cho tất cả User đã đăng nhập) */}
                   <li>
                     <Link className="dropdown-item py-2 fw-bold text-dark" to="/order-history">
                       <i className="fa-solid fa-clock-rotate-left me-2 text-primary"></i>Lịch sử đơn hàng
@@ -89,11 +90,17 @@ const Header = () => {
                     <>
                       <li><hr className="dropdown-divider" /></li>
                       <li className="dropdown-header text-uppercase small text-muted">Quản trị</li>
+                      
+                      {/* THAY ĐỔI TẠI ĐÂY: Dùng button để gọi Modal thay vì Link */}
                       <li>
-                        <Link className="dropdown-item py-2 fw-bold text-primary" to="/admin/add-product">
+                        <button 
+                          className="dropdown-item py-2 fw-bold text-primary border-0 bg-transparent w-100 text-start" 
+                          onClick={openAddProduct}
+                        >
                           <i className="fa-solid fa-plus-circle me-2"></i>Thêm sản phẩm
-                        </Link>
+                        </button>
                       </li>
+
                       <li>
                         <Link className="dropdown-item py-2 fw-bold text-success" to="/admin/products">
                           <i className="fa-solid fa-pen-to-square me-2"></i>Quản lý sản phẩm
@@ -135,6 +142,10 @@ const Header = () => {
         }
         .dropdown-item:hover {
           background-color: #f8f9fa;
+        }
+        /* Đảm bảo button trong dropdown trông giống link */
+        .dropdown-item {
+          cursor: pointer;
         }
       `}</style>
     </header>

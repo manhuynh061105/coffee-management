@@ -113,23 +113,51 @@ export const updateOrderStatus = async (req, res) => {
   try {
     const { id } = req.params;
     const { status } = req.body;
+    
+    // Lấy thông tin User từ Middleware verifyToken
+    const userId = req.user.id; 
+    const userRole = req.user.role;
 
-    const order = await Order.findByIdAndUpdate(
-      id,
-      { status },
-      { new: true }
-    ).populate('items.productId');
+    const order = await Order.findById(id);
 
     if (!order) {
       return res.status(404).json({ success: false, message: "Không tìm thấy đơn hàng" });
     }
 
+    // --- PHÂN QUYỀN LOGIC ---
+    
+    if (userRole === "admin") {
+      // 1. Admin: Có quyền chuyển sang bất kỳ trạng thái nào (processing, completed, cancelled...)
+      order.status = status;
+    } else {
+      // 2. User: 
+      // - Chỉ được sửa đơn hàng của CHÍNH MÌNH
+      // - Chỉ được phép chuyển sang trạng thái "completed" (xác nhận đã nhận hàng)
+      if (order.userId.toString() !== userId) {
+        return res.status(403).json({ success: false, message: "Bạn không có quyền sửa đơn hàng của người khác" });
+      }
+
+      if (status === "completed") {
+        order.status = "completed";
+      } else {
+        return res.status(403).json({ success: false, message: "Người dùng chỉ có quyền xác nhận Đã nhận hàng" });
+      }
+    }
+
+    // Lưu thay đổi
+    await order.save();
+    
+    // Populate để trả về thông tin đầy đủ nếu cần
+    const updatedOrder = await order.populate('items.productId');
+
     res.status(200).json({
       success: true,
       message: "Cập nhật trạng thái thành công",
-      data: order
+      data: updatedOrder
     });
+
   } catch (error) {
+    console.error("Lỗi updateOrderStatus:", error);
     res.status(500).json({ success: false, message: "Server error" });
   }
 };
@@ -137,19 +165,51 @@ export const updateOrderStatus = async (req, res) => {
 // 5. THỐNG KÊ (Dành cho Dashboard Admin)
 export const getStats = async (req, res) => {
   try {
-    const orders = await Order.find();
-    const totalOrders = orders.length;
-    const totalRevenue = orders
-      .filter(order => order.status === 'completed')
-      .reduce((sum, order) => sum + order.total, 0);
-    const pendingCount = orders.filter(order => order.status === 'pending').length;
+    const targetStatus = "completed"; 
+
+    // 1. Lấy tất cả đơn hàng đã hoàn thành
+    const allOrders = await Order.find({ status: targetStatus }); 
+    
+    // 2. Tính doanh thu bằng trường 'total' (khớp với Model của em)
+    const totalRevenue = allOrders.reduce((sum, order) => {
+      return sum + (order.total || 0);
+    }, 0);
+
+    const totalOrders = allOrders.length;
+
+    // 3. Gom nhóm theo tháng cho biểu đồ
+    const monthlyRevenue = await Order.aggregate([
+      { 
+        $match: { status: targetStatus } 
+      },
+      {
+        $group: {
+          _id: { $month: "$createdAt" }, 
+          // Chú ý: Dùng "$total" ở đây vì đây là tên trường trong DB
+          revenue: { $sum: "$total" } 
+        }
+      },
+      { $sort: { "_id": 1 } }
+    ]);
+
+    // 4. Định dạng tên tháng cho Recharts
+    const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    const formattedMonthlyData = monthlyRevenue.map(item => ({
+      month: monthNames[item._id - 1],
+      revenue: item.revenue
+    }));
 
     res.json({
       success: true,
-      data: { totalOrders, totalRevenue, pendingCount }
+      data: {
+        totalOrders,
+        totalRevenue,
+        monthlyRevenue: formattedMonthlyData
+      }
     });
   } catch (error) {
-    res.status(500).json({ success: false, message: "Lỗi lấy thống kê" });
+    console.error("Lỗi Dashboard Backend:", error);
+    res.status(500).json({ success: false, message: error.message });
   }
 };
 
@@ -175,5 +235,37 @@ export const confirmReceived = async (req, res) => {
     });
   } catch (error) {
     res.status(500).json({ success: false, message: "Lỗi hệ thống" });
+  }
+};
+
+// 1. Lấy chi tiết 1 đơn hàng
+export const getOrderById = async (req, res) => {
+  try {
+    const order = await Order.findById(req.params.id)
+      .populate("userId", "username email") // Lấy thông tin người mua
+      .populate("items.productId");         // Lấy thông tin sản phẩm
+
+    if (!order) {
+      return res.status(404).json({ success: false, message: "Không tìm thấy đơn hàng" });
+    }
+
+    res.json({ success: true, data: order });
+  } catch (error) {
+    res.status(500).json({ success: false, message: "Lỗi server" });
+  }
+};
+
+// 2. Xóa đơn hàng
+export const deleteOrder = async (req, res) => {
+  try {
+    const order = await Order.findByIdAndDelete(req.params.id);
+    
+    if (!order) {
+      return res.status(404).json({ success: false, message: "Không tìm thấy đơn hàng để xóa" });
+    }
+
+    res.json({ success: true, message: "Đã xóa đơn hàng thành công" });
+  } catch (error) {
+    res.status(500).json({ success: false, message: "Lỗi khi xóa đơn hàng" });
   }
 };
