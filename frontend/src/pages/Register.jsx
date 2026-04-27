@@ -6,7 +6,8 @@ const Register = () => {
   const [formData, setFormData] = useState({
     username: '',
     password: '',
-    confirmPassword: ''
+    confirmPassword: '',
+    role: 'user'
   });
   const navigate = useNavigate();
 
@@ -30,7 +31,8 @@ const Register = () => {
     try {
       const response = await axios.post('http://localhost:3000/api/auth/register', {
         username: formData.username,
-        password: formData.password
+        password: formData.password,
+        role: formData.role
       });
 
       if (response.data.success) {
@@ -113,6 +115,20 @@ const Register = () => {
                 onChange={handleChange}
                 required 
               />
+            </div>
+
+            <div className="mb-4">
+              <label className="form-label">Vai trò</label>
+              <select
+                id="role"
+                className="form-control"
+                value={formData.role}
+                onChange={handleChange}
+                required
+              >
+                <option value="user">User</option>
+                <option value="admin">Admin</option>
+              </select>
             </div>
 
             <button type="submit" className="btn btn-primary w-100 py-3 fw-bold rounded-pill">
