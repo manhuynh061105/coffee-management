@@ -4,7 +4,7 @@ import jwt from "jsonwebtoken";
 
 export const register = async (req, res) => {
   try {
-    const { username, password } = req.body;
+    const { username, password, role } = req.body;
 
     // 1. Kiểm tra user tồn tại chưa
     const userExists = await User.findOne({ username });
@@ -22,7 +22,8 @@ export const register = async (req, res) => {
     // 3. Tạo user mới
     const newUser = await User.create({
       username,
-      password: hashedPassword
+      password: hashedPassword,
+      role: role || "user"
     });
 
     // 4. Trả về đúng format em đã quy định
