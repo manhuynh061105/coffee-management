@@ -1,5 +1,5 @@
 import Order from "../models/Order.js";
-import Product from "../models/product.js";
+import Product from "../models/Product.js";
 
 // 1. TẠO ĐƠN HÀNG (Cập nhật để lưu thêm customerName)
 export const createOrder = async (req, res) => {
