@@ -6,7 +6,7 @@ import path from "path";
 import { fileURLToPath } from "url";
 
 // 1. IMPORT file db.js (Giả sử bạn đã tạo file này như hướng dẫn trước)
-import connectDB from "./config/db.js"; 
+import connectDB from "./configs/db.js"; 
 
 import productRoutes from "./routes/productsRoutes.js";
 import orderRoutes from "./routes/ordersRoutes.js";
