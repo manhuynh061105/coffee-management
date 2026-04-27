@@ -3,21 +3,25 @@ import { Link } from 'react-router-dom';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import { useCart } from '../context/CartContext';
+import api from '../configs/api'; // 1. Import cấu hình api chung
 
 const Home = () => {
   const [products, setProducts] = useState([]);
   const { addToCart } = useCart();
   const footerRef = useRef(null);
-  const BACKEND_URL = 'http://localhost:3000';
+
+  // 2. Lấy URL gốc để hiển thị hình ảnh (loại bỏ phần /api ở cuối nếu có)
+  const IMAGE_BASE_URL = api.defaults.baseURL.replace('/api', '');
 
   useEffect(() => {
-    fetch(`${BACKEND_URL}/api/products`)
-      .then(res => res.json())
-      .then(data => {
-        const allProducts = data.data || data;
+    // 3. Sử dụng api.get thay cho fetch
+    api.get('/products')
+      .then(res => {
+        // Axios tự động parse JSON, dữ liệu nằm trong res.data
+        const allProducts = res.data.data || res.data;
         setProducts(allProducts);
       })
-      .catch(err => console.log("Lỗi tải sản phẩm:", err));
+      .catch(err => console.error("Lỗi tải sản phẩm:", err));
   }, []);
 
   const scrollToFooter = (e) => {
@@ -92,14 +96,14 @@ const Home = () => {
           {products.slice(0, 4).map(item => (
             <div key={item._id} className="col-lg-3 col-md-6">
               <div className="card h-100 item-card-highlight border-0 shadow-lg">
-                {/* Hot Badge */}
                 <div className="position-absolute top-0 start-0 m-3 z-3">
                   <span className="badge rounded-pill bg-danger px-3 py-2 shadow">HOT</span>
                 </div>
 
                 <div className="image-container p-3 overflow-hidden">
                   <img 
-                    src={`${BACKEND_URL}/img/${item.image || 'bac-xiu.jpg'}`} 
+                    /* 4. Cập nhật đường dẫn ảnh linh hoạt */
+                    src={`${IMAGE_BASE_URL}/img/${item.image || 'bac-xiu.jpg'}`} 
                     className="card-img-top shadow-sm" 
                     alt={item.name}
                     style={{ 
@@ -171,7 +175,6 @@ const Home = () => {
         <Footer />
       </div>
 
-      {/* --- CSS SCOPED --- */}
       <style>{`
         .item-card-highlight {
           background-color: #ffffff;

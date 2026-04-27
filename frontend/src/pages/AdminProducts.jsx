@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from "react";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
+// 1. Import cấu hình api chung
+import api from '../configs/api'; 
 
 const AdminProducts = () => {
-  const BACKEND_URL = "http://localhost:3000";
   const [products, setProducts] = useState([]);
   const [editingProduct, setEditingProduct] = useState(null);
   const [formData, setFormData] = useState({
@@ -12,18 +13,14 @@ const AdminProducts = () => {
     category: "",
   });
 
-  const token = localStorage.getItem("token");
-
-  const getAuthHeaders = () => ({
-    "Content-Type": "application/json",
-    "Authorization": `Bearer ${token}`
-  });
+  // 2. Lấy URL gốc cho hình ảnh từ config (để thay thế localhost)
+  const IMAGE_BASE_URL = api.defaults.baseURL.replace('/api', '');
 
   const fetchProducts = async () => {
     try {
-      const res = await fetch(`${BACKEND_URL}/api/products`);
-      const data = await res.json();
-      setProducts(data.data || []);
+      // 3. Sử dụng api.get thay cho fetch thủ công
+      const res = await api.get('/products');
+      setProducts(res.data.data || []);
     } catch (error) {
       console.error("Lỗi tải sản phẩm:", error);
     }
@@ -36,40 +33,35 @@ const AdminProducts = () => {
   const handleDelete = async (id) => {
     if (!window.confirm("Bạn có chắc muốn xoá sản phẩm này khỏi thực đơn?")) return;
     try {
-      const res = await fetch(`${BACKEND_URL}/api/products/${id}`, {
-        method: "DELETE",
-        headers: getAuthHeaders(),
-      });
-      const result = await res.json();
-      if (result.success) {
+      // 4. Sử dụng api.delete (Token tự động đính kèm nhờ interceptor)
+      const res = await api.delete(`/products/${id}`);
+      if (res.data.success) {
         alert("Đã xoá sản phẩm thành công!");
         fetchProducts();
       } else {
-        alert("Lỗi: " + (result.message || "Bạn không có quyền này"));
+        alert("Lỗi: " + (res.data.message || "Bạn không có quyền này"));
       }
     } catch (error) {
       console.error("Lỗi xoá sản phẩm:", error);
+      alert(error.response?.data?.message || "Có lỗi xảy ra khi xoá");
     }
   };
 
   const handleUpdate = async (e) => {
     e.preventDefault();
     try {
-      const res = await fetch(`${BACKEND_URL}/api/products/${editingProduct._id}`, {
-        method: "PUT",
-        headers: getAuthHeaders(),
-        body: JSON.stringify(formData),
-      });
-      const result = await res.json();
-      if (result.success) {
+      // 5. Sử dụng api.put
+      const res = await api.put(`/products/${editingProduct._id}`, formData);
+      if (res.data.success) {
         alert("Cập nhật thông tin thành công!");
         setEditingProduct(null);
         fetchProducts();
       } else {
-        alert("Lỗi: " + result.message);
+        alert("Lỗi: " + res.data.message);
       }
     } catch (error) {
       console.error("Lỗi cập nhật:", error);
+      alert(error.response?.data?.message || "Không thể cập nhật sản phẩm");
     }
   };
 
@@ -90,16 +82,14 @@ const AdminProducts = () => {
     });
   };
 
-  // Hàm xử lý đường dẫn ảnh linh hoạt
+  // 6. Cập nhật hàm xử lý đường dẫn ảnh linh hoạt với IMAGE_BASE_URL mới
   const getImageUrl = (imagePath) => {
     if (!imagePath) return "https://placehold.co/100x100?text=No+Image";
     
-    // Nếu path đã bắt đầu bằng /img (ví dụ: /img/coffee.jpg)
     if (imagePath.startsWith('/img')) {
-      return `${BACKEND_URL}${imagePath}`;
+      return `${IMAGE_BASE_URL}${imagePath}`;
     }
-    // Nếu path chưa có /img (ví dụ: coffee.jpg)
-    return `${BACKEND_URL}/img/${imagePath.replace(/^\//, '')}`;
+    return `${IMAGE_BASE_URL}/img/${imagePath.replace(/^\//, '')}`;
   };
 
   return (
@@ -138,7 +128,6 @@ const AdminProducts = () => {
                   <tr key={item._id} className="border-bottom-lighter">
                     <td className="ps-4 py-3">
                       <div className="d-flex align-items-center">
-                        {/* HIỂN THỊ ẢNH THỰC TẾ */}
                         <div className="rounded-4 overflow-hidden border me-3 shadow-sm bg-light" style={{ width: '64px', height: '64px' }}>
                            <img 
                              src={getImageUrl(item.image)} 
@@ -184,7 +173,7 @@ const AdminProducts = () => {
           </div>
         </div>
 
-        {/* --- POP-UP MODAL EDIT --- */}
+        {/* --- POP-UP MODAL EDIT (GIỮ NGUYÊN) --- */}
         {editingProduct && (
           <div className="custom-modal-overlay">
             <div className="custom-modal-content fade-in-up shadow-lg">
@@ -232,7 +221,7 @@ const AdminProducts = () => {
       </div>
 
       <Footer />
-
+      {/* GIỮ NGUYÊN CSS */}
       <style>{`
         .text-espresso { color: #6F4E37; }
         .bg-espresso { background-color: #6F4E37; }

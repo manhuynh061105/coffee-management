@@ -8,13 +8,18 @@ const Header = () => {
   const { cart } = useCart();
   const { openAddProduct } = useModal(); 
   
+  // Lấy thông tin user từ localStorage
   const user = JSON.parse(localStorage.getItem('user'));
   const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
 
   const handleLogout = () => {
+    // 1. Xóa toàn bộ dấu vết đăng nhập
     localStorage.removeItem('user');
     localStorage.removeItem('token');
-    window.location.href = '/login';
+    
+    // 2. Chuyển hướng về trang chủ hoặc login và làm mới trạng thái app
+    alert('Đã đăng xuất thành công!');
+    window.location.href = '/'; 
   };
 
   return (
@@ -36,7 +41,6 @@ const Header = () => {
           <nav className="d-none d-lg-block me-3">
             <ul className="nav align-items-center mb-0">
               <li className="nav-item">
-                {/* HIỆU ỨNG Y HỆT NÚT USER */}
                 <Link to="/" className="btn-espresso-outline ms-2">Trang chủ</Link>
               </li>
               <li className="nav-item">
@@ -88,6 +92,7 @@ const Header = () => {
                       <i className="fa-solid fa-clock-rotate-left me-2"></i>Lịch sử đơn hàng
                     </Link>
                   </li>
+                  {/* PHẦN QUẢN TRỊ (ADMIN) */}
                   {user.role === 'admin' && (
                     <>
                       <li><hr className="dropdown-divider" /></li>
@@ -128,19 +133,18 @@ const Header = () => {
       </div>
 
       <style>{`
+        /* Giữ nguyên phần CSS của bạn */
         .header-custom {
-          /* Tăng độ đặc của nền và thêm bóng đổ để tách biệt với background */
           background-color: rgba(255, 255, 255, 0.98); 
           backdrop-filter: blur(10px);
           border-bottom: 2px solid rgba(111, 78, 55, 0.15);
-          box-shadow: 0 4px 20px rgba(44, 36, 32, 0.08); /* Đổ bóng tách nền */
+          box-shadow: 0 4px 20px rgba(44, 36, 32, 0.08);
           z-index: 1000;
           transition: all 0.3s ease;
         }
 
         .text-espresso { color: #6F4E37; }
 
-        /* NÚT CHUNG CHO TRANG CHỦ, MENU, USER (STYLE Y HỆT NHAU) */
         .btn-espresso-outline {
           background-color: transparent !important;
           color: #6F4E37 !important;
@@ -158,15 +162,14 @@ const Header = () => {
         }
 
         .btn-espresso-outline:hover {
-          background-color: #6F4E37 !important; /* Lấp đầy màu nâu */
-          color: #FFFFFF !important; /* Chữ trắng */
+          background-color: #6F4E37 !important;
+          color: #FFFFFF !important;
           transform: translateY(-2px);
           box-shadow: 0 5px 15px rgba(111, 78, 55, 0.25);
         }
         
-        .btn-espresso-outline::after { display: none; } /* Xóa mũi tên mặc định của dropdown bootstrap */
+        .btn-espresso-outline::after { display: none; }
 
-        /* ICON GIỎ HÀNG */
         .cart-icon-original {
           filter: sepia(100%) hue-rotate(350deg) saturate(300%) brightness(50%);
           transition: all 0.3s ease;

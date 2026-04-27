@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import axios from 'axios';
+// 1. Dùng api instance thay vì axios gốc
+import api from '../configs/api'; 
 
 const AddProduct = ({ isOpen, onClose }) => {
   const [name, setName] = useState('');
@@ -7,12 +8,18 @@ const AddProduct = ({ isOpen, onClose }) => {
   const [category, setCategory] = useState('coffee');
   const [image, setImage] = useState(null);
   const [preview, setPreview] = useState(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   if (!isOpen) return null;
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
+      // Kiểm tra kích thước file (Render/Free tier nên giới hạn < 2MB cho an toàn)
+      if (file.size > 2 * 1024 * 1024) {
+        alert("Ảnh quá lớn! Vui lòng chọn ảnh dưới 2MB.");
+        return;
+      }
       setImage(file);
       setPreview(URL.createObjectURL(file));
     }
@@ -20,6 +27,8 @@ const AddProduct = ({ isOpen, onClose }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setIsSubmitting(true);
+
     const formData = new FormData();
     formData.append('name', name);
     formData.append('price', price);
@@ -27,22 +36,27 @@ const AddProduct = ({ isOpen, onClose }) => {
     formData.append('image', image);
 
     try {
-      const token = localStorage.getItem('token');
-      const response = await axios.post('http://localhost:3000/api/products', formData, {
+      // 2. Sử dụng api.post. 
+      // Lưu ý: api instance đã tự có Authorization Token từ interceptor
+      const response = await api.post('/products', formData, {
         headers: {
-          'Content-Type': 'multipart/form-data',
-          'Authorization': `Bearer ${token}`
+          'Content-Type': 'multipart/form-data'
         }
       });
 
       if (response.data.success) {
-        alert('Thêm sản phẩm thành công!');
+        alert('Thêm món mới thành công! Đang cập nhật Menu...');
+        // Reset form
         setName(''); setPrice(''); setImage(null); setPreview(null);
         onClose();
-        window.location.reload();
+        // Thay vì reload cả trang, bạn nên dùng logic callback để load lại danh sách món
+        window.location.reload(); 
       }
     } catch (error) {
-      alert(error.response?.data?.message || 'Có lỗi xảy ra!');
+      console.error("Lỗi upload:", error);
+      alert(error.response?.data?.message || 'Không thể thêm sản phẩm. Vui lòng thử lại!');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -53,9 +67,9 @@ const AddProduct = ({ isOpen, onClose }) => {
         {/* Header Modal */}
         <div className="p-4 border-bottom bg-white d-flex justify-content-between align-items-center">
           <h4 className="fw-bold mb-0 text-espresso text-uppercase" style={{ letterSpacing: '1px' }}>
-             Món mới cho Menu
+             ✨ Món mới cho Menu
           </h4>
-          <button className="btn-close shadow-none" onClick={onClose}></button>
+          <button className="btn-close shadow-none" onClick={onClose} disabled={isSubmitting}></button>
         </div>
 
         <form onSubmit={handleSubmit} className="p-4 bg-white">
@@ -69,6 +83,7 @@ const AddProduct = ({ isOpen, onClose }) => {
               value={name} 
               onChange={(e) => setName(e.target.value)} 
               required 
+              disabled={isSubmitting}
             />
           </div>
 
@@ -84,6 +99,7 @@ const AddProduct = ({ isOpen, onClose }) => {
                   value={price} 
                   onChange={(e) => setPrice(e.target.value)} 
                   required 
+                  disabled={isSubmitting}
                 />
                 <span className="input-group-text bg-white custom-input border-start-0 fw-bold text-muted">₫</span>
               </div>
@@ -92,7 +108,12 @@ const AddProduct = ({ isOpen, onClose }) => {
             {/* Input Danh mục */}
             <div className="col-md-6 mb-4">
               <label className="form-label small fw-bold text-muted text-uppercase">Danh mục</label>
-              <select className="form-select custom-input" value={category} onChange={(e) => setCategory(e.target.value)}>
+              <select 
+                className="form-select custom-input" 
+                value={category} 
+                onChange={(e) => setCategory(e.target.value)}
+                disabled={isSubmitting}
+              >
                 <option value="coffee">☕ Cà phê</option>
                 <option value="tea">🍑 Trà trái cây</option>
                 <option value="cake">🍰 Bánh ngọt</option>
@@ -111,6 +132,7 @@ const AddProduct = ({ isOpen, onClose }) => {
                 onChange={handleImageChange} 
                 id="productImage"
                 required={!preview}
+                disabled={isSubmitting}
               />
               <label htmlFor="productImage" className="file-label">
                 {preview ? (
@@ -121,7 +143,7 @@ const AddProduct = ({ isOpen, onClose }) => {
                 ) : (
                   <div className="upload-placeholder">
                     <i className="fa-solid fa-cloud-arrow-up fs-2 mb-2"></i>
-                    <span>Tải ảnh lên hoặc kéo thả vào đây</span>
+                    <span>Tải ảnh lên (Dưới 2MB)</span>
                   </div>
                 )}
               </label>
@@ -130,11 +152,25 @@ const AddProduct = ({ isOpen, onClose }) => {
 
           {/* Footer Nút bấm */}
           <div className="d-flex gap-3 mt-4 pt-2">
-            <button type="button" className="btn btn-outline-secondary w-100 py-3 rounded-pill fw-bold" onClick={onClose}>
+            <button 
+              type="button" 
+              className="btn btn-outline-secondary w-100 py-3 rounded-pill fw-bold" 
+              onClick={onClose}
+              disabled={isSubmitting}
+            >
               HỦY BỎ
             </button>
-            <button type="submit" className="btn btn-espresso w-100 py-3 rounded-pill fw-bold shadow">
-              THÊM MÓN NGAY
+            <button 
+              type="submit" 
+              className="btn btn-espresso w-100 py-3 rounded-pill fw-bold shadow d-flex align-items-center justify-content-center"
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? (
+                <>
+                  <span className="spinner-border spinner-border-sm me-2"></span>
+                  ĐANG LƯU...
+                </>
+              ) : 'THÊM MÓN NGAY'}
             </button>
           </div>
         </form>

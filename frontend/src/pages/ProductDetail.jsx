@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import axios from 'axios';
+// 1. Sử dụng api thay vì axios gốc
+import api from '../configs/api'; 
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import { useCart } from '../context/CartContext';
@@ -15,13 +16,15 @@ const ProductDetail = () => {
   const [loading, setLoading] = useState(true);
   const [added, setAdded] = useState(false);
 
-  const BACKEND_URL = 'http://localhost:3000';
+  // 2. Lấy URL gốc cho hình ảnh từ config
+  const IMAGE_BASE_URL = api.defaults.baseURL.replace('/api', '');
 
   useEffect(() => {
     const fetchProduct = async () => {
       try {
         setLoading(true);
-        const res = await axios.get(`${BACKEND_URL}/api/products/${id}`);
+        // 3. Sử dụng api.get (đường dẫn gọn hơn)
+        const res = await api.get(`/products/${id}`);
         const data = res.data.data || res.data;
         setProduct(data);
       } catch (err) {
@@ -39,6 +42,7 @@ const ProductDetail = () => {
   };
 
   const handleAddToCart = () => {
+    // Thêm vào giỏ hàng đúng số lượng đã chọn
     for(let i=0; i<quantity; i++) addToCart(product);
     setAdded(true);
     setTimeout(() => setAdded(false), 2000);
@@ -65,7 +69,6 @@ const ProductDetail = () => {
       </div>
 
       <div className="container py-5 mt-5">
-        {/* Breadcrumb hiện đại */}
         <nav aria-label="breadcrumb" className="mb-5 pt-4 animate__animated animate__fadeIn">
           <ol className="breadcrumb bg-white p-3 rounded-pill shadow-sm border px-4">
             <li className="breadcrumb-item"><button className="btn btn-link p-0 text-decoration-none text-muted small" onClick={() => navigate('/')}>Trang chủ</button></li>
@@ -75,11 +78,11 @@ const ProductDetail = () => {
         </nav>
 
         <div className="row g-5 align-items-center">
-          {/* Cột Trái: Hình ảnh */}
           <div className="col-lg-6 animate__animated animate__fadeInLeft">
             <div className="product-img-holder p-3 bg-white shadow-soft rounded-5 border overflow-hidden">
               <img 
-                src={`${BACKEND_URL}/img/${product.image || 'bac-xiu.jpg'}`} 
+                /* 4. Cập nhật đường dẫn ảnh linh hoạt */
+                src={`${IMAGE_BASE_URL}/img/${product.image || 'bac-xiu.jpg'}`} 
                 alt={product.name} 
                 className="img-fluid w-100 rounded-5 shadow-inner"
                 style={{ maxHeight: '550px', objectFit: 'cover' }}
@@ -88,11 +91,8 @@ const ProductDetail = () => {
             </div>
           </div>
 
-          {/* Cột Phải: Thông tin chi tiết */}
           <div className="col-lg-6 animate__animated animate__fadeInRight animate__delay-1s">
             <div className="product-info-card ps-lg-4">
-              
-              {/* CHỈNH SỬA: Category Tag tinh tế hơn */}
               <div className="d-flex align-items-center mb-3">
                 <span className="text-uppercase small fw-bold letter-spacing-1 p-2 px-3 rounded-pill" 
                       style={{ backgroundColor: '#2C2420', color: '#FCFBFA', fontSize: '0.75rem' }}>
@@ -117,13 +117,12 @@ const ProductDetail = () => {
                 </p>
               </div>
 
-              {/* Bộ chọn số lượng */}
               <div className="quantity-selector d-flex align-items-center mb-5 mt-4">
                 <span className="fw-bold me-4 text-uppercase small text-dark letter-spacing-1">Số lượng:</span>
                 <div className="d-flex align-items-center bg-white border rounded-pill shadow-sm p-1">
                   <button 
                     className="btn d-flex align-items-center justify-content-center p-0 detail-qty-btn" 
-                    onClick={() => updateQuantity(quantity - 1)}
+                    onClick={() => handleQtyChange(-1)}
                   >
                     <i className="fa-solid fa-minus text-white"></i>
                   </button>
@@ -132,14 +131,13 @@ const ProductDetail = () => {
                   
                   <button 
                     className="btn d-flex align-items-center justify-content-center p-0 detail-qty-btn" 
-                    onClick={() => updateQuantity(quantity + 1)}
+                    onClick={() => handleQtyChange(1)}
                   >
                     <i className="fa-solid fa-plus text-white"></i>
                   </button>
                 </div>
               </div>
 
-              {/* Nút hành động */}
               <div className="action-buttons mb-5">
                 <button 
                   className={`btn btn-lg w-100 py-3 rounded-pill fw-bold shadow-soft transition-all border-0 ${added ? 'btn-success' : 'btn-espresso'}`}
@@ -151,7 +149,6 @@ const ProductDetail = () => {
                 </button>
               </div>
 
-              {/* CHỈNH SỬA: Icon Tiện ích tông màu Espresso nổi bật */}
               <div className="row mt-5 pt-4 border-top g-3 bg-white rounded-4 shadow-sm p-3 border">
                 {[
                     { icon: 'fa-truck-fast', title: 'Giao nhanh', desc: 'Trong 30 phút' },
@@ -173,7 +170,6 @@ const ProductDetail = () => {
       </div>
 
       <Footer />
-      
       <style>{`
         .letter-spacing-1 { letter-spacing: 1px; }
         .shadow-soft { box-shadow: 0 15px 35px rgba(44, 36, 32, 0.08); }
