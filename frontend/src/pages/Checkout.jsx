@@ -22,18 +22,27 @@ const Checkout = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    // Lấy token từ localStorage
+    const token = localStorage.getItem('token'); 
+
+    // Kiểm tra nếu không có token thì bắt đăng nhập ngay
+    if (!token) {
+      alert("Phiên đăng nhập đã hết hạn, vui lòng đăng nhập lại!");
+      navigate('/login');
+      return;
+    }
+
     const phoneRegex = /^[0-9]{10}$/;
     if (!phoneRegex.test(orderInfo.phone)) {
-        alert("Số điện thoại không hợp lệ! Vui lòng nhập đúng 10 chữ số.");
+        alert("Số điện thoại không hợp lệ!");
         return;
     }
     
-    // ĐÂY LÀ PHẦN QUAN TRỌNG: Phải đóng gói thêm phone, address và note
     const orderData = {
-      userId: user?._id || user?.id || "guest", 
-      phone: orderInfo.phone,     // Thêm dòng này
-      address: orderInfo.address, // Thêm dòng này
-      note: orderInfo.note,       // Thêm dòng này
+      // userId có thể bỏ qua nếu Backend lấy id từ Token (tốt hơn cho bảo mật)
+      phone: orderInfo.phone,
+      address: orderInfo.address,
+      note: orderInfo.note,
       items: cart.map(item => ({
         productId: item._id,
         quantity: item.quantity
@@ -43,7 +52,10 @@ const Checkout = () => {
     try {
       const response = await fetch('http://localhost:3000/api/orders', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}` // THÊM DÒNG QUAN TRỌNG NÀY
+        },
         body: JSON.stringify(orderData)
       });
 
@@ -54,7 +66,6 @@ const Checkout = () => {
         await clearCart();              
         setShowSuccess(true);           
       } else {
-        // Bây giờ alert này sẽ không còn báo "thiếu thông tin" nữa
         alert("Lỗi: " + result.message);
       }
     } catch (error) {

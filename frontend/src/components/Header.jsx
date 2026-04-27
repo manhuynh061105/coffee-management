@@ -18,7 +18,12 @@ const Header = () => {
   };
 
   return (
-    <header className="py-2 shadow-sm w-100 position-fixed top-0 start-0" style={{ backgroundColor: '#1a1a1a', zIndex: 1000 }}>
+    <header className="py-3 w-100 position-fixed top-0 start-0" style={{ 
+          backgroundColor: 'rgba(255, 255, 255, 0.85)', // Nền trắng trong suốt
+          backdropFilter: 'blur(15px)',                // Hiệu ứng kính mờ
+          borderBottom: '1px solid rgba(111, 78, 55, 0.1)', 
+          zIndex: 1000 
+        }}>
       <div className="container d-flex justify-content-between align-items-center">
         
         {/* LOGO */}
@@ -134,18 +139,29 @@ const Header = () => {
 
       <style>{`
         .nav {
-          gap: 30px;
+          gap: 35px;
         }
         .nav-link-custom {
-          font-size: 0.95rem;
-          letter-spacing: 0.5px;
+          color: #2C2420 !important; /* Màu Dark Chocolate */
+          font-size: 1rem;
+          font-weight: 600 !important;
+          transition: all 0.3s ease;
         }
-        .dropdown-item:hover {
-          background-color: #f8f9fa;
+        .nav-link-custom:hover {
+          color: #6F4E37 !important; /* Màu Coffee Brown */
+          transform: translateY(-2px);
         }
-        /* Đảm bảo button trong dropdown trông giống link */
-        .dropdown-item {
-          cursor: pointer;
+        .cart-icon {
+          filter: brightness(0) saturate(100%) invert(18%) sepia(13%) saturate(1131%) hue-rotate(338deg) brightness(96%) contrast(89%); /* Đổi icon sang màu nâu */
+          transition: transform 0.3s ease;
+        }
+        .cart-wrapper:hover .cart-icon {
+          transform: scale(1.15);
+        }
+        .dropdown-menu {
+          border-radius: 15px !important;
+          border: none !important;
+          box-shadow: 0 10px 30px rgba(44, 36, 32, 0.1) !important;
         }
       `}</style>
     </header>

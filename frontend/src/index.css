@@ -1,38 +1,36 @@
-/* ROOT VARIABLES - Chỉnh lại bảng màu cho hài hòa */
+/* ROOT & GLOBAL RESET - Sử dụng bảng màu mới */
 :root {
     --color-white: #ffffff;
-    --color-primary: #5b7a9d; /* Xanh xám hiện đại, sạch sẽ */
-    --color-black: #1a1a1a;
-    --color-danger: #d9534f;
-    --color-grey: #6c757d;
-    --color-grey-light: #f8f9fa;
-    --color-bg: #fdfdfd;
-    --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --color-primary: #6F4E37; 
+    --color-secondary: #A67B5B;
+    --color-accent: #D2691E;
+    --color-black: #2C2420;
+    --color-grey: #8D8078;
+    --color-grey-light: #F5F2F0;
+    --color-bg: #FCFBFA;
+    --transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
 }
 
 * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    margin: 0; padding: 0; box-sizing: border-box;
+    font-family: 'Quicksand', 'Segoe UI', sans-serif; /* Quicksand hợp với vibe cafe hơn */
 }
 
 body {
     background-color: var(--color-bg);
     color: var(--color-black);
+    line-height: 1.6;
 }
 
-/* HEADER - Làm mờ nền kính (Backdrop filter) */
+/* HEADER - Hiện đại với Blur và Border mảnh */
 header {
-    background-color: rgba(0, 0, 0, 0.8) !important;
-    backdrop-filter: blur(10px); /* Hiệu ứng kính mờ hiện đại */
+    background-color: rgba(255, 255, 255, 0.8) !important; /* Đổi sang nền sáng cho sang */
+    backdrop-filter: blur(15px);
     position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
+    top: 0; left: 0; right: 0;
     z-index: 1000;
-    padding: 10px 0;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 15px 0;
+    border-bottom: 1px solid rgba(111, 78, 55, 0.1);
 }
 
 header .logo img {
@@ -41,76 +39,83 @@ header .logo img {
 }
 
 .nav-item a {
-    color: var(--color-white) !important;
-    font-weight: 500;
+    color: var(--color-black) !important;
+    font-weight: 600;
+    font-size: 0.95rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
     transition: var(--transition);
 }
 
 .nav-item a:hover {
     color: var(--color-primary) !important;
-    transform: translateY(-2px);
+    transform: translateY(-1px);
 }
 
-/* BANNER */
+/* BANNER - Tạo chiều sâu */
 .banner-group {
-    background-image: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.5)), url('../img/banner.jpg');
-    width: 100%;
-    height: 100vh;
-    background-position: center;
-    background-size: cover;
+    background-image: linear-gradient(rgba(44, 36, 32, 0.4), rgba(44, 36, 32, 0.6)), url('../img/banner.jpg');
+    height: 90vh; /* Giảm nhẹ chiều cao để lộ phần nội dung dưới */
     background-attachment: fixed;
-    display: flex;
-    align-items: center;
+    border-bottom-left-radius: 50px; /* Bo góc lớn tạo nét hiện đại */
+    border-bottom-right-radius: 50px;
 }
 
 .banner-text .title {
-    font-size: 3.5rem;
-    font-weight: 800;
-    text-shadow: 2px 2px 10px rgba(0,0,0,0.5);
-    line-height: 1.2;
+    font-size: 4rem;
+    font-weight: 700;
+    color: var(--color-white);
+    letter-spacing: -1px;
 }
 
 /* PRODUCT CARD - Nâng cấp đổ bóng và bo góc */
 .item-card, .products-item .content {
     background: var(--color-white);
-    border: none !important;
-    border-radius: 15px !important;
-    overflow: hidden;
+    border: 1px solid rgba(0,0,0,0.03) !important;
+    border-radius: 20px !important;
+    padding: 10px; /* Tạo khoảng trống như một cái khung ảnh */
     transition: var(--transition) !important;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.05) !important;
+    box-shadow: var(--shadow-sm) !important;
 }
 
 .item-card:hover {
-    transform: translateY(-10px);
-    box-shadow: 0 15px 30px rgba(0,0,0,0.12) !important;
+    transform: translateY(-8px);
+    box-shadow: var(--shadow-md) !important;
+    border-color: var(--color-secondary) !important;
 }
 
 .image-wrapper img {
-    border-radius: 15px 15px 0 0;
-    transition: transform 0.5s ease;
+    border-radius: 15px; /* Bo góc toàn bộ ảnh */
+    transition: transform 0.8s ease;
 }
 
+.item-card:hover .image-wrapper img {
+    transform: scale(1.05);
+}
+
+/* BUTTONS - Bo tròn mềm mại (Pill shape) */
 .btn-primary {
     background-color: var(--color-primary) !important;
-    border: none !important;
-    /* Nếu muốn quay về nút hơi vuông của Bootstrap, hãy đổi 50px thành 4px hoặc 8px */
-    border-radius: 4px !important;
-    padding: 8px 20px; /* Thu nhỏ padding lại một chút */
-    font-weight: 500;
-    transform: none !important; /* Bỏ hiệu ứng phóng to khi hover nếu muốn */
-    box-shadow: none !important; /* Bỏ đổ bóng */
+    color: var(--color-white) !important;
+    border-radius: 30px !important; /* Bo tròn hoàn toàn */
+    padding: 10px 25px !important;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    border: 2px solid transparent !important;
+    transition: var(--transition) !important;
 }
 
 .btn-primary:hover {
-    background-color: #4a6685 !important; /* Màu đậm hơn khi hover */
-    box-shadow: none !important; /* Bỏ đổ bóng khi hover */
-    transform: none !important;
+    background-color: transparent !important;
+    border-color: var(--color-primary) !important;
+    color: var(--color-primary) !important;
 }
 
-/* CART TABLE - Làm sạch giao diện */
+/* TABLES - Phong cách hiện đại */
 .table {
-    border-radius: 12px;
-    overflow: hidden;
+    background: var(--color-white);
+    border-radius: 20px;
+    box-shadow: var(--shadow-sm);
 }
 
 .table thead {
@@ -124,10 +129,12 @@ header .logo img {
     letter-spacing: 1px;
 }
 
-/* FOOTER */
+/* FOOTER - Nâu đậm ấm áp */
 footer {
-    background-color: #111;
-    margin-top: 80px;
+    background-color: var(--color-black);
+    color: var(--color-grey);
+    border-top-left-radius: 50px;
+    border-top-right-radius: 50px;
 }
 
 footer .content {
@@ -207,14 +214,12 @@ footer h4, footer h5 {
 }
 
 /* Container của Modal */
+/* MODALS - "Float" effect */
 .custom-modal-content {
-  background: white;
-  padding: 3rem;
-  border-radius: 25px;
-  max-width: 500px;
-  width: 90%;
-  box-shadow: 0 15px 35px rgba(0,0,0,0.2);
-  position: relative;
+    border-radius: 30px;
+    border: none;
+    padding: 2.5rem;
+    background: linear-gradient(to bottom right, #ffffff, #fdfbf9);
 }
 
 /* Hiệu ứng bay lên mượt mà (Fade In Up) */
@@ -252,8 +257,10 @@ footer h4, footer h5 {
 }
 
 .table thead th {
-  border: none;
-  padding: 1rem;
+    background-color: var(--color-grey-light);
+    color: var(--color-primary);
+    font-weight: 700;
+    border: none;
 }
 
 .table tbody td {

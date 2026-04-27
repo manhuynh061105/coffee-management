@@ -2,19 +2,24 @@ import Order from "../models/Order.js";
 import Product from "../models/product.js";
 
 // 1. TẠO ĐƠN HÀNG (Cập nhật để lưu thêm Phone, Address, Note)
+// 1. TẠO ĐƠN HÀNG - Fix lỗi thiếu thông tin
 export const createOrder = async (req, res) => {
   try {
-    const { userId, items, phone, address, note } = req.body;
+    const { items, phone, address, note } = req.body;
+    // LẤY userId TỪ TOKEN (Đã được verifyToken giải mã và gán vào req.user)
+    const userId = req.user.id; 
+
     let total = 0;
     
-    // Validation cơ bản
-    if (!userId || !items || items.length === 0) {
+    // Kiểm tra giỏ hàng
+    if (!items || items.length === 0) {
       return res.status(400).json({
         success: false,
-        message: "Giỏ hàng trống hoặc thiếu thông tin người dùng"
+        message: "Giỏ hàng trống"
       });
     }
 
+    // Kiểm tra thông tin nhận hàng
     if (!phone || !address) {
         return res.status(400).json({
           success: false,
@@ -22,7 +27,6 @@ export const createOrder = async (req, res) => {
         });
       }
     
-    // Tính toán lại tổng tiền từ DB (để tránh user can thiệp giá từ frontend)
     for (const item of items) {
       const product = await Product.findById(item.productId);
       if (!product) {
@@ -35,16 +39,15 @@ export const createOrder = async (req, res) => {
     }
 
     const newOrder = await Order.create({
-      userId,
+      userId, // Dùng ID từ Token
       items,
       total,
-      phone,   // Lưu thêm SĐT
-      address, // Lưu thêm địa chỉ
-      note,     // Lưu thêm ghi chú
+      phone,
+      address,
+      note,
       status: "pending"
     });
 
-    // Sau khi tạo xong, mình populate thông tin sản phẩm luôn để trả về cho Pop-up Success ở Frontend
     const populatedOrder = await Order.findById(newOrder._id).populate('items.productId');
 
     res.status(201).json({
@@ -55,10 +58,7 @@ export const createOrder = async (req, res) => {
 
   } catch (error) {
     console.error("Lỗi Create Order:", error);
-    res.status(500).json({
-      success: false,
-      message: "Lỗi hệ thống khi tạo đơn hàng"
-    });
+    res.status(500).json({ success: false, message: "Lỗi hệ thống: " + error.message });
   }
 };
 
@@ -83,15 +83,20 @@ export const getOrders = async (req, res) => {
 };
 
 // 3. LẤY LỊCH SỬ ĐƠN HÀNG CỦA USER (Chức năng em mới thêm)
+// 3. LẤY LỊCH SỬ ĐƠN HÀNG - Fix để lấy theo Token
 export const getOrdersByUser = async (req, res) => {
   try {
-    const { userId } = req.params;
+    // Ưu tiên lấy từ Token, nếu không có mới lấy từ Params
+    const userId = req.user.id || req.params.userId;
 
-    // Tìm tất cả đơn hàng của user đó
+    if (!userId) {
+      return res.status(400).json({ success: false, message: "Không xác định được người dùng" });
+    }
+
     const orders = await Order.find({ userId: userId })
       .populate({
         path: 'items.productId',
-        select: 'name image price' // Chỉ lấy các trường cần thiết để nhẹ dữ liệu
+        select: 'name image price'
       })
       .sort({ createdAt: -1 });
 
@@ -100,11 +105,7 @@ export const getOrdersByUser = async (req, res) => {
       data: orders
     });
   } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: "Không thể lấy lịch sử đơn hàng",
-      error: error.message
-    });
+    res.status(500).json({ success: false, message: "Lỗi: " + error.message });
   }
 };
 

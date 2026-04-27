@@ -13,10 +13,23 @@ const OrderHistory = () => {
   // Hàm lấy danh sách đơn hàng
   const fetchOrders = async () => {
     try {
-      const response = await fetch(`http://localhost:3000/api/orders/user/${user._id || user.id}`);
+      const token = localStorage.getItem('token'); // Lấy token
+      
+      // Nếu bạn đã sửa Backend dùng route /my-orders thì dùng URL đó sẽ tốt hơn
+      // Ở đây tôi giữ URL cũ của bạn nhưng THÊM HEADERS
+      const response = await fetch(`http://localhost:3000/api/orders/user/${user._id || user.id}`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`, // Dòng này cực kỳ quan trọng
+          'Content-Type': 'application/json'
+        }
+      });
+
       const result = await response.json();
       if (result.success) {
         setOrders(result.data);
+      } else {
+        console.error("Backend trả về lỗi:", result.message);
       }
     } catch (error) {
       console.error("Lỗi lấy lịch sử đơn hàng:", error);
@@ -37,16 +50,20 @@ const OrderHistory = () => {
   const handleConfirmReceived = async (orderId) => {
     if (window.confirm("Bạn xác nhận đã nhận được đơn hàng này?")) {
       try {
+        const token = localStorage.getItem('token');
         const response = await fetch(`http://localhost:3000/api/orders/${orderId}`, {
           method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ status: 'completed' }) // Cập nhật trạng thái thành completed
+          headers: { 
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}` // Phải có token mới sửa được trạng thái
+          },
+          body: JSON.stringify({ status: 'completed' }) 
         });
         
         const result = await response.json();
         if (result.success) {
           alert("Xác nhận thành công! Chúc bạn ngon miệng ☕");
-          fetchOrders(); // Load lại danh sách để cập nhật UI
+          fetchOrders(); 
         } else {
           alert("Lỗi: " + result.message);
         }
