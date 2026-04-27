@@ -1,12 +1,13 @@
 import Order from "../models/Order.js";
 import Product from "../models/product.js";
 
-// 1. TẠO ĐƠN HÀNG (Cập nhật để lưu thêm Phone, Address, Note)
-// 1. TẠO ĐƠN HÀNG - Fix lỗi thiếu thông tin
+// 1. TẠO ĐƠN HÀNG (Cập nhật để lưu thêm customerName)
 export const createOrder = async (req, res) => {
   try {
-    const { items, phone, address, note } = req.body;
-    // LẤY userId TỪ TOKEN (Đã được verifyToken giải mã và gán vào req.user)
+    // Thêm customerName vào destructuring từ req.body
+    const { items, phone, address, note, customerName } = req.body;
+    
+    // LẤY userId TỪ TOKEN
     const userId = req.user.id; 
 
     let total = 0;
@@ -19,14 +20,15 @@ export const createOrder = async (req, res) => {
       });
     }
 
-    // Kiểm tra thông tin nhận hàng
-    if (!phone || !address) {
+    // Kiểm tra thông tin nhận hàng (Bao gồm cả customerName)
+    if (!phone || !address || !customerName) {
         return res.status(400).json({
           success: false,
-          message: "Vui lòng cung cấp số điện thoại và địa chỉ giao hàng"
+          message: "Vui lòng cung cấp đầy đủ tên, số điện thoại và địa chỉ"
         });
-      }
+    }
     
+    // Tính toán tổng tiền dựa trên giá thực tế từ Database (tránh client sửa giá)
     for (const item of items) {
       const product = await Product.findById(item.productId);
       if (!product) {
@@ -38,10 +40,13 @@ export const createOrder = async (req, res) => {
       total += product.price * item.quantity;
     }
 
+    // Tạo đơn hàng mới với trường customerName
     const newOrder = await Order.create({
-      userId, // Dùng ID từ Token
+      userId, 
+      customerName, // <--- Đã thêm trường này
       items,
-      total,
+      totalAmount: total, // Lưu ý: Trong model của bạn là total hay totalAmount? 
+             // Hãy đảm bảo tên trường ở đây khớp với Schema (Order.js)
       phone,
       address,
       note,
@@ -52,7 +57,7 @@ export const createOrder = async (req, res) => {
 
     res.status(201).json({
       success: true,
-      message: "Tạo đơn hàng thành công",
+      message: "Tạo đơn hàng thành công tại Beans Café!",
       data: populatedOrder 
     });
 
@@ -109,14 +114,14 @@ export const getOrdersByUser = async (req, res) => {
   }
 };
 
-// 4. CẬP NHẬT TRẠNG THÁI (Dành cho Admin duyệt đơn)
+// CẬP NHẬT TRẠNG THÁI (Dành cho cả Admin duyệt và User xác nhận)
 export const updateOrderStatus = async (req, res) => {
   try {
     const { id } = req.params;
     const { status } = req.body;
     
-    // Lấy thông tin User từ Middleware verifyToken
-    const userId = req.user.id; 
+    // Lấy thông tin từ Middleware verifyToken (đảm bảo middleware đã gán req.user)
+    const userIdFromToken = req.user.id; 
     const userRole = req.user.role;
 
     const order = await Order.findById(id);
@@ -126,18 +131,18 @@ export const updateOrderStatus = async (req, res) => {
     }
 
     // --- PHÂN QUYỀN LOGIC ---
-    
     if (userRole === "admin") {
-      // 1. Admin: Có quyền chuyển sang bất kỳ trạng thái nào (processing, completed, cancelled...)
+      // Admin có toàn quyền
       order.status = status;
     } else {
-      // 2. User: 
-      // - Chỉ được sửa đơn hàng của CHÍNH MÌNH
-      // - Chỉ được phép chuyển sang trạng thái "completed" (xác nhận đã nhận hàng)
-      if (order.userId.toString() !== userId) {
+      // KIỂM TRA TÊN TRƯỜNG: Nếu database lưu là 'user' thì dùng order.user, nếu là 'userId' thì dùng order.userId
+      const orderOwnerId = order.user ? order.user.toString() : (order.userId ? order.userId.toString() : null);
+
+      if (orderOwnerId !== userIdFromToken) {
         return res.status(403).json({ success: false, message: "Bạn không có quyền sửa đơn hàng của người khác" });
       }
 
+      // User chỉ được phép confirm 'completed'
       if (status === "completed") {
         order.status = "completed";
       } else {
@@ -148,8 +153,8 @@ export const updateOrderStatus = async (req, res) => {
     // Lưu thay đổi
     await order.save();
     
-    // Populate để trả về thông tin đầy đủ nếu cần
-    const updatedOrder = await order.populate('items.productId');
+    // Thực hiện populate một cách an toàn để trả về cho Frontend
+    const updatedOrder = await Order.findById(id).populate('items.productId');
 
     res.status(200).json({
       success: true,
@@ -158,8 +163,8 @@ export const updateOrderStatus = async (req, res) => {
     });
 
   } catch (error) {
-    console.error("Lỗi updateOrderStatus:", error);
-    res.status(500).json({ success: false, message: "Server error" });
+    console.error("Lỗi chi tiết tại updateOrderStatus:", error); // Xem log ở terminal để biết lỗi cụ thể là gì
+    res.status(500).json({ success: false, message: "Lỗi hệ thống: " + error.message });
   }
 };
 
@@ -171,9 +176,9 @@ export const getStats = async (req, res) => {
     // 1. Lấy tất cả đơn hàng đã hoàn thành
     const allOrders = await Order.find({ status: targetStatus }); 
     
-    // 2. Tính doanh thu bằng trường 'total' (khớp với Model của em)
+    // 2. SỬA TẠI ĐÂY: Dùng 'totalAmount' thay vì 'total'
     const totalRevenue = allOrders.reduce((sum, order) => {
-      return sum + (order.total || 0);
+      return sum + (order.totalAmount || 0); 
     }, 0);
 
     const totalOrders = allOrders.length;
@@ -186,8 +191,8 @@ export const getStats = async (req, res) => {
       {
         $group: {
           _id: { $month: "$createdAt" }, 
-          // Chú ý: Dùng "$total" ở đây vì đây là tên trường trong DB
-          revenue: { $sum: "$total" } 
+          // SỬA TẠI ĐÂY: Dùng "$totalAmount" để MongoDB hiểu đúng trường trong DB
+          revenue: { $sum: "$totalAmount" } 
         }
       },
       { $sort: { "_id": 1 } }

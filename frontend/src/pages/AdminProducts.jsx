@@ -1,10 +1,9 @@
 import React, { useEffect, useState } from "react";
-import Header from "../components/Header"; // Đảm bảo đúng đường dẫn
-import Footer from "../components/Footer"; // Đảm bảo đúng đường dẫn
+import Header from "../components/Header";
+import Footer from "../components/Footer";
 
 const AdminProducts = () => {
   const BACKEND_URL = "http://localhost:3000";
-
   const [products, setProducts] = useState([]);
   const [editingProduct, setEditingProduct] = useState(null);
   const [formData, setFormData] = useState({
@@ -13,13 +12,11 @@ const AdminProducts = () => {
     category: "",
   });
 
-  // Lấy token từ localStorage
   const token = localStorage.getItem("token");
 
-  // Hàm tạo Headers chung (để tái sử dụng)
   const getAuthHeaders = () => ({
     "Content-Type": "application/json",
-    "Authorization": `Bearer ${token}` // Gửi token lên Backend
+    "Authorization": `Bearer ${token}`
   });
 
   const fetchProducts = async () => {
@@ -37,20 +34,18 @@ const AdminProducts = () => {
   }, []);
 
   const handleDelete = async (id) => {
-    if (!window.confirm("Bạn có chắc muốn xoá sản phẩm này?")) return;
-
+    if (!window.confirm("Bạn có chắc muốn xoá sản phẩm này khỏi thực đơn?")) return;
     try {
       const res = await fetch(`${BACKEND_URL}/api/products/${id}`, {
         method: "DELETE",
-        headers: getAuthHeaders(), // Thêm Token vào đây
+        headers: getAuthHeaders(),
       });
       const result = await res.json();
-
       if (result.success) {
-        alert("Xoá thành công!");
+        alert("Đã xoá sản phẩm thành công!");
         fetchProducts();
       } else {
-        alert("Lỗi: " + (result.message || "Bạn không có quyền thực hiện hành động này"));
+        alert("Lỗi: " + (result.message || "Bạn không có quyền này"));
       }
     } catch (error) {
       console.error("Lỗi xoá sản phẩm:", error);
@@ -62,13 +57,12 @@ const AdminProducts = () => {
     try {
       const res = await fetch(`${BACKEND_URL}/api/products/${editingProduct._id}`, {
         method: "PUT",
-        headers: getAuthHeaders(), // Thêm Token vào đây
+        headers: getAuthHeaders(),
         body: JSON.stringify(formData),
       });
-
       const result = await res.json();
       if (result.success) {
-        alert("Cập nhật thành công!");
+        alert("Cập nhật thông tin thành công!");
         setEditingProduct(null);
         fetchProducts();
       } else {
@@ -92,86 +86,144 @@ const AdminProducts = () => {
     const { name, value } = e.target;
     setFormData({
       ...formData,
-      [name]: name === "price" 
-        ? Number(value) 
-        : name === "category" 
-          ? value.toLowerCase() // Tự động chuyển thành chữ thường ở đây
-          : value,
+      [name]: name === "price" ? Number(value) : value,
     });
   };
 
-  return (
-    <div className="page-wrapper">
-      {/* 1. THÊM HEADER */}
-      <div className="bg-dark"><Header /></div>
+  // Hàm xử lý đường dẫn ảnh linh hoạt
+  const getImageUrl = (imagePath) => {
+    if (!imagePath) return "https://placehold.co/100x100?text=No+Image";
+    
+    // Nếu path đã bắt đầu bằng /img (ví dụ: /img/coffee.jpg)
+    if (imagePath.startsWith('/img')) {
+      return `${BACKEND_URL}${imagePath}`;
+    }
+    // Nếu path chưa có /img (ví dụ: coffee.jpg)
+    return `${BACKEND_URL}/img/${imagePath.replace(/^\//, '')}`;
+  };
 
-      <div className="container py-5 mt-5" style={{ minHeight: '80vh' }}>
-        <div className="d-flex justify-content-between align-items-center mb-4">
-          <h2 className="text-primary fw-bold">BẢNG ĐIỀU KHIỂN ADMIN</h2>
-          <span className="text-muted">Quản lý kho hàng Beans Café</span>
+  return (
+    <div className="page-wrapper" style={{ backgroundColor: '#FCFBFA', minHeight: '100vh' }}>
+      <Header />
+
+      <div className="container py-5 mt-5">
+        <div className="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-5 mt-4">
+          <div>
+            <h2 className="fw-bold text-espresso mb-1 text-uppercase" style={{ letterSpacing: '1.5px' }}>
+              Quản lý sản phẩm
+            </h2>
+            <div style={{ width: '50px', height: '3px', backgroundColor: '#6F4E37', borderRadius: '10px' }}></div>
+          </div>
+          <div className="mt-3 mt-md-0">
+             <span className="badge bg-espresso text-white px-4 py-2 rounded-pill shadow-sm">
+               sản phẩm hiện có: {products.length} 
+             </span>
+          </div>
         </div>
 
-        {/* BẢNG DANH SÁCH */}
-        <div className="table-responsive shadow-sm rounded-3">
-          <table className="table table-hover align-middle bg-white mb-0">
-            <thead className="table-dark">
-              <tr>
-                <th className="ps-4">Sản phẩm</th>
-                <th>Giá</th>
-                <th>Danh mục</th>
-                <th className="text-center">Hành động</th>
-              </tr>
-            </thead>
-            <tbody>
-              {products.map((item) => (
-                <tr key={item._id}>
-                  <td className="ps-4 fw-bold">{item.name}</td>
-                  <td className="text-danger fw-bold">{item.price?.toLocaleString()}₫</td>
-                  <td><span className="badge bg-light text-dark border">{item.category}</span></td>
-                  <td className="text-center">
-                    <button className="btn btn-outline-warning btn-sm me-2 px-3" onClick={() => handleEditClick(item)}>
-                      Sửa
-                    </button>
-                    <button className="btn btn-outline-danger btn-sm px-3" onClick={() => handleDelete(item._id)}>
-                      Xoá
-                    </button>
-                  </td>
+        {/* --- BẢNG DANH SÁCH --- */}
+        <div className="card border-0 shadow-soft rounded-4 overflow-hidden bg-white">
+          <div className="table-responsive">
+            <table className="table table-hover align-middle mb-0">
+              <thead className="border-bottom">
+                <tr style={{ backgroundColor: '#FDF8F5' }}>
+                  <th className="ps-4 py-4 text-uppercase small fw-bold text-espresso">Sản phẩm</th>
+                  <th className="py-4 text-uppercase small fw-bold text-espresso">Giá bán</th>
+                  <th className="py-4 text-uppercase small fw-bold text-espresso">Danh mục</th>
+                  <th className="py-4 text-uppercase small fw-bold text-espresso text-center">Thao tác</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {products.map((item) => (
+                  <tr key={item._id} className="border-bottom-lighter">
+                    <td className="ps-4 py-3">
+                      <div className="d-flex align-items-center">
+                        {/* HIỂN THỊ ẢNH THỰC TẾ */}
+                        <div className="rounded-4 overflow-hidden border me-3 shadow-sm bg-light" style={{ width: '64px', height: '64px' }}>
+                           <img 
+                             src={getImageUrl(item.image)} 
+                             alt={item.name} 
+                             style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                             onError={(e) => { 
+                               e.target.onerror = null; 
+                               e.target.src = "https://placehold.co/100x100?text=No+Image"; 
+                             }} 
+                           />
+                        </div>
+                        <div>
+                          <div className="fw-bold text-dark fs-6">{item.name}</div>
+                          <small className="text-muted">Mã: #{item._id.slice(-6).toUpperCase()}</small>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="py-3">
+                      <span className="fw-bold text-espresso">
+                        {item.price?.toLocaleString()}₫
+                      </span>
+                    </td>
+                    <td className="py-3">
+                      <span className="badge rounded-pill px-3 py-2 text-capitalize fw-normal" 
+                            style={{ backgroundColor: '#F3EFE9', color: '#6F4E37', border: '1px solid #E6DED5' }}>
+                        {item.category}
+                      </span>
+                    </td>
+                    <td className="py-3 text-center">
+                      <div className="d-flex justify-content-center gap-2">
+                        <button className="btn btn-action-edit btn-sm rounded-pill px-3" onClick={() => handleEditClick(item)}>
+                          <i className="fa-regular fa-pen-to-square me-1"></i> Sửa
+                        </button>
+                        <button className="btn btn-action-delete btn-sm rounded-pill px-3" onClick={() => handleDelete(item._id)}>
+                          <i className="fa-regular fa-trash-can me-1"></i> Xoá
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
 
         {/* --- POP-UP MODAL EDIT --- */}
         {editingProduct && (
           <div className="custom-modal-overlay">
-            <div className="custom-modal-content fade-in-up" style={{ maxWidth: '500px' }}>
-              <div className="d-flex justify-content-between align-items-center mb-4 border-bottom pb-2">
-                <h4 className="fw-bold text-primary mb-0">Chỉnh sửa sản phẩm</h4>
-                <button className="btn-close" onClick={() => setEditingProduct(null)}></button>
+            <div className="custom-modal-content fade-in-up shadow-lg">
+              <div className="d-flex justify-content-between align-items-center mb-4 border-bottom pb-3">
+                <h4 className="fw-bold text-espresso mb-0 text-uppercase" style={{ letterSpacing: '1px' }}>
+                  Chỉnh sửa món ăn
+                </h4>
+                <button className="btn-close shadow-none" onClick={() => setEditingProduct(null)}></button>
               </div>
 
               <form onSubmit={handleUpdate}>
                 <div className="mb-3">
-                  <label className="form-label fw-bold">Tên món</label>
-                  <input type="text" name="name" className="form-control" value={formData.name} onChange={handleChange} required />
+                  <label className="form-label small fw-bold text-muted text-uppercase">Tên sản phẩm</label>
+                  <input type="text" name="name" className="form-control custom-input" value={formData.name} onChange={handleChange} required />
                 </div>
-                <div className="mb-3">
-                  <label className="form-label fw-bold">Giá bán</label>
-                  <input type="number" name="price" className="form-control" value={formData.price} onChange={handleChange} required />
+                
+                <div className="row g-3 mb-4">
+                  <div className="col-md-6">
+                    <label className="form-label small fw-bold text-muted text-uppercase">Giá bán (VNĐ)</label>
+                    <input type="number" name="price" className="form-control custom-input" value={formData.price} onChange={handleChange} required />
+                  </div>
+                  <div className="col-md-6">
+                    <label className="form-label small fw-bold text-muted text-uppercase">Danh mục</label>
+                    <select name="category" className="form-select custom-input text-capitalize" value={formData.category} onChange={handleChange} required >
+                      <option value="coffee">Cà phê</option>
+                      <option value="tea">Trà</option>
+                      <option value="cake">Bánh ngọt</option>
+                      <option value="smoothie">Sinh tố</option>
+                    </select>
+                  </div>
                 </div>
-                <div className="mb-4">
-                  <label className="form-label fw-bold">Danh mục</label>
-                  <select name="category" className="form-select" value={formData.category} onChange={handleChange} required >
-                    <option value="Coffee">Coffee</option>
-                    <option value="Tea">Tea</option>
-                    <option value="Cake">Cake</option>
-                    <option value="Smoothie">Smoothie</option>
-                  </select>
-                </div>
-                <div className="d-grid gap-2">
-                  <button type="submit" className="btn btn-primary fw-bold">CẬP NHẬT NGAY</button>
-                  <button type="button" className="btn btn-light" onClick={() => setEditingProduct(null)}>HỦY</button>
+
+                <div className="d-flex gap-3">
+                  <button type="submit" className="btn btn-espresso w-100 py-3 rounded-pill fw-bold shadow-sm">
+                    LƯU THAY ĐỔI
+                  </button>
+                  <button type="button" className="btn btn-outline-secondary px-4 rounded-pill fw-bold" onClick={() => setEditingProduct(null)}>
+                    HỦY
+                  </button>
                 </div>
               </form>
             </div>
@@ -179,8 +231,47 @@ const AdminProducts = () => {
         )}
       </div>
 
-      {/* 2. THÊM FOOTER */}
       <Footer />
+
+      <style>{`
+        .text-espresso { color: #6F4E37; }
+        .bg-espresso { background-color: #6F4E37; }
+        .btn-espresso { background-color: #6F4E37; color: white; border: none; transition: 0.3s; }
+        .btn-espresso:hover { background-color: #2C2420; color: white; transform: translateY(-2px); }
+        
+        .btn-action-edit { background-color: #FDF8F5; color: #6F4E37; border: 1px solid #E6DED5; transition: 0.3s; }
+        .btn-action-edit:hover { background-color: #6F4E37; color: white; }
+        
+        .btn-action-delete { background-color: #FFF5F5; color: #DC3545; border: 1px solid #FAD2D2; transition: 0.3s; }
+        .btn-action-delete:hover { background-color: #DC3545; color: white; }
+
+        .shadow-soft { box-shadow: 0 10px 40px rgba(0,0,0,0.04); }
+        .border-bottom-lighter { border-bottom: 1px solid #F5F5F5; }
+
+        .custom-input {
+          border-radius: 12px;
+          padding: 12px 15px;
+          border: 1px solid #E0E0E0;
+          font-size: 0.95rem;
+        }
+        .custom-input:focus { border-color: #6F4E37; box-shadow: 0 0 0 3px rgba(111, 78, 55, 0.1); }
+
+        .custom-modal-overlay {
+          position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+          background: rgba(44, 36, 32, 0.7); display: flex; align-items: center;
+          justify-content: center; z-index: 10001; backdrop-filter: blur(8px);
+        }
+        .custom-modal-content {
+          background: white; padding: 35px; border-radius: 30px;
+          width: 95%; max-width: 500px;
+        }
+
+        .fade-in-up { animation: fadeInUp 0.4s ease-out; }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(40px); } to { opacity: 1; transform: translateY(0); } }
+
+        .table thead th { border-bottom: none; }
+        .table tbody tr:hover { background-color: #FCF9F7 !important; transition: 0.2s; }
+      `}</style>
     </div>
   );
 };

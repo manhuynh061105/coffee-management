@@ -7,9 +7,11 @@ import Footer from '../components/Footer';
 const Checkout = () => {
   const { cart, totalAmount, clearCart } = useCart();
   const navigate = useNavigate();
+  
   const user = JSON.parse(localStorage.getItem('user'));
 
   const [orderInfo, setOrderInfo] = useState({
+    customerName: user?.name || '',
     phone: '',
     address: '',
     note: ''
@@ -17,8 +19,9 @@ const Checkout = () => {
 
   const [showSuccess, setShowSuccess] = useState(false);
   const [finalOrderData, setFinalOrderData] = useState(null);
+  // Thêm một state nhỏ để giữ lại số tiền hiển thị trên Modal sau khi clear giỏ hàng
+  const [displayAmount, setDisplayAmount] = useState(0);
 
-  // Cuộn lên đầu trang khi vào trang checkout
   useEffect(() => {
     window.scrollTo(0, 0);
     if (cart.length === 0 && !showSuccess) {
@@ -26,7 +29,7 @@ const Checkout = () => {
     }
   }, [cart, navigate, showSuccess]);
 
-  const handleSubmit = async (e) => {
+const handleSubmit = async (e) => {
     e.preventDefault();
     const token = localStorage.getItem('token'); 
 
@@ -42,14 +45,19 @@ const Checkout = () => {
         return;
     }
     
+    // BƯỚC 1: Lưu tổng tiền hiện tại vào biến local
+    const currentTotal = totalAmount;
+
     const orderData = {
+      customerName: orderInfo.customerName, 
       phone: orderInfo.phone,
       address: orderInfo.address,
       note: orderInfo.note,
       items: cart.map(item => ({
         productId: item._id,
         quantity: item.quantity
-      }))
+      })),
+      totalAmount: currentTotal 
     };
 
     try {
@@ -65,9 +73,11 @@ const Checkout = () => {
       const result = await response.json();
       
       if (result.success) {
+        // BƯỚC 2: Cập nhật dữ liệu và hiển thị Modal
         setFinalOrderData(result.data); 
-        await clearCart();               
+        setDisplayAmount(currentTotal); // Gán số tiền vào displayAmount trước khi xóa giỏ hàng
         setShowSuccess(true);           
+        await clearCart();              // Giờ đây khi giỏ hàng về 0, displayAmount vẫn còn giữ giá trị cũ
       } else {
         alert("Lỗi: " + result.message);
       }
@@ -90,7 +100,6 @@ const Checkout = () => {
         </div>
         
         <div className="row g-4">
-          {/* FORM NHẬP THÔNG TIN */}
           <div className="col-lg-7">
             <div className="card shadow-soft border-0 rounded-4 p-4 animate__animated animate__fadeInLeft">
               <div className="d-flex align-items-center mb-4">
@@ -101,8 +110,15 @@ const Checkout = () => {
               <form onSubmit={handleSubmit}>
                 <div className="row">
                     <div className="col-md-6 mb-3">
-                        <label className="form-label fw-bold small text-uppercase">Họ và tên</label>
-                        <input type="text" className="form-control bg-light border-0 py-3" value={user?.name || ''} disabled />
+                        <label className="form-label fw-bold small text-uppercase">Họ và tên *</label>
+                        <input 
+                            type="text" 
+                            className="form-control border-2 py-3" 
+                            placeholder="Tên người nhận"
+                            value={orderInfo.customerName}
+                            required
+                            onChange={(e) => setOrderInfo({...orderInfo, customerName: e.target.value})} 
+                        />
                     </div>
                     <div className="col-md-6 mb-3">
                         <label className="form-label fw-bold small text-uppercase">Số điện thoại *</label>
@@ -152,7 +168,6 @@ const Checkout = () => {
             </div>
           </div>
 
-          {/* TÓM TẮT ĐƠN HÀNG */}
           <div className="col-lg-5">
             <div className="card shadow-soft border-0 rounded-4 p-4 animate__animated animate__fadeInRight" style={{ backgroundColor: '#2C2420', color: '#FCFBFA' }}>
               <h4 className="card-title mb-4 fw-bold border-bottom border-secondary pb-3">Đơn hàng của bạn</h4>
@@ -193,7 +208,6 @@ const Checkout = () => {
         </div>
       </div>
 
-      {/* --- POP-UP MODAL ORDER SUCCESS --- */}
       {showSuccess && (
         <div className="custom-modal-overlay">
           <div className="custom-modal-content fade-in-up text-center shadow-lg" style={{ maxWidth: '450px' }}>
@@ -213,11 +227,14 @@ const Checkout = () => {
                   </div>
                   <div className="d-flex justify-content-between mb-2 small">
                     <span className="text-muted">Người nhận:</span>
-                    <span className="fw-bold">{user?.name}</span>
+                    <span className="fw-bold">{finalOrderData.customerName}</span>
                   </div>
                   <div className="d-flex justify-content-between border-top pt-2 mt-2">
                     <span className="fw-bold">Đã thanh toán:</span>
-                    <span className="fw-bold text-espresso fs-5">{finalOrderData.total?.toLocaleString()}₫</span>
+                    <span className="fw-bold text-espresso fs-5">
+                      {/* BƯỚC 3: Dùng displayAmount đã được chụp lại thay vì totalAmount */}
+                      {displayAmount.toLocaleString()}₫
+                    </span>
                   </div>
                 </div>
               )}
@@ -241,6 +258,16 @@ const Checkout = () => {
       <Footer />
 
       <style>{`
+        .custom-modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-color: rgba(0, 0, 0, 0.7); display: flex;
+            align-items: center; justify-content: center; z-index: 10000;
+            backdrop-filter: blur(5px);
+        }
+        .custom-modal-content {
+            background: white; padding: 35px; border-radius: 28px;
+            width: 90%; position: relative;
+        }
         .text-espresso { color: #6F4E37; }
         .btn-espresso:hover { background-color: #2C2420 !important; transform: translateY(-2px); }
         .shadow-soft { box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
@@ -258,6 +285,11 @@ const Checkout = () => {
         }
         .animate__fadeInLeft { animation: fadeInLeft 0.8s ease; }
         .animate__fadeInRight { animation: fadeInRight 0.8s ease; }
+        .fade-in-up { animation: fadeInUp 0.5s ease-out; }
+        .bounce-in { animation: bounceIn 0.8s ease; }
+
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(40px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes bounceIn { 0% { transform: scale(0); } 70% { transform: scale(1.1); } 100% { transform: scale(1); } }
         @keyframes fadeInLeft { from { opacity: 0; transform: translateX(-20px); } to { opacity: 1; transform: translateX(0); } }
         @keyframes fadeInRight { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); } }
       `}</style>
