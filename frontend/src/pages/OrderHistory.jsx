@@ -1,22 +1,35 @@
 import React, { useEffect, useState } from 'react';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 
 const OrderHistory = () => {
   const [orders, setOrders] = useState([]);
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [loading, setLoading] = useState(true);
-  const user = JSON.parse(localStorage.getItem('user'));
+  
+  const userData = localStorage.getItem('user');
+  const user = userData ? JSON.parse(userData) : null;
   const navigate = useNavigate();
 
-  // Hàm lấy danh sách đơn hàng
   const fetchOrders = async () => {
+    if (!user) return;
     try {
-      const response = await fetch(`http://localhost:3000/api/orders/user/${user._id || user.id}`);
+      const token = localStorage.getItem('token');
+      const userId = user._id || user.id;
+      
+      const response = await fetch(`http://localhost:3000/api/orders/user/${userId}`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
       const result = await response.json();
       if (result.success) {
-        setOrders(result.data);
+        const sortedOrders = result.data.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+        setOrders(sortedOrders);
       }
     } catch (error) {
       console.error("Lỗi lấy lịch sử đơn hàng:", error);
@@ -28,27 +41,31 @@ const OrderHistory = () => {
   useEffect(() => {
     if (!user) {
       navigate('/login');
-      return;
+    } else {
+      fetchOrders();
     }
-    fetchOrders();
   }, []);
 
-  // Hàm xác nhận đã nhận hàng
   const handleConfirmReceived = async (orderId) => {
     if (window.confirm("Bạn xác nhận đã nhận được đơn hàng này?")) {
       try {
+        const token = localStorage.getItem('token');
         const response = await fetch(`http://localhost:3000/api/orders/${orderId}`, {
           method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ status: 'completed' }) // Cập nhật trạng thái thành completed
+          headers: { 
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({ status: 'completed' }) 
         });
         
         const result = await response.json();
         if (result.success) {
-          alert("Xác nhận thành công! Chúc bạn ngon miệng ☕");
-          fetchOrders(); // Load lại danh sách để cập nhật UI
-        } else {
-          alert("Lỗi: " + result.message);
+          setOrders(prevOrders => 
+            prevOrders.map(ord => 
+              ord._id === orderId ? { ...ord, status: 'completed' } : ord
+            )
+          );
         }
       } catch (error) {
         alert("Không thể kết nối đến máy chủ!");
@@ -57,113 +74,225 @@ const OrderHistory = () => {
   };
 
   return (
-    <div className="page-wrapper">
-      <div className="bg-dark"><Header /></div>
+    <div className="page-wrapper" style={{ backgroundColor: '#FCFBFA', minHeight: '100vh' }}>
+      <Header />
 
-      <div className="container mt-5 pt-5 mb-5" style={{ minHeight: '70vh' }}>
-        <h2 className="text-primary fw-bold text-uppercase mb-4">Lịch sử đặt hàng</h2>
-
-        {loading ? (
-          <div className="text-center py-5"><div className="spinner-border text-primary"></div></div>
-        ) : orders.length === 0 ? (
-          <div className="text-center py-5 bg-light rounded-4">
-            <p className="fs-5 text-muted">Em chưa có đơn hàng nào.</p>
-            <button className="btn btn-primary rounded-pill px-4" onClick={() => navigate('/menu')}>Mua sắm ngay</button>
-          </div>
-        ) : (
-          <div className="table-responsive shadow-sm rounded-4">
-            <table className="table table-hover align-middle bg-white mb-0">
-              <thead className="table-primary">
-                <tr>
-                  <th>Mã đơn hàng</th>
-                  <th>Ngày đặt</th>
-                  <th>Tổng tiền</th>
-                  <th>Trạng thái</th>
-                  <th className="text-center">Hành động</th>
-                </tr>
-              </thead>
-              <tbody>
-                {orders.map((order) => (
-                  <tr key={order._id}>
-                    <td className="fw-bold">#{order._id.slice(-8).toUpperCase()}</td>
-                    <td>{new Date(order.createdAt).toLocaleDateString('vi-VN')}</td>
-                    <td className="text-danger fw-bold">{order.total.toLocaleString()}₫</td>
-                    <td>
-                      <span className={`badge ${order.status === 'completed' ? 'bg-success' : 'bg-warning text-dark'}`}>
-                        {order.status === 'pending' ? 'Đang giao' : 'Đã nhận'}
-                      </span>
-                    </td>
-                    <td>
-                      <div className="d-flex justify-content-center gap-2">
-                        <button 
-                          className="btn btn-outline-primary btn-sm rounded-pill px-3"
-                          onClick={() => setSelectedOrder(order)}
-                        >
-                          Chi tiết
-                        </button>
-                        
-                        {/* Chỉ hiện nút Đã nhận hàng khi đơn hàng đang ở trạng thái pending */}
-                        {order.status === 'pending' && (
-                          <button 
-                            className="btn btn-success btn-sm rounded-pill px-3"
-                            onClick={() => handleConfirmReceived(order._id)}
-                          >
-                            Đã nhận hàng
-                          </button>
-                        )}
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
+      {/* --- HERO SECTION --- */}
+      <div className="pt-5 mt-5 pb-4" style={{ background: 'linear-gradient(rgba(44, 36, 32, 0.03), transparent)' }}>
+        <div className="container mt-4">
+          <nav aria-label="breadcrumb">
+            <ol className="breadcrumb mb-2">
+              <li className="breadcrumb-item"><Link to="/" className="text-decoration-none text-muted">Trang chủ</Link></li>
+              <li className="breadcrumb-item active text-espresso fw-bold" aria-current="page">Lịch sử đơn hàng</li>
+            </ol>
+          </nav>
+          <h2 className="fw-bold text-uppercase m-0" style={{ color: '#2C2420', letterSpacing: '1.5px' }}>Đơn hàng của bạn</h2>
+          <p className="text-muted small">Quản lý và theo dõi quá trình giao nhận cà phê</p>
+        </div>
       </div>
 
-      {/* --- MODAL CHI TIẾT ĐƠN HÀNG --- */}
+      <div className="container pb-5">
+        <div className="row">
+          {/* --- SIDEBAR NAVIGATION (Optional) --- */}
+          <div className="col-lg-3 mb-4">
+            <div className="card border-0 shadow-soft rounded-4 p-3 bg-white">
+              <div className="d-flex align-items-center mb-3 p-2">
+                <div className="rounded-circle bg-espresso text-white d-flex align-items-center justify-content-center fw-bold" style={{ width: '45px', height: '45px' }}>
+                  {user?.username?.charAt(0).toUpperCase() || 'U'}
+                </div>
+                <div className="ms-3">
+                  <p className="mb-0 text-muted small">Xin chào,</p>
+                  <p className="mb-0 fw-bold text-espresso">{user?.username || 'Khách hàng'}</p>
+                </div>
+              </div>
+              <hr className="opacity-10" />
+              <div className="list-group list-group-flush">
+                <button className="list-group-item list-group-item-action border-0 py-2 rounded-3 active-espresso">
+                  <i className="fa-solid fa-clock-rotate-left me-2"></i> Lịch sử mua hàng
+                </button>
+                <button onClick={() => navigate('/menu')} className="list-group-item list-group-item-action border-0 py-2 rounded-3 mt-1">
+                  <i className="fa-solid fa-mug-hot me-2"></i> Tiếp tục mua sắm
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* --- MAIN CONTENT (TABLE) --- */}
+          <div className="col-lg-9">
+            {loading ? (
+              <div className="text-center py-5 bg-white rounded-4 shadow-soft border">
+                <div className="spinner-border text-espresso"></div>
+                <p className="mt-3 text-muted">Đang tải dữ liệu...</p>
+              </div>
+            ) : orders.length === 0 ? (
+              <div className="text-center py-5 bg-white shadow-soft rounded-4 border">
+                <div className="mb-4">
+                  <i className="fa-solid fa-receipt text-light-espresso" style={{ fontSize: '5rem', opacity: 0.3 }}></i>
+                </div>
+                <h4 className="fw-bold text-espresso">Chưa có đơn hàng nào</h4>
+                <p className="text-muted mb-4">Có vẻ như bạn chưa thưởng thức cà phê của Beans Café rồi!</p>
+                <button className="btn btn-espresso rounded-pill px-5 py-2 fw-bold" onClick={() => navigate('/menu')}>
+                  ĐẶT MÓN NGAY
+                </button>
+              </div>
+            ) : (
+              <div className="card border-0 shadow-soft rounded-4 bg-white overflow-hidden">
+                <div className="card-header bg-white py-3 border-bottom-0">
+                  <div className="d-flex justify-content-between align-items-center">
+                    <h5 className="mb-0 fw-bold text-espresso">Danh sách đơn hàng</h5>
+                    <span className="badge bg-espresso-subtle text-espresso rounded-pill px-3">
+                      {orders.length} đơn hàng
+                    </span>
+                  </div>
+                </div>
+                <div className="table-responsive">
+                  <table className="table table-hover align-middle mb-0">
+                    <thead style={{ backgroundColor: '#FDF8F5' }}>
+                      <tr>
+                        <th className="ps-4 py-3 text-uppercase small fw-bold">Mã đơn</th>
+                        <th className="py-3 text-uppercase small fw-bold">Ngày đặt</th>
+                        <th className="py-3 text-uppercase small fw-bold">Tổng tiền</th>
+                        <th className="py-3 text-uppercase small fw-bold text-center">Trạng thái</th>
+                        <th className="py-3 text-center text-uppercase small fw-bold pe-4">Thao tác</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {orders.map((order) => (
+                        <tr key={order._id}>
+                          <td className="ps-4">
+                            <span className="fw-bold text-espresso">#{order._id.slice(-8).toUpperCase()}</span>
+                          </td>
+                          <td className="text-muted">{new Date(order.createdAt).toLocaleDateString('vi-VN')}</td>
+                          <td className="fw-bold text-dark">
+                            {(order.totalAmount || order.total || 0).toLocaleString()}₫
+                          </td>
+                          <td className="text-center">
+                            <span className={`badge rounded-pill px-3 py-2 ${
+                              order.status === 'completed' 
+                              ? 'bg-success-subtle text-success border border-success' 
+                              : 'bg-warning-subtle text-dark border border-warning'
+                            }`}>
+                              {order.status === 'pending' ? '🚀 Đang giao' : '✅ Hoàn thành'}
+                            </span>
+                          </td>
+                          <td className="text-center pe-4">
+                            <div className="d-flex justify-content-center gap-2">
+                              <button className="btn btn-outline-dark btn-sm rounded-pill px-3 fw-bold" onClick={() => setSelectedOrder(order)}>
+                                Chi tiết
+                              </button>
+                              {order.status === 'pending' && (
+                                <button className="btn btn-espresso btn-sm rounded-pill px-3 fw-bold shadow-sm" onClick={() => handleConfirmReceived(order._id)}>
+                                  Đã nhận
+                                </button>
+                              )}
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* --- MODAL CHI TIẾT --- */}
       {selectedOrder && (
         <div className="custom-modal-overlay">
-          <div className="custom-modal-content fade-in-up" style={{ maxWidth: '600px' }}>
-            <div className="d-flex justify-content-between align-items-start mb-4">
-              <h4 className="fw-bold mb-0 text-dark">Chi tiết đơn hàng #{selectedOrder._id.slice(-8).toUpperCase()}</h4>
+          <div className="custom-modal-content fade-in-up shadow-lg">
+            <div className="d-flex justify-content-between align-items-center mb-4 border-bottom pb-3">
+              <div>
+                <h4 className="fw-bold mb-0">Chi tiết đơn hàng</h4>
+                <small className="text-muted">Mã: #{selectedOrder._id.toUpperCase()}</small>
+              </div>
               <button className="btn-close" onClick={() => setSelectedOrder(null)}></button>
             </div>
 
-            <div className="mb-4 bg-light p-3 rounded-3 border">
-              <p className="mb-1 text-muted small text-uppercase fw-bold">Thông tin giao hàng:</p>
-              <p className="mb-1"><strong>Số điện thoại:</strong> {selectedOrder.phone || 'N/A'}</p>
-              <p className="mb-0"><strong>Địa chỉ:</strong> {selectedOrder.address || 'N/A'}</p>
-              {selectedOrder.note && <p className="mb-0 mt-1 text-muted"><strong>Ghi chú:</strong> {selectedOrder.note}</p>}
+            <div className="row g-3 mb-4">
+              <div className="col-md-6">
+                <div className="bg-light p-3 rounded-4 h-100 border-0">
+                  <p className="text-muted small text-uppercase fw-bold mb-2">Thông tin người nhận</p>
+                  <div className="fw-bold text-dark">{selectedOrder.customerName}</div>
+                  <div className="small text-muted">{selectedOrder.phone}</div>
+                  <div className="small text-muted">{selectedOrder.address}</div>
+                </div>
+              </div>
+              <div className="col-md-6">
+                <div className="bg-light p-3 rounded-4 h-100 border-0">
+                  <p className="text-muted small text-uppercase fw-bold mb-2">Ghi chú</p>
+                  <p className="small fst-italic text-espresso mb-0">
+                    {selectedOrder.note ? `"${selectedOrder.note}"` : 'Không có ghi chú nào từ bạn.'}
+                  </p>
+                </div>
+              </div>
             </div>
 
-            <div className="order-items-list mb-4" style={{ maxHeight: '250px', overflowY: 'auto' }}>
-              <p className="text-muted small mb-2 text-uppercase fw-bold">Danh sách sản phẩm:</p>
+            <div className="order-items mb-4 custom-scrollbar pe-2" style={{ maxHeight: '250px', overflowY: 'auto' }}>
+              <p className="text-muted small text-uppercase fw-bold mb-2">Sản phẩm đã đặt</p>
               {selectedOrder.items.map((item, index) => (
-                <div key={index} className="d-flex justify-content-between border-bottom py-2 align-items-center">
-                  <span>
-                    <strong className="text-dark">{item.productId?.name || 'Sản phẩm'}</strong>
-                    <br/>
+                <div key={index} className="d-flex justify-content-between align-items-center py-2 border-bottom border-light">
+                  <div>
+                    <div className="fw-bold text-dark">{item.productId?.name || 'Sản phẩm không còn tồn tại'}</div>
                     <small className="text-muted">Số lượng: {item.quantity}</small>
-                  </span>
-                  <span className="fw-bold text-dark">{(item.productId?.price * item.quantity).toLocaleString()}₫</span>
+                  </div>
+                  <div className="fw-bold text-espresso">
+                    {((item.productId?.price || 0) * item.quantity).toLocaleString()}₫
+                  </div>
                 </div>
               ))}
             </div>
 
-            <div className="d-flex justify-content-between fs-5 fw-bold text-danger border-top pt-3">
-              <span>Tổng cộng:</span>
-              <span>{selectedOrder.total.toLocaleString()}₫</span>
+            <div className="d-flex justify-content-between align-items-center border-top pt-3 bg-white">
+              <span className="fw-bold fs-5 text-dark">Thanh toán (COD):</span>
+              <span className="fw-bold fs-4 text-espresso">
+                {(selectedOrder.totalAmount || selectedOrder.total || 0).toLocaleString()}₫
+              </span>
             </div>
 
-            <div className="mt-4 text-center">
-              <button className="btn btn-secondary rounded-pill px-5" onClick={() => setSelectedOrder(null)}>Đóng</button>
+            <div className="mt-4">
+              <button className="btn btn-espresso w-100 py-3 rounded-pill fw-bold border-0 shadow" onClick={() => setSelectedOrder(null)}>
+                ĐÓNG CHI TIẾT
+              </button>
             </div>
           </div>
         </div>
       )}
 
       <Footer />
+
+      <style>{`
+        .text-espresso { color: #6F4E37; }
+        .bg-espresso { background-color: #6F4E37; }
+        .bg-espresso-subtle { background-color: #FDF8F5; }
+        .btn-espresso { background-color: #6F4E37; color: white; transition: 0.3s; }
+        .btn-espresso:hover { background-color: #2C2420; color: white; transform: translateY(-2px); }
+        .active-espresso { background-color: #6F4E37 !important; color: white !important; }
+        .shadow-soft { box-shadow: 0 10px 40px rgba(0,0,0,0.04); }
+        .text-light-espresso { color: #D7CCC8; }
+        
+        .breadcrumb-item + .breadcrumb-item::before { content: "›"; font-size: 1.2rem; line-height: 1; vertical-align: middle; }
+
+        .custom-modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(44, 36, 32, 0.7); display: flex; align-items: center;
+            justify-content: center; z-index: 10001; backdrop-filter: blur(8px);
+        }
+        .custom-modal-content {
+            background: white; padding: 35px; border-radius: 30px;
+            width: 95%; max-width: 600px;
+        }
+        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #6F4E37; border-radius: 10px; }
+        .fade-in-up { animation: fadeInUp 0.4s ease-out; }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(40px); } to { opacity: 1; transform: translateY(0); } }
+
+        .list-group-item-action:hover {
+          background-color: #FDF8F5;
+          color: #6F4E37;
+        }
+      `}</style>
     </div>
   );
 };
