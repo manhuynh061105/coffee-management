@@ -3,6 +3,7 @@ import { useCart } from '../context/CartContext';
 import { useNavigate } from 'react-router-dom';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
+import api from '../configs/api'; // 1. Import cấu hình api chung
 
 const Checkout = () => {
   const { cart, totalAmount, clearCart } = useCart();
@@ -11,7 +12,7 @@ const Checkout = () => {
   const user = JSON.parse(localStorage.getItem('user'));
 
   const [orderInfo, setOrderInfo] = useState({
-    customerName: user?.name || '',
+    customerName: user?.username || user?.name || '', // Sửa nhẹ để lấy đúng key username nếu cần
     phone: '',
     address: '',
     note: ''
@@ -19,8 +20,10 @@ const Checkout = () => {
 
   const [showSuccess, setShowSuccess] = useState(false);
   const [finalOrderData, setFinalOrderData] = useState(null);
-  // Thêm một state nhỏ để giữ lại số tiền hiển thị trên Modal sau khi clear giỏ hàng
   const [displayAmount, setDisplayAmount] = useState(0);
+
+  // 2. Lấy URL gốc cho hình ảnh
+  const IMAGE_BASE_URL = api.defaults.baseURL.replace('/api', '');
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -29,15 +32,8 @@ const Checkout = () => {
     }
   }, [cart, navigate, showSuccess]);
 
-const handleSubmit = async (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    const token = localStorage.getItem('token'); 
-
-    if (!token) {
-      alert("Phiên đăng nhập đã hết hạn, vui lòng đăng nhập lại!");
-      navigate('/login');
-      return;
-    }
 
     const phoneRegex = /^[0-9]{10}$/;
     if (!phoneRegex.test(orderInfo.phone)) {
@@ -45,7 +41,6 @@ const handleSubmit = async (e) => {
         return;
     }
     
-    // BƯỚC 1: Lưu tổng tiền hiện tại vào biến local
     const currentTotal = totalAmount;
 
     const orderData = {
@@ -61,29 +56,20 @@ const handleSubmit = async (e) => {
     };
 
     try {
-      const response = await fetch('http://localhost:3000/api/orders', {
-        method: 'POST',
-        headers: { 
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify(orderData)
-      });
+      // 3. Sử dụng api.post thay cho fetch (Token đã được tự động đính kèm bởi interceptor)
+      const response = await api.post('/orders', orderData);
 
-      const result = await response.json();
-      
-      if (result.success) {
-        // BƯỚC 2: Cập nhật dữ liệu và hiển thị Modal
-        setFinalOrderData(result.data); 
-        setDisplayAmount(currentTotal); // Gán số tiền vào displayAmount trước khi xóa giỏ hàng
+      if (response.data.success) {
+        setFinalOrderData(response.data.data); 
+        setDisplayAmount(currentTotal);
         setShowSuccess(true);           
-        await clearCart();              // Giờ đây khi giỏ hàng về 0, displayAmount vẫn còn giữ giá trị cũ
+        await clearCart();              
       } else {
-        alert("Lỗi: " + result.message);
+        alert("Lỗi: " + response.data.message);
       }
     } catch (error) {
       console.error("Payment Error:", error);
-      alert("Không thể kết nối đến máy chủ!");
+      alert(error.response?.data?.message || "Không thể kết nối đến máy chủ!");
     }
   };
 
@@ -176,7 +162,14 @@ const handleSubmit = async (e) => {
                   <div key={item._id} className="d-flex justify-content-between mb-3 align-items-center border-bottom border-dark pb-3">
                     <div className="d-flex align-items-center">
                         <div className="bg-white rounded-3 p-1 me-3">
-                            <img src={`http://localhost:3000/img/${item.image}`} alt="" style={{ width: '40px', height: '40px', objectFit: 'cover' }} className="rounded-2" />
+                            <img 
+                              /* 4. Cập nhật đường dẫn ảnh linh hoạt */
+                              src={`${IMAGE_BASE_URL}/img/${item.image}`} 
+                              alt="" 
+                              style={{ width: '40px', height: '40px', objectFit: 'cover' }} 
+                              className="rounded-2" 
+                              onError={(e) => { e.target.src = '/img/default-coffee.jpg' }}
+                            />
                         </div>
                         <div>
                             <span className="fw-bold d-block">{item.name}</span>
@@ -232,7 +225,6 @@ const handleSubmit = async (e) => {
                   <div className="d-flex justify-content-between border-top pt-2 mt-2">
                     <span className="fw-bold">Đã thanh toán:</span>
                     <span className="fw-bold text-espresso fs-5">
-                      {/* BƯỚC 3: Dùng displayAmount đã được chụp lại thay vì totalAmount */}
                       {displayAmount.toLocaleString()}₫
                     </span>
                   </div>
@@ -256,7 +248,6 @@ const handleSubmit = async (e) => {
       )}
 
       <Footer />
-
       <style>{`
         .custom-modal-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;

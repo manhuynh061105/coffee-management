@@ -2,14 +2,29 @@ import React from 'react';
 import { Navigate } from 'react-router-dom';
 
 const AdminRoute = ({ children }) => {
-  const user = JSON.parse(localStorage.getItem('user'));
+  let user = null;
+  
+  try {
+    const userData = localStorage.getItem('user');
+    user = userData ? JSON.parse(userData) : null;
+  } catch (error) {
+    console.error("Lỗi đọc dữ liệu người dùng:", error);
+    user = null;
+  }
 
-  // Nếu không phải admin, đá về trang chủ hoặc trang Login
-  if (!user || user.role !== 'admin') {
-    alert("Bạn không có quyền truy cập trang này!");
+  // 1. Kiểm tra nếu chưa đăng nhập
+  if (!user) {
+    return <Navigate to="/login" />;
+  }
+
+  // 2. Kiểm tra quyền Admin 
+  // Lưu ý: Nếu backend trả về số 1 thì sửa thành: user.role !== 1
+  if (user.role !== 'admin' && user.role !== 1) {
+    alert("Dừng lại! Khu vực này chỉ dành cho quản trị viên.");
     return <Navigate to="/" />;
   }
 
+  // Nếu mọi thứ ổn, cho phép truy cập
   return children;
 };
 

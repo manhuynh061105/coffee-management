@@ -1,5 +1,5 @@
 import React, { createContext, useState, useContext } from 'react';
-import AddProduct from '../pages/AddProduct'; // Gọi trực tiếp file AddProduct của em
+import AddProduct from '../pages/AddProduct'; // Component này sẽ chứa logic API
 
 const ModalContext = createContext();
 
@@ -9,20 +9,18 @@ export const ModalProvider = ({ children }) => {
   const openAddProduct = () => setIsAddProductOpen(true);
   const closeAddProduct = () => setIsAddProductOpen(false);
 
-  // Hàm xử lý sau khi thêm thành công (đã gộp vào bên trong AddProduct ở file trước, 
-  // nhưng ta có thể truyền thêm logic từ đây nếu muốn)
+  // Hàm xử lý sau khi thêm thành công
   const handleSuccess = () => {
     closeAddProduct();
-    // window.location.reload(); // Thầy đã để logic này bên trong AddProduct.jsx rồi
+    // Logic load lại dữ liệu thường được xử lý thông qua props hoặc window.location.reload()
   };
 
   return (
     <ModalContext.Provider value={{ openAddProduct }}>
       {children}
       
-      {/* Sử dụng trực tiếp component AddProduct. 
-        Vì trong AddProduct.jsx em đã viết logic: if (!isOpen) return null;
-        nên nó sẽ chỉ hiện ra khi isAddProductOpen là true.
+      {/* Component AddProduct sẽ nhận isOpen và onClose.
+        Bạn cần đảm bảo bên trong AddProduct.jsx đã sử dụng 'api' từ configs/api.js
       */}
       <AddProduct 
         isOpen={isAddProductOpen} 

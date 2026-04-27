@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import axios from 'axios';
+// 1. Import cấu hình api chung
+import api from '../configs/api'; 
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -18,7 +19,6 @@ const Register = () => {
     });
   };
 
-  // Hàm riêng để xử lý thanh trượt Role
   const toggleRole = () => {
     setFormData({
       ...formData,
@@ -34,7 +34,8 @@ const Register = () => {
     }
 
     try {
-      const response = await axios.post('http://localhost:3000/api/auth/register', {
+      // 2. Sử dụng api.post (đã bỏ domain localhost)
+      const response = await api.post('/auth/register', {
         username: formData.username,
         password: formData.password,
         role: formData.role
@@ -45,7 +46,9 @@ const Register = () => {
         navigate('/login');
       }
     } catch (error) {
-      alert(error.response?.data?.message || 'Đăng ký thất bại!');
+      // 3. Hiển thị thông báo lỗi chi tiết từ Backend
+      console.error('Registration error:', error);
+      alert(error.response?.data?.message || 'Đăng ký thất bại! Vui lòng thử lại.');
     }
   };
 
@@ -62,7 +65,6 @@ const Register = () => {
           </div>
 
           <form onSubmit={handleRegister}>
-            {/* Tên đăng nhập */}
             <div className="mb-3">
               <label className="form-label-custom">Tên đăng nhập</label>
               <div className="input-group-custom">
@@ -75,7 +77,6 @@ const Register = () => {
               </div>
             </div>
 
-            {/* Mật khẩu */}
             <div className="mb-3">
               <label className="form-label-custom">Mật khẩu</label>
               <div className="input-group-custom">
@@ -88,7 +89,6 @@ const Register = () => {
               </div>
             </div>
 
-            {/* Xác nhận mật khẩu */}
             <div className="mb-4">
               <label className="form-label-custom">Xác nhận mật khẩu</label>
               <div className="input-group-custom">
@@ -101,7 +101,6 @@ const Register = () => {
               </div>
             </div>
 
-            {/* THANH TRƯỢT CHỌN ROLE (USER/ADMIN) */}
             <div className="mb-4 text-center">
               <label className="form-label-custom mb-3">Bạn tham gia với vai trò?</label>
               <div className="role-switch-container shadow-sm mx-auto" onClick={toggleRole}>
@@ -186,7 +185,6 @@ const Register = () => {
           box-shadow: 0 0 0 4px rgba(111, 78, 55, 0.1);
         }
 
-        /* ROLE SWITCHER CSS */
         .role-switch-container {
           width: 260px;
           height: 45px;

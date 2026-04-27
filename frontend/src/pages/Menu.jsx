@@ -3,26 +3,29 @@ import { Link } from 'react-router-dom';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import { useCart } from '../context/CartContext';
+import api from '../configs/api'; // 1. Import cấu hình api chung
 
 const Menu = () => {
   const [products, setProducts] = useState([]); 
   const [filteredProducts, setFilteredProducts] = useState([]); 
   const { addToCart } = useCart();
-  const BACKEND_URL = 'http://localhost:3000';
 
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [sortOrder, setSortOrder] = useState('default');
 
+  // 2. Lấy URL gốc cho hình ảnh
+  const IMAGE_BASE_URL = api.defaults.baseURL.replace('/api', '');
+
   useEffect(() => {
-    fetch(`${BACKEND_URL}/api/products`)
-      .then(res => res.json())
-      .then(data => {
-        const allProducts = data.data || data;
+    // 3. Sử dụng api.get thay cho fetch
+    api.get('/products')
+      .then(res => {
+        const allProducts = res.data.data || res.data;
         setProducts(allProducts);
         setFilteredProducts(allProducts); 
       })
-      .catch(err => console.log("Lỗi tải menu:", err));
+      .catch(err => console.error("Lỗi tải menu:", err));
   }, []);
 
   useEffect(() => {
@@ -118,7 +121,8 @@ const Menu = () => {
                   
                   <div className="position-relative overflow-hidden p-3" style={{ height: '240px' }}>
                     <img 
-                      src={`${BACKEND_URL}/img/${item.image || 'bac-xiu.jpg'}`} 
+                      /* 4. Cập nhật đường dẫn ảnh linh hoạt */
+                      src={`${IMAGE_BASE_URL}/img/${item.image || 'bac-xiu.jpg'}`} 
                       className="card-img-top w-100 h-100 shadow-sm" 
                       alt={item.name}
                       style={{ objectFit: 'cover', transition: '0.5s', borderRadius: '20px' }}
@@ -165,7 +169,6 @@ const Menu = () => {
 
       <Footer />
 
-      {/* --- SCOPED STYLES --- */}
       <style>{`
         .mt-n5 { margin-top: -80px !important; }
         

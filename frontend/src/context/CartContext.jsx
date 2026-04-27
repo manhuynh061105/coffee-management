@@ -1,5 +1,6 @@
 import React, { createContext, useState, useEffect, useContext } from 'react';
-import axios from 'axios';
+// 1. Import api instance thay vì axios gốc
+import api from '../configs/api'; 
 
 const CartContext = createContext();
 
@@ -40,7 +41,8 @@ export const CartProvider = ({ children }) => {
       if (localData) setCart(JSON.parse(localData));
 
       try {
-        const res = await axios.get(`http://localhost:3000/api/cart/${currentId}`);
+        // 2. Sử dụng api.get (bỏ domain localhost)
+        const res = await api.get(`/cart/${currentId}`);
         if (res.data.success && res.data.data?.items) {
           const serverItems = res.data.data.items;
           if (serverItems.length > 0) {
@@ -62,7 +64,8 @@ export const CartProvider = ({ children }) => {
     if (!currentId) return;
 
     try {
-      await axios.post('http://localhost:3000/api/cart', {
+      // 3. Sử dụng api.post (bỏ domain localhost)
+      await api.post('/cart', {
         userId: currentId,
         items: newCart
       });
@@ -142,7 +145,8 @@ export const CartProvider = ({ children }) => {
       
       // 3. Xóa trên Server
       try {
-        await axios.post('http://localhost:3000/api/cart', {
+        // 4. Sử dụng api.post (bỏ domain localhost)
+        await api.post('/cart', {
           userId: currentId,
           items: [] // Gửi mảng rỗng để reset giỏ hàng trong DB
         });

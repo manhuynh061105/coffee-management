@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
+// 1. Sử dụng api instance để tự động đính kèm Token
+import api from '../configs/api'; 
 import {
   BarChart,
   Bar,
@@ -13,8 +15,6 @@ import {
 } from "recharts";
 
 const AdminDashboard = () => {
-  const BACKEND_URL = "http://localhost:3000";
-
   const [stats, setStats] = useState({
     totalProducts: 0,
     totalOrders: 0,
@@ -22,24 +22,20 @@ const AdminDashboard = () => {
   });
 
   const [revenueData, setRevenueData] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   const fetchDashboardData = async () => {
     try {
-      const token = localStorage.getItem("token");
-      if (!token) return;
+      setLoading(true);
+      
+      // 2. Gọi đồng thời cả 2 API để tối ưu tốc độ load
+      const [productRes, statsRes] = await Promise.all([
+        api.get('/products'),
+        api.get('/orders/stats')
+      ]);
 
-      const headers = {
-        "Authorization": `Bearer ${token}`,
-        "Content-Type": "application/json"
-      };
-
-      const productRes = await fetch(`${BACKEND_URL}/api/products`);
-      const productData = await productRes.json();
-
-      const statsRes = await fetch(`${BACKEND_URL}/api/orders/stats`, { headers });
-      if (!statsRes.ok) return;
-
-      const statsData = await statsRes.json();
+      const productData = productRes.data;
+      const statsData = statsRes.data;
 
       if (statsData.success && statsData.data) {
         setStats({
@@ -48,15 +44,19 @@ const AdminDashboard = () => {
           totalRevenue: statsData.data.totalRevenue || 0,
         });
 
+        // Xử lý dữ liệu biểu đồ
         if (statsData.data.monthlyRevenue && statsData.data.monthlyRevenue.length > 0) {
           setRevenueData(statsData.data.monthlyRevenue);
         } else {
+          // Fallback nếu chưa có dữ liệu tháng
           const currentMonth = new Date().toLocaleString('default', { month: 'short' });
           setRevenueData([{ month: currentMonth, revenue: statsData.data.totalRevenue || 0 }]);
         }
       }
     } catch (error) {
-      console.error("Lỗi kết nối Dashboard:", error);
+      console.error("Lỗi kết nối Dashboard:", error.response?.data || error.message);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -64,12 +64,13 @@ const AdminDashboard = () => {
     fetchDashboardData();
   }, []);
 
-  // Màu sắc biểu đồ tông Cafe mạnh mẽ hơn
   const COLORS = ["#4B3621", "#6F4E37", "#8B5E3C", "#A67B5B"];
 
   return (
     <div className="page-wrapper" style={{ backgroundColor: '#F4F1EE', minHeight: "100vh" }}>
-      <Header />
+      <div style={{ position: 'relative', zIndex: 9999 }}>
+        <Header />
+      </div>
 
       <div className="container py-5 mt-5">
         <div className="text-center mb-5 mt-4">
@@ -79,7 +80,7 @@ const AdminDashboard = () => {
           <div className="mx-auto mt-2" style={{ width: '80px', height: '4px', backgroundColor: '#6F4E37', borderRadius: '10px' }}></div>
         </div>
 
-        {/* Stats Cards - Làm nổi bật mạnh mẽ */}
+        {/* Stats Cards */}
         <div className="row g-4 mb-5">
           <div className="col-md-4">
             <div className="card stat-card-premium border-0 p-4 h-100 shadow-lg-soft">
@@ -89,7 +90,9 @@ const AdminDashboard = () => {
                 </div>
                 <div>
                   <p className="text-muted-dark small fw-bold text-uppercase mb-0">Sản phẩm</p>
-                  <h2 className="fw-black text-espresso mb-0">{stats.totalProducts}</h2>
+                  <h2 className="fw-black text-espresso mb-0">
+                    {loading ? '...' : stats.totalProducts}
+                  </h2>
                 </div>
               </div>
             </div>
@@ -103,7 +106,9 @@ const AdminDashboard = () => {
                 </div>
                 <div>
                   <p className="text-muted-dark small fw-bold text-uppercase mb-0">Đơn hàng</p>
-                  <h2 className="fw-black text-espresso mb-0">{stats.totalOrders}</h2>
+                  <h2 className="fw-black text-espresso mb-0">
+                    {loading ? '...' : stats.totalOrders}
+                  </h2>
                 </div>
               </div>
             </div>
@@ -117,14 +122,16 @@ const AdminDashboard = () => {
                 </div>
                 <div>
                   <p className="text-muted-dark small fw-bold text-uppercase mb-0">Doanh thu</p>
-                  <h2 className="fw-black text-espresso mb-0">{stats.totalRevenue.toLocaleString()}₫</h2>
+                  <h2 className="fw-black text-espresso mb-0">
+                    {loading ? '...' : stats.totalRevenue.toLocaleString()}₫
+                  </h2>
                 </div>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Biểu đồ - Làm nổi bật khối trắng */}
+        {/* Biểu đồ Doanh Thu */}
         <div className="row">
           <div className="col-lg-12">
             <div className="card border-0 shadow-lg-soft p-5 rounded-5 bg-white border-top-espresso">
@@ -133,45 +140,56 @@ const AdminDashboard = () => {
                   <h4 className="fw-bold text-espresso mb-1">
                     <i className="fa-solid fa-chart-simple me-2"></i>Thống kê doanh thu thực tế
                   </h4>
-                  <p className="text-muted">Phân tích biến động tài chính của cửa hàng</p>
+                  <p className="text-muted small">Phân tích biến động tài chính dựa trên các đơn hoàn thành</p>
                 </div>
-                <button className="btn btn-dark rounded-pill px-4 btn-sm shadow-none">Xuất báo cáo</button>
+                <button 
+                  className="btn btn-dark rounded-pill px-4 btn-sm shadow-none"
+                  onClick={() => window.print()}
+                >
+                  Xuất báo cáo
+                </button>
               </div>
 
               <div style={{ width: '100%', height: 400 }}>
-                <ResponsiveContainer>
-                  <BarChart data={revenueData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
-                    <CartesianGrid strokeDasharray="2 2" vertical={false} stroke="#EFEFEF" />
-                    <XAxis 
-                      dataKey="month" 
-                      axisLine={false} 
-                      tickLine={false} 
-                      tick={{ fill: '#555', fontSize: 13, fontWeight: '500' }}
-                      dy={15}
-                    />
-                    <YAxis 
-                      axisLine={false} 
-                      tickLine={false} 
-                      tick={{ fill: '#555', fontSize: 13 }}
-                      tickFormatter={(value) => `${(value / 1000).toLocaleString()}k`}
-                    />
-                    <Tooltip 
-                      cursor={{ fill: '#F9F7F5' }}
-                      contentStyle={{ 
-                        borderRadius: '20px', 
-                        border: '1px solid #EEE', 
-                        boxShadow: '0 15px 35px rgba(0,0,0,0.15)',
-                        padding: '20px'
-                      }}
-                      formatter={(value) => [`${value.toLocaleString()}₫`, "Doanh thu"]}
-                    />
-                    <Bar dataKey="revenue" radius={[12, 12, 0, 0]} barSize={55}>
-                      {revenueData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                      ))}
-                    </Bar>
-                  </BarChart>
-                </ResponsiveContainer>
+                {loading ? (
+                   <div className="h-100 d-flex justify-content-center align-items-center">
+                      <div className="spinner-border text-espresso"></div>
+                   </div>
+                ) : (
+                  <ResponsiveContainer>
+                    <BarChart data={revenueData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+                      <CartesianGrid strokeDasharray="2 2" vertical={false} stroke="#EFEFEF" />
+                      <XAxis 
+                        dataKey="month" 
+                        axisLine={false} 
+                        tickLine={false} 
+                        tick={{ fill: '#555', fontSize: 13, fontWeight: '500' }}
+                        dy={15}
+                      />
+                      <YAxis 
+                        axisLine={false} 
+                        tickLine={false} 
+                        tick={{ fill: '#555', fontSize: 13 }}
+                        tickFormatter={(value) => `${(value / 1000).toLocaleString()}k`}
+                      />
+                      <Tooltip 
+                        cursor={{ fill: '#F9F7F5' }}
+                        contentStyle={{ 
+                          borderRadius: '20px', 
+                          border: 'none', 
+                          boxShadow: '0 15px 35px rgba(0,0,0,0.15)',
+                          padding: '20px'
+                        }}
+                        formatter={(value) => [`${value.toLocaleString()}₫`, "Doanh thu"]}
+                      />
+                      <Bar dataKey="revenue" radius={[12, 12, 0, 0]} barSize={55}>
+                        {revenueData.map((entry, index) => (
+                          <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                        ))}
+                      </Bar>
+                    </BarChart>
+                  </ResponsiveContainer>
+                )}
               </div>
             </div>
           </div>
@@ -179,7 +197,6 @@ const AdminDashboard = () => {
       </div>
 
       <Footer />
-
       <style>{`
         .text-espresso { color: #3E2723; }
         .fw-black { font-weight: 900; }

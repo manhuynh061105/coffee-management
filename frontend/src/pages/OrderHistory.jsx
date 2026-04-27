@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import { useNavigate, Link } from 'react-router-dom';
+// 1. Import api instance thay vì dùng fetch thủ công
+import api from '../configs/api'; 
 
 const OrderHistory = () => {
   const [orders, setOrders] = useState([]);
@@ -15,24 +17,17 @@ const OrderHistory = () => {
   const fetchOrders = async () => {
     if (!user) return;
     try {
-      const token = localStorage.getItem('token');
       const userId = user._id || user.id;
       
-      const response = await fetch(`http://localhost:3000/api/orders/user/${userId}`, {
-        method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
-      });
+      // 2. Sử dụng api.get (Base URL và Token đã được cấu hình tự động)
+      const response = await api.get(`/orders/user/${userId}`);
 
-      const result = await response.json();
-      if (result.success) {
-        const sortedOrders = result.data.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+      if (response.data.success) {
+        const sortedOrders = response.data.data.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
         setOrders(sortedOrders);
       }
     } catch (error) {
-      console.error("Lỗi lấy lịch sử đơn hàng:", error);
+      console.error("Lỗi lấy lịch sử đơn hàng:", error.response?.data || error.message);
     } finally {
       setLoading(false);
     }
@@ -49,41 +44,37 @@ const OrderHistory = () => {
   const handleConfirmReceived = async (orderId) => {
     if (window.confirm("Bạn xác nhận đã nhận được đơn hàng này?")) {
       try {
-        const token = localStorage.getItem('token');
-        const response = await fetch(`http://localhost:3000/api/orders/${orderId}`, {
-          method: 'PUT',
-          headers: { 
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-          },
-          body: JSON.stringify({ status: 'completed' }) 
-        });
+        // 3. Sử dụng api.put để cập nhật trạng thái
+        const response = await api.put(`/orders/${orderId}`, { status: 'completed' });
         
-        const result = await response.json();
-        if (result.success) {
+        if (response.data.success) {
           setOrders(prevOrders => 
             prevOrders.map(ord => 
               ord._id === orderId ? { ...ord, status: 'completed' } : ord
             )
           );
+          alert("Tuyệt vời! Chúc bạn thưởng thức cà phê ngon miệng.");
         }
       } catch (error) {
-        alert("Không thể kết nối đến máy chủ!");
+        console.error("Lỗi xác nhận đơn hàng:", error);
+        alert(error.response?.data?.message || "Không thể kết nối đến máy chủ!");
       }
     }
   };
 
   return (
     <div className="page-wrapper" style={{ backgroundColor: '#FCFBFA', minHeight: '100vh' }}>
-      <Header />
+      <div style={{ position: 'relative', zIndex: 9999 }}>
+        <Header />
+      </div>
 
       {/* --- HERO SECTION --- */}
       <div className="pt-5 mt-5 pb-4" style={{ background: 'linear-gradient(rgba(44, 36, 32, 0.03), transparent)' }}>
         <div className="container mt-4">
           <nav aria-label="breadcrumb">
             <ol className="breadcrumb mb-2">
-              <li className="breadcrumb-item"><Link to="/" className="text-decoration-none text-muted">Trang chủ</Link></li>
-              <li className="breadcrumb-item active text-espresso fw-bold" aria-current="page">Lịch sử đơn hàng</li>
+              <li className="breadcrumb-item"><Link to="/" className="text-decoration-none text-muted small">Trang chủ</Link></li>
+              <li className="breadcrumb-item active text-espresso fw-bold small" aria-current="page">Lịch sử đơn hàng</li>
             </ol>
           </nav>
           <h2 className="fw-bold text-uppercase m-0" style={{ color: '#2C2420', letterSpacing: '1.5px' }}>Đơn hàng của bạn</h2>
@@ -93,7 +84,7 @@ const OrderHistory = () => {
 
       <div className="container pb-5">
         <div className="row">
-          {/* --- SIDEBAR NAVIGATION (Optional) --- */}
+          {/* --- SIDEBAR --- */}
           <div className="col-lg-3 mb-4">
             <div className="card border-0 shadow-soft rounded-4 p-3 bg-white">
               <div className="d-flex align-items-center mb-3 p-2">
@@ -117,12 +108,12 @@ const OrderHistory = () => {
             </div>
           </div>
 
-          {/* --- MAIN CONTENT (TABLE) --- */}
+          {/* --- MAIN CONTENT --- */}
           <div className="col-lg-9">
             {loading ? (
               <div className="text-center py-5 bg-white rounded-4 shadow-soft border">
                 <div className="spinner-border text-espresso"></div>
-                <p className="mt-3 text-muted">Đang tải dữ liệu...</p>
+                <p className="mt-3 text-muted">Đang tìm lại những kỉ niệm hương vị...</p>
               </div>
             ) : orders.length === 0 ? (
               <div className="text-center py-5 bg-white shadow-soft rounded-4 border">
@@ -245,7 +236,7 @@ const OrderHistory = () => {
             </div>
 
             <div className="d-flex justify-content-between align-items-center border-top pt-3 bg-white">
-              <span className="fw-bold fs-5 text-dark">Thanh toán (COD):</span>
+              <span className="fw-bold fs-5 text-dark">Thanh toán:</span>
               <span className="fw-bold fs-4 text-espresso">
                 {(selectedOrder.totalAmount || selectedOrder.total || 0).toLocaleString()}₫
               </span>
@@ -271,6 +262,8 @@ const OrderHistory = () => {
         .active-espresso { background-color: #6F4E37 !important; color: white !important; }
         .shadow-soft { box-shadow: 0 10px 40px rgba(0,0,0,0.04); }
         .text-light-espresso { color: #D7CCC8; }
+        .bg-success-subtle { background-color: #E8F5E9; }
+        .bg-warning-subtle { background-color: #FFFDE7; }
         
         .breadcrumb-item + .breadcrumb-item::before { content: "›"; font-size: 1.2rem; line-height: 1; vertical-align: middle; }
 
@@ -287,11 +280,6 @@ const OrderHistory = () => {
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #6F4E37; border-radius: 10px; }
         .fade-in-up { animation: fadeInUp 0.4s ease-out; }
         @keyframes fadeInUp { from { opacity: 0; transform: translateY(40px); } to { opacity: 1; transform: translateY(0); } }
-
-        .list-group-item-action:hover {
-          background-color: #FDF8F5;
-          color: #6F4E37;
-        }
       `}</style>
     </div>
   );

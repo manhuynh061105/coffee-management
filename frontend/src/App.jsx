@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 
 import ScrollToTop from './components/ScrollToTop'; 
 
@@ -22,6 +22,12 @@ import AdminRoute from './components/AdminRoute';
 
 import './index.css'; 
 
+// --- Component bảo vệ dành cho User đã đăng nhập ---
+const PrivateRoute = ({ children }) => {
+  const token = localStorage.getItem('token');
+  return token ? children : <Navigate to="/login" />;
+};
+
 function App() {
   return (
     <Router>
@@ -36,10 +42,22 @@ function App() {
         <Route path="/menu" element={<Menu />} />
         <Route path="/product/:id" element={<ProductDetail />} />
         
-        {/* --- BƯỚC 2: THÊM ROUTE CHECKOUT Ở ĐÂY --- */}
-        <Route path="/checkout" element={<Checkout />} />
-        <Route path="/order-success" element={<OrderSuccess />} />
-        <Route path="/order-history" element={<OrderHistory />} />
+        {/* --- Protected User Routes (Phải đăng nhập mới thấy) --- */}
+        <Route path="/checkout" element={
+          <PrivateRoute>
+            <Checkout />
+          </PrivateRoute>
+        } />
+        <Route path="/order-success" element={
+          <PrivateRoute>
+            <OrderSuccess />
+          </PrivateRoute>
+        } />
+        <Route path="/order-history" element={
+          <PrivateRoute>
+            <OrderHistory />
+          </PrivateRoute>
+        } />
         
         {/* --- Admin Routes --- */}
         <Route 
@@ -67,12 +85,14 @@ function App() {
           }
         />
         
-        {/* Trang 404 */}
+        {/* Trang 404 - Làm đẹp hơn một chút */}
         <Route path="*" element={
-          <div className="text-center mt-5">
-            <h1 className="display-1 fw-bold text-danger">404</h1>
-            <p className="fs-3">Rất tiếc, trang này không tồn tại!</p>
-            <a href="/" className="btn btn-primary">Quay về Trang chủ</a>
+          <div className="text-center mt-5 py-5">
+            <h1 className="display-1 fw-bold" style={{ color: '#6F4E37' }}>404</h1>
+            <p className="fs-3 text-muted">Hương vị này chúng tôi chưa tìm thấy!</p>
+            <a href="/" className="btn btn-espresso rounded-pill px-4 text-white" style={{ backgroundColor: '#6F4E37' }}>
+              Quay về Trang chủ
+            </a>
           </div>
         } />
       </Routes>

@@ -3,11 +3,14 @@ import Header from '../components/Header';
 import Footer from '../components/Footer';
 import { useCart } from '../context/CartContext';
 import { Link, useNavigate } from 'react-router-dom';
+import api from '../configs/api'; // 1. Import api config
 
 const Cart = () => {
   const { cart, updateQuantity, removeFromCart, totalAmount } = useCart();
   const navigate = useNavigate();
-  const BACKEND_URL = 'http://localhost:3000';
+
+  // 2. Lấy URL gốc cho hình ảnh từ config
+  const IMAGE_BASE_URL = api.defaults.baseURL.replace('/api', '');
 
   const handleCheckout = () => {
     if (cart.length === 0) {
@@ -19,7 +22,6 @@ const Cart = () => {
 
   return (
     <div className="page-wrapper" style={{ backgroundColor: '#F0F2F5', minHeight: '100vh' }}>
-      {/* SỬA: Đưa Header vào một div có z-index cao nhất để không bị đè */}
       <div style={{ position: 'relative', zIndex: 9999 }}>
         <Header />
       </div>
@@ -49,7 +51,6 @@ const Cart = () => {
           </div>
         ) : (
           <div className="row g-4">
-            {/* DANH SÁCH SẢN PHẨM */}
             <div className="col-lg-8">
               <div className="bg-white rounded-4 shadow-lg p-4 border" style={{ border: '1px solid rgba(0,0,0,0.1) !important' }}>
                 <h5 className="fw-bold mb-4 text-dark border-bottom pb-3">Sản phẩm trong giỏ ({cart.length})</h5>
@@ -66,7 +67,8 @@ const Cart = () => {
                     <div className="d-flex align-items-center" style={{ width: '45%', minWidth: '250px' }}>
                       <Link to={`/product/${item._id}`}>
                         <img 
-                          src={`${BACKEND_URL}/img/${item.image || 'bac-xiu.jpg'}`} 
+                          /* 3. Cập nhật đường dẫn ảnh */
+                          src={`${IMAGE_BASE_URL}/img/${item.image || 'bac-xiu.jpg'}`} 
                           alt={item.name} 
                           className="rounded-3 shadow-sm me-3 border" 
                           style={{ width: '80px', height: '80px', objectFit: 'cover' }}
@@ -94,7 +96,7 @@ const Cart = () => {
                           onClick={() => updateQuantity(item._id, -1)}
                           style={{ width: '30px', height: '30px', backgroundColor: '#6F4E37', borderRadius: '50%', border: 'none' }}
                         >
-                          <i className="fa-solid fa-minus text-white" style={{ fontSize: '10px', color: '#fff !important' }}></i>
+                          <i className="fa-solid fa-minus text-white" style={{ fontSize: '10px' }}></i>
                         </button>
                         <span className="mx-3 fw-bold">{item.quantity}</span>
                         <button 
@@ -102,12 +104,12 @@ const Cart = () => {
                           onClick={() => updateQuantity(item._id, 1)}
                           style={{ width: '30px', height: '30px', backgroundColor: '#6F4E37', borderRadius: '50%', border: 'none' }}
                         >
-                          <i className="fa-solid fa-plus text-white" style={{ fontSize: '10px', color: '#fff !important' }}></i>
+                          <i className="fa-solid fa-plus text-white" style={{ fontSize: '10px' }}></i>
                         </button>
                       </div>
                     </div>
 
-                    <div style={{ width: '15%' }} className="text-end fw-bold fs-5" style={{ color: '#6F4E37' }}>
+                    <div className="text-end fw-bold fs-5" style={{ width: '15%', color: '#6F4E37' }}>
                       {(item.price * item.quantity).toLocaleString()}₫
                     </div>
                   </div>
@@ -115,9 +117,7 @@ const Cart = () => {
               </div>
             </div>
 
-            {/* TÓM TẮT THANH TOÁN */}
             <div className="col-lg-4">
-              {/* SỬA: Thêm z-index: 100 cho khối sticky để nó thấp hơn Header (9999) */}
               <div className="bg-white p-4 rounded-4 shadow-lg border-2 border border-primary-subtle sticky-top" 
                    style={{ top: '100px', zIndex: 100 }}>
                 <h4 className="fw-bold mb-4 text-dark border-bottom pb-3">Chi tiết thanh toán</h4>
@@ -162,6 +162,7 @@ const Cart = () => {
         )}
       </div>
 
+      <Footer />
       <style>{`
         .product-link-bold:hover h6 {
             color: #6F4E37 !important;
@@ -192,8 +193,6 @@ const Cart = () => {
             transform: translateY(-2px);
         }
       `}</style>
-
-      <Footer />
     </div>
   );
 };
