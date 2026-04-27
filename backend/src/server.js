@@ -1,9 +1,12 @@
 import express from "express";
 import dotenv from "dotenv";
 import cors from "cors";
-import mongoose from "mongoose";
-import path from "path"; // Thêm dòng này
-import { fileURLToPath } from "url"; // Thêm dòng này
+import mongoose from "mongoose"; // Vẫn giữ để sử dụng nếu cần, nhưng quan trọng là hàm kết nối
+import path from "path";
+import { fileURLToPath } from "url";
+
+// 1. IMPORT file db.js (Giả sử bạn đã tạo file này như hướng dẫn trước)
+import connectDB from "./config/db.js"; 
 
 import productRoutes from "./routes/productsRoutes.js";
 import orderRoutes from "./routes/ordersRoutes.js";
@@ -12,7 +15,9 @@ import cartRoutes from './routes/cartRoutes.js';
 
 dotenv.config();
 
-// Thiết lập __dirname cho ESM (Vì em dùng import/export)
+// 2. GỌI KẾT NỐI DATABASE NGAY ĐẦU
+connectDB(); 
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -21,11 +26,9 @@ const app = express();
 // Middleware
 app.use(cors());
 app.use(express.json());
-// QUAN TRỌNG: Middleware để đọc dữ liệu từ FormData (Multer cần cái này)
 app.use(express.urlencoded({ extended: true }));
 
-// SỬA LẠI DÒNG NÀY: 
-// Dùng ".." để nhảy ra khỏi thư mục src, sau đó mới vào public/img
+// Static files
 app.use("/img", express.static(path.join(__dirname, "..", "public", "img")));
 
 // Routes
@@ -34,30 +37,18 @@ app.use("/api/orders", orderRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/cart', cartRoutes);
 
-// Test route
 app.get("/", (req, res) => {
-  res.json({
-    message: "Coffee Management API is running ☕"
-  });
+  res.json({ message: "Coffee Management API is running ☕" });
 });
 
-// Middleware xử lý Route không tồn tại
 app.use((req, res) => {
-  res.status(404).json({
-    success: false,
-    message: "Đường dẫn (Route) không tồn tại"
-  });
-});
-
-// Connect Database
-mongoose.connect("mongodb://127.0.0.1:27017/coffee");
-mongoose.connection.on("connected", () => {
-  console.log("MongoDB connected");
+  res.status(404).json({ success: false, message: "Đường dẫn không tồn tại" });
 });
 
 const PORT = process.env.PORT || 10000;
 
-app.listen(PORT, '0.0.0.0', () => {
+// 3. LƯU Ý: Render đôi khi không cần '0.0.0.0' nhưng thêm vào cho chắc chắn
+app.listen(PORT, "0.0.0.0", () => {
     console.log(`
 🚀 Server is running!
 📡 Port: ${PORT}
