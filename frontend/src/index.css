@@ -288,3 +288,50 @@ footer h4, footer h5 {
 .btn-close:hover {
   background-color: #e9ecef;
 }
+
+/* Đảm bảo icon trong các nút tăng giảm luôn hiển thị màu trắng */
+.quantity-control-btn i, 
+.quantity-btn i {
+    filter: none !important; /* Loại bỏ mọi bộ lọc màu gây tàng hình */
+    color: #ffffff !important; /* Ép icon thành màu trắng */
+    -webkit-text-fill-color: #ffffff !important; /* Hỗ trợ một số trình duyệt đặc biệt */
+    display: inline-block !important;
+}
+
+/* Định nghĩa lại nút tăng giảm số lượng */
+.quantity-control-btn {
+    width: 32px !important;
+    height: 32px !important;
+    padding: 0 !important;
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50% !important;
+    border: none !important; /* Loại bỏ viền transparent gây lệch */
+    background-color: var(--color-primary) !important;
+    transition: var(--transition) !important;
+    cursor: pointer;
+}
+
+.quantity-control-btn:hover {
+    background-color: var(--color-black) !important;
+    transform: scale(1.1);
+}
+
+/* Làm các khối nội dung nổi bật hơn trên nền xám */
+.bg-white.rounded-4.shadow-lg {
+    border: 1px solid rgba(111, 78, 55, 0.1) !important; /* Thêm viền nâu cực nhạt */
+    box-shadow: 0 15px 35px rgba(44, 36, 32, 0.1) !important; /* Đổ bóng màu nâu đen nhạt */
+}
+
+/* Hiệu ứng cho dòng sản phẩm trong giỏ hàng */
+.cart-item-row {
+    background-color: var(--color-white);
+    border: 1px solid #eee !important;
+    transition: var(--transition);
+}
+
+.cart-item-row:hover {
+    border-color: var(--color-secondary) !important;
+    background-color: #fdfbf9 !important; /* Đổi màu nền nhẹ khi hover */
+}

@@ -6,13 +6,14 @@ import Footer from '../components/Footer';
 import { useCart } from '../context/CartContext';
 
 const ProductDetail = () => {
-  const { id } = useParams(); // Lấy ID sản phẩm từ URL
+  const { id } = useParams();
   const navigate = useNavigate();
   const { addToCart } = useCart();
   
   const [product, setProduct] = useState(null);
   const [quantity, setQuantity] = useState(1);
   const [loading, setLoading] = useState(true);
+  const [added, setAdded] = useState(false);
 
   const BACKEND_URL = 'http://localhost:3000';
 
@@ -20,7 +21,6 @@ const ProductDetail = () => {
     const fetchProduct = async () => {
       try {
         setLoading(true);
-        // Gọi API lấy chi tiết 1 sản phẩm theo ID
         const res = await axios.get(`${BACKEND_URL}/api/products/${id}`);
         const data = res.data.data || res.data;
         setProduct(data);
@@ -31,105 +31,141 @@ const ProductDetail = () => {
       }
     };
     fetchProduct();
-    window.scrollTo(0, 0); // Cuộn lên đầu trang khi vào trang mới
+    window.scrollTo(0, 0);
   }, [id]);
 
-  // Hàm xử lý tăng giảm số lượng tại chỗ
   const handleQtyChange = (num) => {
     if (quantity + num > 0) setQuantity(quantity + num);
   };
 
+  const handleAddToCart = () => {
+    for(let i=0; i<quantity; i++) addToCart(product);
+    setAdded(true);
+    setTimeout(() => setAdded(false), 2000);
+  };
+
   if (loading) return (
-    <div className="text-center my-5 p-5">
-      <div className="spinner-border text-primary" role="status"></div>
-      <p className="mt-2">Đang pha cà phê cho bạn...</p>
+    <div className="d-flex flex-column justify-content-center align-items-center" style={{ minHeight: '100vh', backgroundColor: '#FCFBFA' }}>
+      <div className="spinner-grow" role="status" style={{ color: '#6F4E37', backgroundColor: '#6F4E37' }}></div>
+      <p className="mt-3 fw-bold text-muted">Đang chuẩn bị hương vị Beans...</p>
     </div>
   );
 
   if (!product) return (
     <div className="container text-center my-5 p-5">
-      <h3>Sản phẩm không tồn tại!</h3>
-      <button className="btn btn-primary mt-3" onClick={() => navigate('/menu')}>Quay lại Menu</button>
+      <h3 className="fw-bold">Ối! Sản phẩm không tồn tại!</h3>
+      <button className="btn btn-dark mt-3 rounded-pill px-4" onClick={() => navigate('/menu')}>Quay lại Menu</button>
     </div>
   );
 
   return (
-    <div className="product-detail-wrapper">
-      <div className="bg-dark"><Header /></div>
+    <div className="product-detail-page" style={{ backgroundColor: '#FCFBFA', minHeight: '100vh' }}>
+      <div style={{ position: 'relative', zIndex: 9999 }}>
+        <Header />
+      </div>
 
-      <div style={{ height: '40px' }}></div>
-
-      <div className="container my-5 pt-5">
-        {/* Nút quay lại */}
-        <nav aria-label="breadcrumb" className="mb-4">
-          <ol className="breadcrumb">
-            <li className="breadcrumb-item"><button className="btn btn-link p-0 text-decoration-none" onClick={() => navigate('/')}>Trang chủ</button></li>
-            <li className="breadcrumb-item"><button className="btn btn-link p-0 text-decoration-none" onClick={() => navigate('/menu')}>Menu</button></li>
-            <li className="breadcrumb-item active">{product.name}</li>
+      <div className="container py-5 mt-5">
+        {/* Breadcrumb hiện đại */}
+        <nav aria-label="breadcrumb" className="mb-5 pt-4 animate__animated animate__fadeIn">
+          <ol className="breadcrumb bg-white p-3 rounded-pill shadow-sm border px-4">
+            <li className="breadcrumb-item"><button className="btn btn-link p-0 text-decoration-none text-muted small" onClick={() => navigate('/')}>Trang chủ</button></li>
+            <li className="breadcrumb-item"><button className="btn btn-link p-0 text-decoration-none text-muted small" onClick={() => navigate('/menu')}>Thực đơn</button></li>
+            <li className="breadcrumb-item active text-dark fw-bold small" aria-current="page">{product.name}</li>
           </ol>
         </nav>
 
-        <div className="row g-5">
+        <div className="row g-5 align-items-center">
           {/* Cột Trái: Hình ảnh */}
-          <div className="col-md-6">
-            <div className="product-image-container shadow-sm rounded overflow-hidden border">
+          <div className="col-lg-6 animate__animated animate__fadeInLeft">
+            <div className="product-img-holder p-3 bg-white shadow-soft rounded-5 border overflow-hidden">
               <img 
                 src={`${BACKEND_URL}/img/${product.image || 'bac-xiu.jpg'}`} 
                 alt={product.name} 
-                className="img-fluid w-100"
-                style={{ maxHeight: '500px', objectFit: 'cover' }}
+                className="img-fluid w-100 rounded-5 shadow-inner"
+                style={{ maxHeight: '550px', objectFit: 'cover' }}
                 onError={(e) => { e.target.src = '/img/default-coffee.jpg' }}
               />
             </div>
           </div>
 
-          {/* Cột Phải: Thông tin */}
-          <div className="col-md-6">
-            <div className="ps-md-4">
-              <span className="badge bg-primary px-3 py-2 mb-2 text-uppercase">{product.category}</span>
-              <h1 className="fw-bold display-5 mb-2">{product.name}</h1>
-              <h2 className="text-danger fw-bold mb-4">{(product.price * quantity).toLocaleString()}₫</h2>
+          {/* Cột Phải: Thông tin chi tiết */}
+          <div className="col-lg-6 animate__animated animate__fadeInRight animate__delay-1s">
+            <div className="product-info-card ps-lg-4">
               
-              <hr />
+              {/* CHỈNH SỬA: Category Tag tinh tế hơn */}
+              <div className="d-flex align-items-center mb-3">
+                <span className="text-uppercase small fw-bold letter-spacing-1 p-2 px-3 rounded-pill" 
+                      style={{ backgroundColor: '#2C2420', color: '#FCFBFA', fontSize: '0.75rem' }}>
+                  <i className="fa-solid fa-tag me-2 opacity-75"></i>{product.category || "Cà phê"}
+                </span>
+                <span className="ms-3 text-muted small italic">Beans Special Collection</span>
+              </div>
               
-              <div className="product-description mb-4">
-                <h5 className="fw-bold"><i className="fa-solid fa-file-lines me-2 text-primary"></i>Mô tả sản phẩm:</h5>
-                <p className="text-muted fs-5 leading-relaxed">
-                  {product.description || "Thưởng thức hương vị tinh tế, đậm đà được Beans Café tuyển chọn kỹ lưỡng từ những vùng nguyên liệu tốt nhất. Một trải nghiệm khó quên cho những tín đồ yêu thích sự nguyên bản."}
+              <h1 className="fw-bold display-4 mb-3 text-dark" style={{ letterSpacing: '-1.5px' }}>{product.name}</h1>
+              
+              <div className="d-flex align-items-baseline mb-4">
+                <h2 className="text-espresso fw-bold display-6 mb-0" style={{ color: '#6F4E37' }}>
+                  {product.price?.toLocaleString()}₫
+                </h2>
+                <span className="ms-3 text-muted">/ mỗi sản phẩm</span>
+              </div>
+              
+              <div className="description-box mb-4 p-4 rounded-4" style={{ backgroundColor: '#FDFBFA', borderLeft: '5px solid #A67B5B' }}>
+                <h6 className="fw-bold text-uppercase small letter-spacing-1 mb-2" style={{ color: '#A67B5B' }}>Câu chuyện hương vị</h6>
+                <p className="text-muted mb-0 leading-relaxed italic">
+                  "{product.description || "Hương vị nguyên bản được rang xay thủ công bởi các nghệ nhân Beans, mang đến trải nghiệm cà phê thuần khiết nhất từ cao nguyên Việt Nam."}"
                 </p>
               </div>
 
               {/* Bộ chọn số lượng */}
-              <div className="d-flex align-items-center mb-4">
-                <span className="fw-bold me-3">Số lượng:</span>
-                <div className="input-group" style={{ width: '130px' }}>
-                  <button className="btn btn-outline-secondary" onClick={() => handleQtyChange(-1)}>-</button>
-                  <span className="form-control text-center fw-bold">{quantity}</span>
-                  <button className="btn btn-outline-secondary" onClick={() => handleQtyChange(1)}>+</button>
+              <div className="quantity-selector d-flex align-items-center mb-5 mt-4">
+                <span className="fw-bold me-4 text-uppercase small text-dark letter-spacing-1">Số lượng:</span>
+                <div className="d-flex align-items-center bg-white border rounded-pill shadow-sm p-1">
+                  <button 
+                    className="btn d-flex align-items-center justify-content-center p-0 detail-qty-btn" 
+                    onClick={() => updateQuantity(quantity - 1)}
+                  >
+                    <i className="fa-solid fa-minus text-white"></i>
+                  </button>
+                  
+                  <span className="mx-4 fw-bold fs-5 text-dark" style={{ minWidth: '30px', textAlign: 'center' }}>{quantity}</span>
+                  
+                  <button 
+                    className="btn d-flex align-items-center justify-content-center p-0 detail-qty-btn" 
+                    onClick={() => updateQuantity(quantity + 1)}
+                  >
+                    <i className="fa-solid fa-plus text-white"></i>
+                  </button>
                 </div>
               </div>
 
               {/* Nút hành động */}
-              <div className="d-grid gap-2 d-md-flex mt-4">
+              <div className="action-buttons mb-5">
                 <button 
-                  className="btn btn-primary btn-lg px-5 py-3 rounded-pill fw-bold shadow-sm"
-                  onClick={() => {
-                    // Thêm vào giỏ hàng với số lượng hiện tại
-                    for(let i=0; i<quantity; i++) addToCart(product);
-                    // Có thể thêm thông báo alert hoặc toast ở đây
-                  }}
+                  className={`btn btn-lg w-100 py-3 rounded-pill fw-bold shadow-soft transition-all border-0 ${added ? 'btn-success' : 'btn-espresso'}`}
+                  style={{ backgroundColor: added ? '#28a745' : '#6F4E37', color: '#fff' }}
+                  onClick={handleAddToCart}
                 >
-                  <i className="fa-solid fa-cart-shopping me-2"></i> THÊM VÀO GIỎ HÀNG
+                  <i className={`fa-solid ${added ? 'fa-check-circle' : 'fa-cart-plus'} me-2`}></i>
+                  {added ? 'ĐÃ THÊM VÀO GIỎ!' : 'THÊM VÀO GIỎ HÀNG'}
                 </button>
               </div>
 
-              {/* Cam kết nhỏ */}
-              <div className="mt-5 border-top pt-4">
-                <div className="row text-center text-muted small g-2">
-                  <div className="col-4 border-end"><i className="fa-solid fa-truck-fast d-block fs-4 mb-2"></i> Giao hàng nhanh</div>
-                  <div className="col-4 border-end"><i className="fa-solid fa-leaf d-block fs-4 mb-2"></i> Nguyên liệu sạch</div>
-                  <div className="col-4"><i className="fa-solid fa-shield-halved d-block fs-4 mb-2"></i> An toàn vệ sinh</div>
-                </div>
+              {/* CHỈNH SỬA: Icon Tiện ích tông màu Espresso nổi bật */}
+              <div className="row mt-5 pt-4 border-top g-3 bg-white rounded-4 shadow-sm p-3 border">
+                {[
+                    { icon: 'fa-truck-fast', title: 'Giao nhanh', desc: 'Trong 30 phút' },
+                    { icon: 'fa-leaf', title: 'Tự nhiên', desc: '100% Nguyên mộc' },
+                    { icon: 'fa-shield-heart', title: 'Sạch 100%', desc: 'An toàn vệ sinh' }
+                ].map((item, idx) => (
+                    <div key={idx} className="col-4 text-center px-2">
+                        <div className="icon-circle mb-2" style={{ backgroundColor: '#2C2420', color: '#FCFBFA', width: '50px', height: '50px' }}>
+                            <i className={`fa-solid ${item.icon} fs-5`}></i>
+                        </div>
+                        <div className="small fw-bold text-dark">{item.title}</div>
+                        <div className="text-muted extra-small d-none d-md-block">{item.desc}</div>
+                    </div>
+                ))}
               </div>
             </div>
           </div>
@@ -139,10 +175,60 @@ const ProductDetail = () => {
       <Footer />
       
       <style>{`
-        .breadcrumb-item button { color: #6c757d; font-size: 0.9rem; }
-        .breadcrumb-item.active { font-size: 0.9rem; font-weight: bold; }
-        .product-image-container img { transition: transform 0.5s ease; }
-        .product-image-container:hover img { transform: scale(1.05); }
+        .letter-spacing-1 { letter-spacing: 1px; }
+        .shadow-soft { box-shadow: 0 15px 35px rgba(44, 36, 32, 0.08); }
+        
+        .detail-qty-btn {
+            width: 38px;
+            height: 38px;
+            border-radius: 50% !important;
+            background-color: #6F4E37 !important;
+            border: none !important;
+            transition: 0.3s;
+        }
+        
+        .detail-qty-btn:hover {
+            background-color: #2C2420 !important;
+            transform: scale(1.1);
+        }
+
+        .product-img-holder img {
+            transition: transform 0.8s cubic-bezier(0.165, 0.84, 0.44, 1);
+        }
+
+        .product-img-holder:hover img {
+            transform: scale(1.06);
+        }
+
+        .icon-circle {
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid #FDF8F5;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .transition-all {
+            transition: all 0.3s ease;
+        }
+
+        .shadow-inner {
+            box-shadow: inset 0 0 15px rgba(0,0,0,0.05);
+        }
+        .extra-small { font-size: 0.7rem; }
+
+        @keyframes fadeInLeft {
+            from { opacity: 0; transform: translateX(-30px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes fadeInRight {
+            from { opacity: 0; transform: translateX(30px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        .animate__fadeInLeft { animation: fadeInLeft 0.8s ease forwards; }
+        .animate__fadeInRight { animation: fadeInRight 0.8s ease forwards; }
+        .animate__delay-1s { animation-delay: 0.2s; }
       `}</style>
     </div>
   );
