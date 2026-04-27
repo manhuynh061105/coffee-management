@@ -1,253 +1,101 @@
-import React, { useState, useEffect } from 'react';
-import { useCart } from '../context/CartContext';
-import { useNavigate } from 'react-router-dom';
-import Header from '../components/Header';
-import Footer from '../components/Footer';
-import api from '../configs/api'; // 1. Import cấu hình api chung
+import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
+// 1. Đổi từ axios sang api config của bạn
+import api from '../configs/api'; 
 
-const Checkout = () => {
-  const { cart, totalAmount, clearCart } = useCart();
-  const navigate = useNavigate();
-  
-  const user = JSON.parse(localStorage.getItem('user'));
+const Login = () => {
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
 
-  const [orderInfo, setOrderInfo] = useState({
-    customerName: user?.username || user?.name || '', // Sửa nhẹ để lấy đúng key username nếu cần
-    phone: '',
-    address: '',
-    note: ''
-  });
-
-  const [showSuccess, setShowSuccess] = useState(false);
-  const [finalOrderData, setFinalOrderData] = useState(null);
-  const [displayAmount, setDisplayAmount] = useState(0);
-
-  // 2. Lấy URL gốc cho hình ảnh
-  const IMAGE_BASE_URL = api.defaults.baseURL.replace('/api', '');
-
-  useEffect(() => {
-    window.scrollTo(0, 0);
-    if (cart.length === 0 && !showSuccess) {
-        navigate('/menu');
-    }
-  }, [cart, navigate, showSuccess]);
-
-  const handleSubmit = async (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
-
-    const phoneRegex = /^[0-9]{10}$/;
-    if (!phoneRegex.test(orderInfo.phone)) {
-        alert("Số điện thoại không hợp lệ (phải có 10 chữ số)!");
-        return;
-    }
-    
-    const currentTotal = totalAmount;
-
-    const orderData = {
-      customerName: orderInfo.customerName, 
-      phone: orderInfo.phone,
-      address: orderInfo.address,
-      note: orderInfo.note,
-      items: cart.map(item => ({
-        productId: item._id,
-        quantity: item.quantity
-      })),
-      totalAmount: currentTotal 
-    };
-
     try {
-      // 3. Sử dụng api.post thay cho fetch (Token đã được tự động đính kèm bởi interceptor)
-      const response = await api.post('/orders', orderData);
+      // 2. Sử dụng api.post và lược bỏ domain localhost
+      const response = await api.post('/auth/login', {
+        username,
+        password
+      });
 
+      // Axios trả về dữ liệu trong thuộc tính .data
+      // Lưu ý: Cấu trúc data.data.token tùy thuộc vào Backend của bạn trả về
       if (response.data.success) {
-        setFinalOrderData(response.data.data); 
-        setDisplayAmount(currentTotal);
-        setShowSuccess(true);           
-        await clearCart();              
-      } else {
-        alert("Lỗi: " + response.data.message);
+        localStorage.setItem('token', response.data.data.token);
+        localStorage.setItem('user', JSON.stringify(response.data.data.user));
+        
+        // Thông báo thành công (tùy chọn)
+        alert('Đăng nhập thành công! Chào mừng bạn quay lại.');
+        window.location.href = '/'; 
       }
     } catch (error) {
-      console.error("Payment Error:", error);
-      alert(error.response?.data?.message || "Không thể kết nối đến máy chủ!");
+      console.error('Login error:', error);
+      // Hiển thị lỗi từ server hoặc lỗi mặc định
+      alert(error.response?.data?.message || 'Đăng nhập thất bại! Vui lòng kiểm tra lại.');
     }
   };
 
   return (
-    <div className="page-wrapper" style={{ backgroundColor: '#FCFBFA' }}>
-      <div style={{ position: 'relative', zIndex: 9999 }}>
-        <Header />
-      </div>
-
-      <div className="container mt-5 pt-5 mb-5" style={{ minHeight: '80vh' }}>
-        <div className="text-center mb-5 pt-3">
-            <h2 className="fw-bold text-uppercase" style={{ color: '#2C2420', letterSpacing: '2px' }}>Thanh toán đơn hàng</h2>
-            <div className="mx-auto" style={{ width: '60px', height: '4px', backgroundColor: '#6F4E37', borderRadius: '10px' }}></div>
-        </div>
-        
-        <div className="row g-4">
-          <div className="col-lg-7">
-            <div className="card shadow-soft border-0 rounded-4 p-4 animate__animated animate__fadeInLeft">
-              <div className="d-flex align-items-center mb-4">
-                  <div className="icon-circle-sm me-3" style={{ backgroundColor: '#6F4E37', color: '#fff' }}>1</div>
-                  <h4 className="mb-0 fw-bold">Thông tin giao hàng</h4>
-              </div>
-              
-              <form onSubmit={handleSubmit}>
-                <div className="row">
-                    <div className="col-md-6 mb-3">
-                        <label className="form-label fw-bold small text-uppercase">Họ và tên *</label>
-                        <input 
-                            type="text" 
-                            className="form-control border-2 py-3" 
-                            placeholder="Tên người nhận"
-                            value={orderInfo.customerName}
-                            required
-                            onChange={(e) => setOrderInfo({...orderInfo, customerName: e.target.value})} 
-                        />
-                    </div>
-                    <div className="col-md-6 mb-3">
-                        <label className="form-label fw-bold small text-uppercase">Số điện thoại *</label>
-                        <input 
-                            type="text" 
-                            className="form-control border-2 py-3" 
-                            placeholder="Số điện thoại nhận hàng"
-                            required 
-                            onChange={(e) => setOrderInfo({...orderInfo, phone: e.target.value})} 
-                        />
-                    </div>
-                </div>
-
-                <div className="mb-3">
-                  <label className="form-label fw-bold small text-uppercase">Địa chỉ nhận hàng *</label>
-                  <textarea 
-                    className="form-control border-2" 
-                    rows="3" 
-                    placeholder="Ví dụ: 123 Đường ABC, Quận X, TP. Đà Nẵng"
-                    required
-                    onChange={(e) => setOrderInfo({...orderInfo, address: e.target.value})}
-                  ></textarea>
-                </div>
-
-                <div className="mb-4">
-                  <label className="form-label fw-bold small text-uppercase">Ghi chú cho Beans Café</label>
-                  <input 
-                    type="text" 
-                    className="form-control border-2 py-3" 
-                    placeholder="Ít đường, giao trước 5h chiều..."
-                    onChange={(e) => setOrderInfo({...orderInfo, note: e.target.value})} 
-                  />
-                </div>
-
-                <div className="p-3 rounded-4 mb-4" style={{ backgroundColor: '#FDF8F5', border: '1px solid #6F4E37' }}>
-                    <p className="small mb-0 text-muted">
-                        <i className="fa-solid fa-circle-info me-2 text-espresso"></i>
-                        Vui lòng kiểm tra kỹ thông tin trước khi đặt hàng. Beans Café sẽ gọi điện xác nhận trong vòng 5 phút.
-                    </p>
-                </div>
-
-                <button className="btn btn-espresso btn-lg w-100 py-3 rounded-pill fw-bold shadow transition-all border-0" 
-                        style={{ backgroundColor: '#6F4E37', color: '#fff' }} type="submit">
-                  XÁC NHẬN & ĐẶT HÀNG NGAY
-                </button>
-              </form>
+    <div className="auth-container">
+      <div className="container">
+        <div className="auth-card p-4 p-md-5">
+          <div className="text-center mb-5">
+            <div className="logo-wrapper bounce-in mb-3">
+              <img src="/img/logo.jpg" alt="Beans Café" className="rounded-circle shadow" width="90" height="90" />
             </div>
+            <h2 className="fw-black text-espresso mb-1">ĐĂNG NHẬP</h2>
+            <div className="mx-auto" style={{ width: '40px', height: '3px', backgroundColor: '#6F4E37', borderRadius: '10px' }}></div>
+            <p className="text-muted small mt-3 px-4">Chào mừng bạn trở lại với hương vị cà phê đích thực</p>
           </div>
 
-          <div className="col-lg-5">
-            <div className="card shadow-soft border-0 rounded-4 p-4 animate__animated animate__fadeInRight" style={{ backgroundColor: '#2C2420', color: '#FCFBFA' }}>
-              <h4 className="card-title mb-4 fw-bold border-bottom border-secondary pb-3">Đơn hàng của bạn</h4>
-              <div className="cart-items-preview mb-3 custom-scrollbar" style={{ maxHeight: '350px', overflowY: 'auto', paddingRight: '10px' }}>
-                {cart.map(item => (
-                  <div key={item._id} className="d-flex justify-content-between mb-3 align-items-center border-bottom border-dark pb-3">
-                    <div className="d-flex align-items-center">
-                        <div className="bg-white rounded-3 p-1 me-3">
-                            <img 
-                              /* 4. Cập nhật đường dẫn ảnh linh hoạt */
-                              src={`${IMAGE_BASE_URL}/img/${item.image}`} 
-                              alt="" 
-                              style={{ width: '40px', height: '40px', objectFit: 'cover' }} 
-                              className="rounded-2" 
-                              onError={(e) => { e.target.src = '/img/default-coffee.jpg' }}
-                            />
-                        </div>
-                        <div>
-                            <span className="fw-bold d-block">{item.name}</span>
-                            <small className="opacity-75">SL: {item.quantity}</small>
-                        </div>
-                    </div>
-                    <span className="fw-bold">{(item.price * item.quantity).toLocaleString()}₫</span>
-                  </div>
-                ))}
-              </div>
-              
-              <div className="mt-4">
-                <div className="d-flex justify-content-between mb-2 opacity-75">
-                    <span>Tạm tính:</span>
-                    <span>{totalAmount.toLocaleString()}₫</span>
-                </div>
-                <div className="d-flex justify-content-between mb-3 opacity-75">
-                    <span>Phí vận chuyển:</span>
-                    <span className="text-success fw-bold">Miễn phí</span>
-                </div>
-                <hr className="border-secondary" />
-                <div className="d-flex justify-content-between fw-bold fs-4 mt-3">
-                  <span>Tổng tiền:</span>
-                  <span style={{ color: '#D2691E' }}>{totalAmount.toLocaleString()}₫</span>
-                </div>
+          <form onSubmit={handleLogin}>
+            <div className="mb-4">
+              <label className="form-label-custom">Tên đăng nhập</label>
+              <div className="input-group-custom">
+                <span className="input-icon"><i className="fa-solid fa-user"></i></span>
+                <input 
+                  type="text" 
+                  className="form-control-custom" 
+                  placeholder="Nhập username..." 
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  required 
+                />
               </div>
             </div>
+
+            <div className="mb-4">
+              <label className="form-label-custom">Mật khẩu</label>
+              <div className="input-group-custom">
+                <span className="input-icon"><i className="fa-solid fa-lock"></i></span>
+                <input 
+                  type="password" 
+                  className="form-control-custom" 
+                  placeholder="••••••••" 
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required 
+                />
+              </div>
+            </div>
+
+            <button type="submit" className="btn-auth-espresso shadow-lg">
+              VÀO CỬA HÀNG <i className="fa-solid fa-arrow-right-to-bracket ms-2"></i>
+            </button>
+          </form>
+
+          <div className="text-center mt-5">
+            <p className="small text-muted">
+              Bạn chưa có tài khoản? {' '}
+              <Link to="/register" className="fw-bold text-decoration-none color-accent-coffee">
+                Đăng ký thành viên
+              </Link>
+            </p>
+            <Link to="/" className="text-muted small text-decoration-none">
+              <i className="fa-solid fa-house me-1"></i> Trở về trang chủ
+            </Link>
           </div>
         </div>
       </div>
 
-      {showSuccess && (
-        <div className="custom-modal-overlay">
-          <div className="custom-modal-content fade-in-up text-center shadow-lg" style={{ maxWidth: '450px' }}>
-              <div className="mb-4">
-                <div className="success-checkmark mx-auto">
-                    <i className="fa-solid fa-mug-hot bounce-in" style={{ fontSize: '3rem', color: '#6F4E37' }}></i>
-                </div>
-              </div>
-              <h2 className="fw-bold text-dark mb-2">Tuyệt vời!</h2>
-              <p className="text-muted mb-4 px-3">Đơn hàng của em đã được Beans Café tiếp nhận và đang bắt đầu pha chế.</p>
-              
-              {finalOrderData && (
-                <div className="bg-light p-3 rounded-4 text-start mb-4 border border-dashed">
-                  <div className="d-flex justify-content-between mb-2 small">
-                    <span className="text-muted">Mã đơn hàng:</span>
-                    <span className="fw-bold text-espresso">#{finalOrderData._id?.slice(-8).toUpperCase()}</span>
-                  </div>
-                  <div className="d-flex justify-content-between mb-2 small">
-                    <span className="text-muted">Người nhận:</span>
-                    <span className="fw-bold">{finalOrderData.customerName}</span>
-                  </div>
-                  <div className="d-flex justify-content-between border-top pt-2 mt-2">
-                    <span className="fw-bold">Đã thanh toán:</span>
-                    <span className="fw-bold text-espresso fs-5">
-                      {displayAmount.toLocaleString()}₫
-                    </span>
-                  </div>
-                </div>
-              )}
-
-              <div className="d-grid gap-2">
-                <button 
-                  className="btn btn-espresso btn-lg rounded-pill fw-bold py-3"
-                  style={{ backgroundColor: '#6F4E37', color: '#fff' }}
-                  onClick={() => navigate('/menu')}
-                >
-                  TIẾP TỤC TRẢI NGHIỆM
-                </button>
-                <button className="btn btn-link text-decoration-none text-muted fw-bold" onClick={() => navigate('/')}>
-                  Quay về trang chủ
-                </button>
-              </div>
-          </div>
-        </div>
-      )}
-
-      <Footer />
       <style>{`
         .auth-container {
           min-height: 100vh;
@@ -353,4 +201,4 @@ const Checkout = () => {
   );
 };
 
-export default Checkout;
+export default Login;
