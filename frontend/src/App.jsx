@@ -28,6 +28,13 @@ const PrivateRoute = ({ children }) => {
   return token ? children : <Navigate to="/login" />;
 };
 
+const PublicRoute = ({ children }) => {
+  const token = localStorage.getItem('token');
+  // Nếu đã đăng nhập thì không cho vào Login/Register, đẩy về trang chủ
+  if (token) return <Navigate to="/" replace />; 
+  return children;
+};
+
 function App() {
   return (
     <Router>
@@ -36,7 +43,7 @@ function App() {
       <Routes>
         {/* --- Public Routes --- */}
         <Route path="/" element={<Home />} />
-        <Route path="/login" element={<Login />} />
+        <Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />
         <Route path="/register" element={<Register />} />
         <Route path="/cart" element={<Cart />} />
         <Route path="/menu" element={<Menu />} />
