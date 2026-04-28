@@ -1,15 +1,15 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { toast } from "react-toastify";
-// 1. Import cấu hình api chung
-import api from '../configs/api'; 
+import api from '../configs/api';
+import "../pages/Register.css";
 
 const Register = () => {
   const [formData, setFormData] = useState({
     username: '',
     password: '',
     confirmPassword: '',
-    role: 'user' // Mặc định là user
+    role: 'user'
   });
   const navigate = useNavigate();
 
@@ -35,7 +35,6 @@ const Register = () => {
     }
 
     try {
-      // 2. Sử dụng api.post (đã bỏ domain localhost)
       const response = await api.post('/auth/register', {
         username: formData.username,
         password: formData.password,
@@ -47,7 +46,6 @@ const Register = () => {
         navigate('/login');
       }
     } catch (error) {
-      // 3. Hiển thị thông báo lỗi chi tiết từ Backend
       console.error('Registration error:', error);
       toast.error(error.response?.data?.message || 'Đăng ký thất bại! Vui lòng thử lại.');
     }
@@ -126,125 +124,6 @@ const Register = () => {
           </div>
         </div>
       </div>
-
-      <style>{`
-        .auth-container {
-          min-height: 100vh;
-          background: linear-gradient(rgba(44, 36, 32, 0.65), rgba(44, 36, 32, 0.75)), url('/img/banner.jpg');
-          background-size: cover;
-          background-position: center;
-          display: flex;
-          align-items: center;
-        }
-
-        .auth-card {
-          background: rgba(255, 255, 255, 0.92);
-          backdrop-filter: blur(15px);
-          border-radius: 40px;
-          box-shadow: 0 25px 50px rgba(0,0,0,0.3);
-          max-width: 450px;
-          width: 100%;
-          margin: 20px auto;
-          border: 1px solid rgba(255,255,255,0.4);
-          animation: slideInRight 0.6s ease-out;
-        }
-
-        .text-espresso { color: #3E2723; }
-        .fw-black { font-weight: 900; letter-spacing: 1px; }
-
-        .form-label-custom {
-          font-size: 0.85rem;
-          font-weight: 700;
-          color: #5D4037;
-          margin-bottom: 8px;
-          display: block;
-        }
-
-        .input-group-custom { position: relative; }
-
-        .input-icon {
-          position: absolute;
-          left: 15px;
-          top: 50%;
-          transform: translateY(-50%);
-          color: #A67B5B;
-          z-index: 5;
-        }
-
-        .form-control-custom {
-          width: 100%;
-          padding: 10px 15px 10px 45px;
-          border-radius: 15px;
-          border: 1.5px solid #EFEBE9;
-          background-color: #FDFBFA;
-          transition: all 0.3s ease;
-        }
-
-        .form-control-custom:focus {
-          outline: none;
-          border-color: #6F4E37;
-          box-shadow: 0 0 0 4px rgba(111, 78, 55, 0.1);
-        }
-
-        .role-switch-container {
-          width: 260px;
-          height: 45px;
-          background: #EFEBE9;
-          border-radius: 25px;
-          position: relative;
-          cursor: pointer;
-          display: flex;
-          align-items: center;
-          padding: 5px;
-          user-select: none;
-        }
-
-        .role-slider {
-          position: absolute;
-          width: 125px;
-          height: 35px;
-          background: #6F4E37;
-          border-radius: 20px;
-          transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
-
-        .role-slider.user { left: 5px; }
-        .role-slider.admin { left: 130px; }
-
-        .role-label {
-          flex: 1;
-          z-index: 2;
-          font-size: 0.85rem;
-          font-weight: 700;
-          transition: 0.3s;
-          color: #8D8078;
-        }
-
-        .role-label.active { color: #FFFFFF; }
-
-        .btn-auth-espresso {
-          width: 100%;
-          background-color: #6F4E37;
-          color: #FFFFFF;
-          border: none;
-          padding: 15px;
-          border-radius: 18px;
-          font-weight: 800;
-          transition: all 0.3s;
-        }
-
-        .btn-auth-espresso:hover {
-          background-color: #3E2723;
-          transform: translateY(-2px);
-        }
-
-        .color-accent-coffee { color: #D2691E; }
-
-        @keyframes slideInRight {
-          from { opacity: 0; transform: translateX(30px); }
-          to { opacity: 1; transform: translateX(0); }
-        }
-      `}</style>
     </div>
   );
 };

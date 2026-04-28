@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { toast } from "react-toastify";
-// 1. Đổi từ axios sang api config của bạn
+
 import api from '../configs/api'; 
+import "../pages/Login.css";
 
 const Login = () => {
   const [username, setUsername] = useState('');
@@ -11,25 +12,20 @@ const Login = () => {
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      // 2. Sử dụng api.post và lược bỏ domain localhost
       const response = await api.post('/auth/login', {
         username,
         password
       });
 
-      // Axios trả về dữ liệu trong thuộc tính .data
-      // Lưu ý: Cấu trúc data.data.token tùy thuộc vào Backend của bạn trả về
       if (response.data.success) {
         localStorage.setItem('token', response.data.data.token);
         localStorage.setItem('user', JSON.stringify(response.data.data.user));
         
-        // Thông báo thành công (tùy chọn)
         toast.success('Đăng nhập thành công! Chào mừng bạn quay lại.');
         window.location.href = '/'; 
       }
     } catch (error) {
       console.error('Login error:', error);
-      // Hiển thị lỗi từ server hoặc lỗi mặc định
       toast.error(error.response?.data?.message || 'Đăng nhập thất bại! Vui lòng kiểm tra lại.');
     }
   };
@@ -96,108 +92,6 @@ const Login = () => {
           </div>
         </div>
       </div>
-
-      <style>{`
-        .auth-container {
-          min-height: 100vh;
-          background: linear-gradient(rgba(44, 36, 32, 0.65), rgba(44, 36, 32, 0.75)), url('/img/banner.jpg');
-          background-size: cover;
-          background-position: center;
-          background-attachment: fixed;
-          display: flex;
-          align-items: center;
-        }
-
-        .auth-card {
-          background: rgba(255, 255, 255, 0.9);
-          backdrop-filter: blur(15px);
-          border-radius: 40px;
-          box-shadow: 0 25px 50px rgba(0,0,0,0.3);
-          max-width: 450px;
-          width: 100%;
-          margin: 20px auto;
-          border: 1px solid rgba(255,255,255,0.4);
-          animation: slideUp 0.6s ease-out;
-        }
-
-        .text-espresso { color: #3E2723; }
-        .fw-black { font-weight: 900; letter-spacing: 1px; }
-
-        .form-label-custom {
-          font-size: 0.85rem;
-          font-weight: 700;
-          color: #5D4037;
-          margin-bottom: 8px;
-          display: block;
-          padding-left: 5px;
-        }
-
-        .input-group-custom {
-          position: relative;
-          display: flex;
-          align-items: center;
-        }
-
-        .input-icon {
-          position: absolute;
-          left: 15px;
-          color: #A67B5B;
-          z-index: 5;
-        }
-
-        .form-control-custom {
-          width: 100%;
-          padding: 12px 15px 12px 45px;
-          border-radius: 15px;
-          border: 1.5px solid #EFEBE9;
-          background-color: #FDFBFA;
-          transition: all 0.3s ease;
-          font-size: 0.95rem;
-        }
-
-        .form-control-custom:focus {
-          outline: none;
-          border-color: #6F4E37;
-          background-color: #FFFFFF;
-          box-shadow: 0 0 0 4px rgba(111, 78, 55, 0.1);
-        }
-
-        .btn-auth-espresso {
-          width: 100%;
-          background-color: #6F4E37;
-          color: #FFFFFF;
-          border: none;
-          padding: 15px;
-          border-radius: 18px;
-          font-weight: 800;
-          letter-spacing: 1px;
-          margin-top: 10px;
-          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .btn-auth-espresso:hover {
-          background-color: #3E2723;
-          transform: translateY(-3px);
-          box-shadow: 0 10px 20px rgba(62, 39, 35, 0.3);
-        }
-
-        .color-accent-coffee { color: #D2691E; }
-        .color-accent-coffee:hover { color: #6F4E37; }
-
-        @keyframes slideUp {
-          from { opacity: 0; transform: translateY(30px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-
-        .bounce-in {
-          animation: bounce 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-        }
-
-        @keyframes bounce {
-          0% { transform: scale(0); }
-          100% { transform: scale(1); }
-        }
-      `}</style>
     </div>
   );
 };

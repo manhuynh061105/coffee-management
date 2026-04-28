@@ -3,8 +3,8 @@ import Header from '../components/Header';
 import Footer from '../components/Footer';
 import { useNavigate, Link } from 'react-router-dom';
 import { toast } from "react-toastify";
-// 1. Import api instance thay vì dùng fetch thủ công
-import api from '../configs/api'; 
+import api from '../configs/api';
+import "../pages/OrderHistory.css";
 
 const OrderHistory = () => {
   const [orders, setOrders] = useState([]);
@@ -20,7 +20,6 @@ const OrderHistory = () => {
     try {
       const userId = user._id || user.id;
       
-      // 2. Sử dụng api.get (Base URL và Token đã được cấu hình tự động)
       const response = await api.get(`/orders/user/${userId}`);
 
       if (response.data.success) {
@@ -45,7 +44,6 @@ const OrderHistory = () => {
   const handleConfirmReceived = async (orderId) => {
     if (window.confirm("Bạn xác nhận đã nhận được đơn hàng này?")) {
       try {
-        // 3. Sử dụng api.put để cập nhật trạng thái
         const response = await api.put(`/orders/${orderId}`, { status: 'completed' });
         
         if (response.data.success) {
@@ -253,35 +251,6 @@ const OrderHistory = () => {
       )}
 
       <Footer />
-
-      <style>{`
-        .text-espresso { color: #6F4E37; }
-        .bg-espresso { background-color: #6F4E37; }
-        .bg-espresso-subtle { background-color: #FDF8F5; }
-        .btn-espresso { background-color: #6F4E37; color: white; transition: 0.3s; }
-        .btn-espresso:hover { background-color: #2C2420; color: white; transform: translateY(-2px); }
-        .active-espresso { background-color: #6F4E37 !important; color: white !important; }
-        .shadow-soft { box-shadow: 0 10px 40px rgba(0,0,0,0.04); }
-        .text-light-espresso { color: #D7CCC8; }
-        .bg-success-subtle { background-color: #E8F5E9; }
-        .bg-warning-subtle { background-color: #FFFDE7; }
-        
-        .breadcrumb-item + .breadcrumb-item::before { content: "›"; font-size: 1.2rem; line-height: 1; vertical-align: middle; }
-
-        .custom-modal-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(44, 36, 32, 0.7); display: flex; align-items: center;
-            justify-content: center; z-index: 10001; backdrop-filter: blur(8px);
-        }
-        .custom-modal-content {
-            background: white; padding: 35px; border-radius: 30px;
-            width: 95%; max-width: 600px;
-        }
-        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: #6F4E37; border-radius: 10px; }
-        .fade-in-up { animation: fadeInUp 0.4s ease-out; }
-        @keyframes fadeInUp { from { opacity: 0; transform: translateY(40px); } to { opacity: 1; transform: translateY(0); } }
-      `}</style>
     </div>
   );
 };

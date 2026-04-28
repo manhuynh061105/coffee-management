@@ -1,0 +1,47 @@
+.mt-n5 {
+  margin-top: -80px !important;
+}
+
+.menu-item-card-premium {
+  transition: all 0.4s ease;
+  background: #fff;
+}
+
+.menu-item-card-premium:hover {
+  transform: translateY(-12px);
+  box-shadow: 0 20px 40px rgba(111, 78, 55, 0.15) !important;
+}
+
+.menu-item-card-premium:hover img {
+  transform: scale(1.08);
+}
+
+.btn-coffee {
+  background-color: #6f4e37;
+  color: white;
+  border: none;
+  transition: 0.3s;
+}
+
+.btn-coffee:hover {
+  background-color: #2c2420;
+  color: white;
+  transform: translateY(-2px);
+}
+
+.btn-outline-coffee {
+  border: 2px solid #6f4e37;
+  color: #6f4e37;
+  font-size: 0.85rem;
+  transition: 0.3s;
+}
+
+.btn-outline-coffee:hover {
+  background-color: #6f4e37;
+  color: white;
+}
+
+.form-select,
+.form-control {
+  font-size: 0.95rem;
+}

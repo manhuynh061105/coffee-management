@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-// 1. Sử dụng api thay vì axios gốc
 import api from '../configs/api'; 
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import { useCart } from '../context/CartContext';
+import "../pages/ProductDetail.css";
 
 const ProductDetail = () => {
   const { id } = useParams();
@@ -16,14 +16,12 @@ const ProductDetail = () => {
   const [loading, setLoading] = useState(true);
   const [added, setAdded] = useState(false);
 
-  // 2. Lấy URL gốc cho hình ảnh từ config
   const IMAGE_BASE_URL = api.defaults.baseURL.replace('/api', '');
 
   useEffect(() => {
     const fetchProduct = async () => {
       try {
         setLoading(true);
-        // 3. Sử dụng api.get (đường dẫn gọn hơn)
         const res = await api.get(`/products/${id}`);
         const data = res.data.data || res.data;
         setProduct(data);
@@ -42,7 +40,6 @@ const ProductDetail = () => {
   };
 
   const handleAddToCart = () => {
-    // Thêm vào giỏ hàng đúng số lượng đã chọn
     for(let i=0; i<quantity; i++) addToCart(product);
     setAdded(true);
     setTimeout(() => setAdded(false), 2000);
@@ -81,7 +78,6 @@ const ProductDetail = () => {
           <div className="col-lg-6 animate__animated animate__fadeInLeft">
             <div className="product-img-holder p-3 bg-white shadow-soft rounded-5 border overflow-hidden">
               <img 
-                /* 4. Cập nhật đường dẫn ảnh linh hoạt */
                 src={`${IMAGE_BASE_URL}/img/${product.image || 'bac-xiu.jpg'}`} 
                 alt={product.name} 
                 className="img-fluid w-100 rounded-5 shadow-inner"
@@ -170,62 +166,6 @@ const ProductDetail = () => {
       </div>
 
       <Footer />
-      <style>{`
-        .letter-spacing-1 { letter-spacing: 1px; }
-        .shadow-soft { box-shadow: 0 15px 35px rgba(44, 36, 32, 0.08); }
-        
-        .detail-qty-btn {
-            width: 38px;
-            height: 38px;
-            border-radius: 50% !important;
-            background-color: #6F4E37 !important;
-            border: none !important;
-            transition: 0.3s;
-        }
-        
-        .detail-qty-btn:hover {
-            background-color: #2C2420 !important;
-            transform: scale(1.1);
-        }
-
-        .product-img-holder img {
-            transition: transform 0.8s cubic-bezier(0.165, 0.84, 0.44, 1);
-        }
-
-        .product-img-holder:hover img {
-            transform: scale(1.06);
-        }
-
-        .icon-circle {
-            border-radius: 50%;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            border: 2px solid #FDF8F5;
-            box-shadow: var(--shadow-sm);
-        }
-
-        .transition-all {
-            transition: all 0.3s ease;
-        }
-
-        .shadow-inner {
-            box-shadow: inset 0 0 15px rgba(0,0,0,0.05);
-        }
-        .extra-small { font-size: 0.7rem; }
-
-        @keyframes fadeInLeft {
-            from { opacity: 0; transform: translateX(-30px); }
-            to { opacity: 1; transform: translateX(0); }
-        }
-        @keyframes fadeInRight {
-            from { opacity: 0; transform: translateX(30px); }
-            to { opacity: 1; transform: translateX(0); }
-        }
-        .animate__fadeInLeft { animation: fadeInLeft 0.8s ease forwards; }
-        .animate__fadeInRight { animation: fadeInRight 0.8s ease forwards; }
-        .animate__delay-1s { animation-delay: 0.2s; }
-      `}</style>
     </div>
   );
 };

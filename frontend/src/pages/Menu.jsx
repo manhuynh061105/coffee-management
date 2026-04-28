@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import { useCart } from '../context/CartContext';
-import api from '../configs/api'; // 1. Import cấu hình api chung
+import api from '../configs/api';
+import "../pages/Menu.css";
 
 const Menu = () => {
   const [products, setProducts] = useState([]); 
@@ -14,11 +16,9 @@ const Menu = () => {
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [sortOrder, setSortOrder] = useState('default');
 
-  // 2. Lấy URL gốc cho hình ảnh
   const IMAGE_BASE_URL = api.defaults.baseURL.replace('/api', '');
 
   useEffect(() => {
-    // 3. Sử dụng api.get thay cho fetch
     api.get('/products')
       .then(res => {
         const allProducts = res.data.data || res.data;
@@ -121,7 +121,6 @@ const Menu = () => {
                   
                   <div className="position-relative overflow-hidden p-3" style={{ height: '240px' }}>
                     <img 
-                      /* 4. Cập nhật đường dẫn ảnh linh hoạt */
                       src={`${IMAGE_BASE_URL}/img/${item.image || 'bac-xiu.jpg'}`} 
                       className="card-img-top w-100 h-100 shadow-sm" 
                       alt={item.name}
@@ -168,53 +167,6 @@ const Menu = () => {
       </div>
 
       <Footer />
-
-      <style>{`
-        .mt-n5 { margin-top: -80px !important; }
-        
-        .menu-item-card-premium {
-          transition: all 0.4s ease;
-          background: #fff;
-        }
-
-        .menu-item-card-premium:hover {
-          transform: translateY(-12px);
-          box-shadow: 0 20px 40px rgba(111, 78, 55, 0.15) !important;
-        }
-
-        .menu-item-card-premium:hover img {
-          transform: scale(1.08);
-        }
-
-        .btn-coffee {
-          background-color: #6F4E37;
-          color: white;
-          border: none;
-          transition: 0.3s;
-        }
-
-        .btn-coffee:hover {
-          background-color: #2C2420;
-          color: white;
-          transform: translateY(-2px);
-        }
-
-        .btn-outline-coffee {
-          border: 2px solid #6F4E37;
-          color: #6F4E37;
-          font-size: 0.85rem;
-          transition: 0.3s;
-        }
-
-        .btn-outline-coffee:hover {
-          background-color: #6F4E37;
-          color: white;
-        }
-
-        .form-select, .form-control {
-          font-size: 0.95rem;
-        }
-      `}</style>
     </div>
   );
 };
