@@ -1,57 +1,54 @@
 .text-espresso {
-    color: #3E2723;
+  color: #3e2723;
 }
 .fw-black {
-    font-weight: 900;
+  font-weight: 900;
 }
 .text-muted-dark {
-    color: #7D6B5D;
+  color: #7d6b5d;
 }
 
-/* Đổ bóng mạnh hơn để card nổi lên */
-.shadow-lg-soft { 
-    box-shadow: 0 20px 40px rgba(62, 39, 35, 0.08) !important; 
+.shadow-lg-soft {
+  box-shadow: 0 20px 40px rgba(62, 39, 35, 0.08) !important;
 }
 
 .stat-card-premium {
-    background: white;
-    border-radius: 28px;
-    transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+  background: white;
+  border-radius: 28px;
+  transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
 }
 .stat-card-premium:hover {
-    transform: translateY(-10px);
-    box-shadow: 0 30px 60px rgba(62, 39, 35, 0.12) !important;
+  transform: translateY(-10px);
+  box-shadow: 0 30px 60px rgba(62, 39, 35, 0.12) !important;
 }
 
-/* Gradient cho Icon giúp nổi bật hơn màu phẳng */
 .icon-circle {
-    width: 65px;
-    height: 65px;
-    border-radius: 22px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 26px;
+  width: 65px;
+  height: 65px;
+  border-radius: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 26px;
 }
 .bg-espresso-gradient {
-    background: linear-gradient(135deg, #4B3621, #6F4E37);
+  background: linear-gradient(135deg, #4b3621, #6f4e37);
 }
 .bg-caramel-gradient {
-    background: linear-gradient(135deg, #A67B5B, #D4A373);
+  background: linear-gradient(135deg, #a67b5b, #d4a373);
 }
 .bg-gold-gradient {
-    background: linear-gradient(135deg, #D4A373, #FED8B1);
+  background: linear-gradient(135deg, #d4a373, #fed8b1);
 }
 
 .rounded-5 {
-    border-radius: 40px !important;
+  border-radius: 40px !important;
 }
 
-/* Nhấn mạnh viền trên của Card biểu đồ */
 .border-top-espresso {
-    border-top: 5px solid #6F4E37 !important;
+  border-top: 5px solid #6f4e37 !important;
 }
 
 .page-wrapper {
-    overflow-x: hidden;
+  overflow-x: hidden;
 }

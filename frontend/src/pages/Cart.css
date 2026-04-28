@@ -1,28 +1,28 @@
 .product-link-bold:hover h6 {
-    color: #6F4E37 !important;
-    text-decoration: underline;
+  color: #6f4e37 !important;
+  text-decoration: underline;
 }
 
 .quantity-control-btn {
-    transition: all 0.2s ease;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
 }
 
 .quantity-control-btn:hover {
-    transform: scale(1.15);
-    background-color: #2C2420 !important;
+  transform: scale(1.15);
+  background-color: #2c2420 !important;
 }
 
 .cart-item-row {
-    transition: all 0.3s ease;
+  transition: all 0.3s ease;
 }
 
 .cart-item-row:hover {
-    border-color: #6F4E37 !important;
-    box-shadow: 0 10px 20px rgba(0,0,0,0.05) !important;
+  border-color: #6f4e37 !important;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05) !important;
 }
 
 .transition-hover:hover {
-    filter: brightness(1.1);
-    transform: translateY(-2px);
+  filter: brightness(1.1);
+  transform: translateY(-2px);
 }

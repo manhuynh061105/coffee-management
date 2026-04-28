@@ -7,35 +7,32 @@ import {
   getProductById,
   createProduct,
   updateProduct,
-  deleteProduct
+  deleteProduct,
 } from "../controllers/productsController.js";
-import {
-  verifyToken,
-  isAdmin
-} from "../middlewares/authMiddleware.js";
+import { verifyToken, isAdmin } from "../middlewares/authMiddleware.js";
 
 const router = express.Router();
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, 'public/img'); 
+    cb(null, "public/img");
   },
   filename: (req, file, cb) => {
     const fileExt = path.extname(file.originalname);
     const fileName = Date.now() + fileExt;
     cb(null, fileName);
-  }
+  },
 });
 
-const upload = multer({ 
+const upload = multer({
   storage: storage,
-  limits: { fileSize: 5 * 1024 * 1024 } 
+  limits: { fileSize: 5 * 1024 * 1024 },
 });
 
 router.get("/", getProducts);
 router.get("/:id", getProductById);
-router.post("/", verifyToken, isAdmin, upload.single('image'), createProduct);
-router.put("/:id", verifyToken, isAdmin, upload.single('image'), updateProduct);
+router.post("/", verifyToken, isAdmin, upload.single("image"), createProduct);
+router.put("/:id", verifyToken, isAdmin, upload.single("image"), updateProduct);
 router.delete("/:id", verifyToken, isAdmin, deleteProduct);
 
 export default router;

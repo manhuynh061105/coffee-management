@@ -1,14 +1,13 @@
-import React from 'react';
-import { Navigate } from 'react-router-dom';
+import React from "react";
+import { Navigate } from "react-router-dom";
 
 const AdminRoute = ({ children }) => {
   let user = null;
-  
+
   try {
-    const userData = localStorage.getItem('user');
+    const userData = localStorage.getItem("user");
     user = userData ? JSON.parse(userData) : null;
-  }
-  catch (error) {
+  } catch (error) {
     console.error("Lỗi đọc dữ liệu người dùng:", error);
     user = null;
   }
@@ -19,10 +18,10 @@ const AdminRoute = ({ children }) => {
   }
 
   // - Kiểm tra vai trò của người dùng (Admin)
-  if (user.role !== 'admin' && user.role !== 1) {
+  if (user.role !== "admin" && user.role !== 1) {
     return <Navigate to="/" replace />;
   }
-  
+
   return children;
 };
 

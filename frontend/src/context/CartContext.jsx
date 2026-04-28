@@ -1,6 +1,5 @@
-import React, { createContext, useState, useEffect, useContext } from 'react';
-// 1. Import api instance thay vì axios gốc
-import api from '../configs/api'; 
+import React, { createContext, useState, useEffect, useContext } from "react";
+import api from "../configs/api";
 
 const CartContext = createContext();
 
@@ -8,15 +7,13 @@ export const CartProvider = ({ children }) => {
   const [cart, setCart] = useState([]);
   const [userId, setUserId] = useState(null);
 
-  // --- Hàm hỗ trợ lấy ID "tươi" nhất ---
   const getUserIdFromStorage = () => {
-    const userData = localStorage.getItem('user');
+    const userData = localStorage.getItem("user");
     if (!userData) return null;
     const user = JSON.parse(userData);
     return user._id || user.id;
   };
 
-  // 1. Theo dõi đăng nhập/đăng xuất (Auth Watcher)
   useEffect(() => {
     const checkAuth = () => {
       const currentId = getUserIdFromStorage();
@@ -31,7 +28,6 @@ export const CartProvider = ({ children }) => {
     return () => clearInterval(interval);
   }, [userId]);
 
-  // 2. Load dữ liệu khi UserId thay đổi (F5 hoặc Đổi Acc)
   useEffect(() => {
     const loadCartData = async () => {
       const currentId = getUserIdFromStorage();
@@ -41,13 +37,15 @@ export const CartProvider = ({ children }) => {
       if (localData) setCart(JSON.parse(localData));
 
       try {
-        // 2. Sử dụng api.get (bỏ domain localhost)
         const res = await api.get(`/cart/${currentId}`);
         if (res.data.success && res.data.data?.items) {
           const serverItems = res.data.data.items;
           if (serverItems.length > 0) {
             setCart(serverItems);
-            localStorage.setItem(`cart_${currentId}`, JSON.stringify(serverItems));
+            localStorage.setItem(
+              `cart_${currentId}`,
+              JSON.stringify(serverItems),
+            );
           }
         }
       } catch (error) {
@@ -58,23 +56,20 @@ export const CartProvider = ({ children }) => {
     loadCartData();
   }, [userId]);
 
-  // 3. Hàm Sync lên Server
   const syncCartWithServer = async (newCart) => {
     const currentId = getUserIdFromStorage();
     if (!currentId) return;
 
     try {
-      // 3. Sử dụng api.post (bỏ domain localhost)
-      await api.post('/cart', {
+      await api.post("/cart", {
         userId: currentId,
-        items: newCart
+        items: newCart,
       });
     } catch (error) {
       console.error("❌ Lỗi API Sync:", error.response?.data || error.message);
     }
   };
 
-  // 4. Tự động lưu LocalStorage mỗi khi giỏ hàng thay đổi
   useEffect(() => {
     const currentId = getUserIdFromStorage();
     if (currentId) {
@@ -82,9 +77,6 @@ export const CartProvider = ({ children }) => {
     }
   }, [cart]);
 
-  // --- CÁC HÀM THAO TÁC ---
-
-  // Thêm vào giỏ
   const addToCart = (product) => {
     const currentId = getUserIdFromStorage();
     if (!currentId) {
@@ -92,12 +84,14 @@ export const CartProvider = ({ children }) => {
       return;
     }
 
-    setCart(prevCart => {
+    setCart((prevCart) => {
       let updatedCart;
-      const isExist = prevCart.find(item => item._id === product._id);
+      const isExist = prevCart.find((item) => item._id === product._id);
       if (isExist) {
-        updatedCart = prevCart.map(item =>
-          item._id === product._id ? { ...item, quantity: item.quantity + 1 } : item
+        updatedCart = prevCart.map((item) =>
+          item._id === product._id
+            ? { ...item, quantity: item.quantity + 1 }
+            : item,
         );
       } else {
         updatedCart = [...prevCart, { ...product, quantity: 1 }];
@@ -107,48 +101,43 @@ export const CartProvider = ({ children }) => {
     });
   };
 
-  // Cập nhật số lượng
   const updateQuantity = (productId, amount) => {
-    setCart(prevCart => {
-      const updatedCart = prevCart.map(item => {
-        if (item._id === productId) {
-          const newQty = item.quantity + amount;
-          return newQty > 0 ? { ...item, quantity: newQty } : null;
-        }
-        return item;
-      }).filter(item => item !== null);
-      
+    setCart((prevCart) => {
+      const updatedCart = prevCart
+        .map((item) => {
+          if (item._id === productId) {
+            const newQty = item.quantity + amount;
+            return newQty > 0 ? { ...item, quantity: newQty } : null;
+          }
+          return item;
+        })
+        .filter((item) => item !== null);
+
       syncCartWithServer(updatedCart);
       return updatedCart;
     });
   };
 
-  // Xóa 1 sản phẩm
   const removeFromCart = (productId) => {
-    setCart(prevCart => {
-      const updatedCart = prevCart.filter(item => item._id !== productId);
+    setCart((prevCart) => {
+      const updatedCart = prevCart.filter((item) => item._id !== productId);
       syncCartWithServer(updatedCart);
       return updatedCart;
     });
   };
 
-  // --- MỚI: Xóa sạch giỏ hàng (Sau khi thanh toán thành công) ---
   const clearCart = async () => {
     const currentId = getUserIdFromStorage();
-    
-    // 1. Xóa trong State UI
+
     setCart([]);
-    
-    // 2. Xóa trong LocalStorage
+
     if (currentId) {
       localStorage.removeItem(`cart_${currentId}`);
-      
-      // 3. Xóa trên Server
+
       try {
-        // 4. Sử dụng api.post (bỏ domain localhost)
-        await api.post('/cart', {
+        await api.post("/cart", {
           userId: currentId,
-          items: [] // Gửi mảng rỗng để reset giỏ hàng trong DB
+          items: [],
         });
         console.log("✅ Đã clear giỏ hàng thành công!");
       } catch (error) {
@@ -157,18 +146,22 @@ export const CartProvider = ({ children }) => {
     }
   };
 
-  // Tính tổng tiền (Tiện ích thêm)
-  const totalAmount = cart.reduce((total, item) => total + (item.price * item.quantity), 0);
+  const totalAmount = cart.reduce(
+    (total, item) => total + item.price * item.quantity,
+    0,
+  );
 
   return (
-    <CartContext.Provider value={{ 
-      cart, 
-      addToCart, 
-      updateQuantity, 
-      removeFromCart, 
-      clearCart, 
-      totalAmount 
-    }}>
+    <CartContext.Provider
+      value={{
+        cart,
+        addToCart,
+        updateQuantity,
+        removeFromCart,
+        clearCart,
+        totalAmount,
+      }}
+    >
       {children}
     </CartContext.Provider>
   );

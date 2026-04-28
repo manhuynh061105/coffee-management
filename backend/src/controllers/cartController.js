@@ -1,4 +1,4 @@
-import Cart from '../models/Cart.js';
+import Cart from "../models/Cart.js";
 
 export const syncCart = async (req, res) => {
   try {
@@ -7,7 +7,7 @@ export const syncCart = async (req, res) => {
     if (!userId) {
       return res.status(400).json({
         success: false,
-        message: "Thiếu UserId"
+        message: "Thiếu UserId",
       });
     }
 
@@ -21,23 +21,22 @@ export const syncCart = async (req, res) => {
     const cart = await Cart.findOneAndUpdate(
       { userId: userId },
       { $set: { items: items } },
-      { 
-        new: true, 
+      {
+        new: true,
         upsert: true,
-        runValidators: true 
-      }
+        runValidators: true,
+      },
     );
 
     res.status(200).json({
       success: true,
-      data: cart
+      data: cart,
     });
-  }
-  catch (error) {
+  } catch (error) {
     console.error("Lỗi tại syncCart:", error.message);
     res.status(500).json({
       success: false,
-      message: error.message
+      message: error.message,
     });
   }
 };
@@ -58,20 +57,19 @@ export const getCart = async (req, res) => {
     if (!cart) {
       return res.status(200).json({
         success: true,
-        data: { items: [] }
+        data: { items: [] },
       });
     }
 
     res.status(200).json({
       success: true,
-      data: cart
+      data: cart,
     });
-  }
-  catch (error) {
+  } catch (error) {
     console.error("[Cart Error] Get thất bại:", error.message);
     res.status(500).json({
       success: false,
-      message: error.message
+      message: error.message,
     });
   }
 };

@@ -23,7 +23,7 @@ const orderSchema = new mongoose.Schema(
     note: {
       type: String,
       default: "",
-      trim: true
+      trim: true,
     },
     items: [
       {
@@ -46,17 +46,24 @@ const orderSchema = new mongoose.Schema(
     },
     status: {
       type: String,
-      enum: ["pending", "processing", "shipped", "delivered", "completed", "cancelled"],
+      enum: [
+        "pending",
+        "processing",
+        "shipped",
+        "delivered",
+        "completed",
+        "cancelled",
+      ],
       default: "pending",
     },
     paymentMethod: {
       type: String,
       default: "COD",
-    }
+    },
   },
   {
     timestamps: true,
-  }
+  },
 );
 
 const Order = mongoose.models.Order || mongoose.model("Order", orderSchema);

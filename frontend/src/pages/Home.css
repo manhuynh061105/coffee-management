@@ -1,73 +1,74 @@
 .item-card-highlight {
-    background-color: #ffffff;
-    border-radius: 30px !important;
-    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    z-index: 1;
+  background-color: #ffffff;
+  border-radius: 30px !important;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  z-index: 1;
 }
 
 .item-card-highlight:hover {
-    transform: translateY(-15px);
-    box-shadow: 0 25px 50px rgba(111, 78, 55, 0.25) !important;
-    background-color: #fffaf7;
+  transform: translateY(-15px);
+  box-shadow: 0 25px 50px rgba(111, 78, 55, 0.25) !important;
+  background-color: #fffaf7;
 }
 
 .btn-cart-custom {
-    background-color: #6F4E37;
-    color: white;
-    border: none;
-    transition: 0.3s;
+  background-color: #6f4e37;
+  color: white;
+  border: none;
+  transition: 0.3s;
 }
 
 .btn-cart-custom:hover {
-    background-color: #2C2420;
-    color: white;
-    transform: scale(1.05);
+  background-color: #2c2420;
+  color: white;
+  transform: scale(1.05);
 }
 
 .btn-link-custom {
-    color: #6F4E37;
-    background: transparent;
-    border: 2px solid #6F4E37;
-    font-size: 0.85rem;
-    transition: 0.3s;
+  color: #6f4e37;
+  background: transparent;
+  border: 2px solid #6f4e37;
+  font-size: 0.85rem;
+  transition: 0.3s;
 }
 
 .btn-link-custom:hover {
-    background-color: #6F4E37;
-    color: white;
+  background-color: #6f4e37;
+  color: white;
 }
 
 .hover-up {
-    transition: 0.3s;
+  transition: 0.3s;
 }
 .hover-up:hover {
-    transform: translateY(-10px);
-    box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important;
+  transform: translateY(-10px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1) !important;
 }
 
 .hover-scale {
-    transition: 0.3s;
+  transition: 0.3s;
 }
 .hover-scale:hover {
-    transform: scale(1.05);
+  transform: scale(1.05);
 }
 
 .image-container img {
-    transition: 0.6s ease;
+  transition: 0.6s ease;
 }
 .item-card-highlight:hover .image-container img {
-    transform: scale(1.08);
+  transform: scale(1.08);
 }
 
 @keyframes fadeInLeft {
-    from { opacity: 0;
-        transform: translateX(-50px);
-    }
-    to {
-        opacity: 1;
-        transform: translateX(0);
-    }
+  from {
+    opacity: 0;
+    transform: translateX(-50px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
 }
 .animate__fadeInLeft {
-    animation: fadeInLeft 1s ease-out;
+  animation: fadeInLeft 1s ease-out;
 }

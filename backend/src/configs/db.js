@@ -1,4 +1,4 @@
-import mongoose from 'mongoose';
+import mongoose from "mongoose";
 
 const connectDB = async () => {
   try {
@@ -10,10 +10,9 @@ const connectDB = async () => {
 
     await mongoose.connect(mongoURI);
     console.log("MongoDB Đã Kết Nối Thành Công!");
-  }
-  catch (error) {
-      console.error("MongoDB Kết Nối Thất Bại:", error.message);
-      process.exit(1);
+  } catch (error) {
+    console.error("MongoDB Kết Nối Thất Bại:", error.message);
+    process.exit(1);
   }
 };
 
