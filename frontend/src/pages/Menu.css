@@ -7,9 +7,10 @@
 .filter-wrapper {
   background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(10px);
-  border: 1px solid rgba(111, 78, 55, 0.1) !important;
+  border: 1px solid rgba(111, 78, 55, 0.2) !important;
   transition: all 0.3s ease;
   z-index: 10;
+  border-radius: 30px;
 }
 
 .filter-wrapper:hover {
@@ -18,12 +19,12 @@
 
 .search-box-custom {
   transition: all 0.3s ease;
-  border: 1px solid transparent;
+  border: 1.5px solid transparent;
 }
 
 .search-box-custom:focus-within {
   background-color: #ffffff !important;
-  border-color: #6f4e37;
+  border-color: #6f4e37 !important;
   box-shadow: 0 0 0 4px rgba(111, 78, 55, 0.1);
 }
 
@@ -36,17 +37,18 @@
 .form-select {
   cursor: pointer;
   font-size: 0.9rem;
-  color: #444;
+  color: #2c2420;
+  font-weight: 500;
   background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%236F4E37' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e") !important;
 }
 
-/* --- CARD SẢN PHẨM (ĐỒNG BỘ VỚI HOME) --- */
+/* --- CARD SẢN PHẨM --- */
 .item-card-highlight {
   background-color: #ffffff;
   border-radius: 30px !important;
   transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-  z-index: 1;
   border: 1px solid rgba(0, 0, 0, 0.05) !important;
+  overflow: hidden;
 }
 
 .item-card-highlight:hover {
@@ -56,27 +58,27 @@
 }
 
 .item-card-highlight img {
-  transition: transform 0.6s cubic-bezier(0.165, 0.84, 0.44, 1);
+  transition: transform 0.6s ease;
+  object-fit: cover;
 }
 
 .item-card-highlight:hover img {
   transform: scale(1.08);
 }
 
-/* --- HỆ THỐNG NÚT BẤM (ESPRESSO) --- */
+/* --- HỆ THỐNG NÚT BẤM --- */
 .btn-espresso-main {
   background-color: #6f4e37 !important;
   color: #ffffff !important;
   border: none !important;
-  transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) !important;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  border-radius: 15px;
+  padding: 10px 20px;
+  font-weight: 600;
+  transition: all 0.3s ease !important;
 }
 
 .btn-espresso-main:hover {
   background-color: #2c2420 !important;
-  color: #ffffff !important;
   transform: translateY(-2px);
   box-shadow: 0 8px 20px rgba(111, 78, 55, 0.3);
 }
@@ -85,73 +87,78 @@
   background-color: transparent !important;
   color: #6f4e37 !important;
   border: 2px solid #6f4e37 !important;
-  font-size: 0.85rem;
-  transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) !important;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  border-radius: 15px;
+  font-weight: 600;
+  transition: all 0.3s ease !important;
 }
 
-.btn-espresso-outline:hover {
-  background-color: #6f4e37 !important;
-  color: #ffffff !important;
-  text-decoration: none;
-}
-
-/* --- HIỆU ỨNG TRỐNG (EMPTY STATE) --- */
-.text-muted.fw-light {
-  letter-spacing: 1px;
-}
-
-/* --- RESPONSIVE --- */
-@media (max-width: 768px) {
-  .mt-n5 {
-    margin-top: -50px !important;
-  }
-  
-  .filter-wrapper {
-    border-radius: 25px !important;
-    padding: 10px !important;
-  }
-
-  .item-card-highlight {
-    border-radius: 25px !important;
-  }
-}
-
-/* Nền đậm hơn cho các ô nhập liệu */
+/* --- TRẠNG THÁI INPUT TÙY CHỈNH --- */
 .input-custom-bg {
-  background-color: #f0f0f0 !important; /* Xám đậm hơn bg-light */
-  border: 1.5px solid #dee2e6 !important; /* Viền xám rõ nét */
-  transition: all 0.3s ease;
+  background-color: #f8f9fa !important;
+  border: 1.5px solid #dee2e6 !important;
+  border-radius: 15px !important;
 }
 
-/* Hiệu ứng khi click vào ô tìm kiếm hoặc select */
-.search-box-custom.input-custom-bg:focus-within,
-select.input-custom-bg:focus {
-  background-color: #ffffff !important;
-  border-color: #6f4e37 !important; /* Viền chuyển sang màu cà phê khi focus */
-  box-shadow: 0 0 0 4px rgba(111, 78, 55, 0.15) !important;
-}
-
-/* Làm cho các icon và text bên trong rõ nét hơn */
-.search-box-custom i {
-  color: #6f4e37 !important; /* Icon màu nâu đậm */
-}
-
-.search-box-custom input, 
-.form-select.input-custom-bg {
-  font-weight: 500;
-  color: #2c2420;
-}
-
-/* Tăng độ đậm cho border của filter-wrapper tổng */
-.filter-wrapper.border {
-  border: 1px solid rgba(111, 78, 55, 0.2) !important;
-}
-
-/* Hover nhẹ cho các ô filter */
 .input-custom-bg:hover {
   border-color: #adb5bd !important;
-  background-color: #e9ecef !important;
+}
+
+/* --- PHẦN RESPONSIVE (QUAN TRỌNG NHẤT) --- */
+@media (max-width: 768px) {
+  /* Thu nhỏ khoảng cách đè banner */
+  .mt-n5 {
+    margin-top: -30px !important;
+  }
+
+  /* Tối ưu thanh lọc cho Mobile: 2 cột */
+  .filter-wrapper {
+    margin-left: 10px;
+    margin-right: 10px;
+    padding: 15px !important;
+    border-radius: 20px !important;
+  }
+
+  /* Làm cho ô tìm kiếm chiếm trọn 1 hàng, các select chia đôi */
+  .filter-wrapper .row > div:first-child {
+    width: 100%;
+    margin-bottom: 10px;
+  }
+  
+  .filter-wrapper .row > div:not(:first-child) {
+    width: 50%;
+  }
+
+  /* Tắt hiệu ứng hover bay lên trên mobile để tránh lag */
+  .item-card-highlight:hover {
+    transform: none !important;
+  }
+
+  /* Thu nhỏ tiêu đề và giá sản phẩm trên mobile */
+  .item-card-highlight h5 {
+    font-size: 1rem;
+    margin-bottom: 5px;
+  }
+
+  .text-espresso.fw-bold {
+    font-size: 0.95rem;
+  }
+
+  /* Nút bấm nhỏ lại cho vừa màn hình */
+  .btn-espresso-main, .btn-espresso-outline {
+    padding: 8px 12px;
+    font-size: 0.8rem;
+    border-radius: 12px;
+  }
+}
+
+/* Tablet nhỏ */
+@media (max-width: 576px) {
+  .item-card-highlight {
+    border-radius: 20px !important;
+  }
+  
+  /* Nếu card quá nhỏ, có thể ép sản phẩm hiển thị 1 cột hoặc điều chỉnh padding */
+  .p-4.item-card-highlight {
+    padding: 1rem !important;
+  }
 }
