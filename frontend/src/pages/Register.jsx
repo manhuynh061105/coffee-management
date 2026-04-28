@@ -53,7 +53,9 @@ const Register = () => {
 
       if (response.data.success) {
         toast.success("Chào mừng bạn đến với Beans Café! Đăng ký thành công.");
-        navigate("/login");
+        setTimeout(() => {
+          navigate("/login");
+        }, 1500);
       }
     } catch (error) {
       console.error("Registration error:", error);

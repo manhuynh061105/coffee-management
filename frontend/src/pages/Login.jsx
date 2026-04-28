@@ -1,11 +1,13 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 
 import api from "../configs/api";
 import "../pages/Login.css";
 
 const Login = () => {
+  const navigate = useNavigate();
+
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
 
@@ -22,7 +24,9 @@ const Login = () => {
         localStorage.setItem("user", JSON.stringify(response.data.data.user));
 
         toast.success("Đăng nhập thành công! Chào mừng bạn quay lại.");
-        window.location.href = "/";
+        setTimeout(() => {
+          navigate("/");
+        }, 1500);
       }
     } catch (error) {
       console.error("Login error:", error);

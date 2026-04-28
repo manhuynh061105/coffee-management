@@ -54,13 +54,18 @@ const AddProduct = ({ isOpen, onClose }) => {
       });
 
       if (response.data.success) {
-        toast.success("Thêm món mới thành công! Đang cập nhật Menu...");
+        toast.success("Thêm món mới thành công!", {
+          autoClose: 1500,
+        });
         setName("");
         setPrice("");
         setImage(null);
         setPreview(null);
-        onClose();
-        window.location.reload();
+
+        setTimeout(() => {
+          onClose();
+          window.location.reload();
+        }, 1500);
       }
     } catch (error) {
       console.error("Lỗi upload:", error);

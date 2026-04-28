@@ -39,7 +39,9 @@ const AdminProducts = () => {
       const res = await api.delete(`/products/${id}`);
       if (res.data.success) {
         toast.success("Đã xoá sản phẩm thành công!");
-        fetchProducts();
+        setTimeout(() => {
+          fetchProducts();
+        }, 800);
       } else {
         toast.error("Lỗi: " + (res.data.message || "Bạn không có quyền này"));
       }
@@ -62,8 +64,11 @@ const AdminProducts = () => {
       const res = await api.put(`/products/${editingProduct._id}`, formData);
       if (res.data.success) {
         toast.success("Cập nhật thông tin thành công!");
-        setEditingProduct(null);
-        fetchProducts();
+
+        setTimeout(() => {
+          setEditingProduct(null);
+          fetchProducts();
+        }, 1000);
       } else {
         toast.error("Lỗi: " + res.data.message);
       }
