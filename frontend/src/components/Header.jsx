@@ -32,7 +32,7 @@ const Header = () => {
   };
 
   return (
-    <header className="header-custom py-2 w-100 position-fixed top-0 start-0">
+    <header className="header-custom py-2 w-100 position-fixed top-0 start-0 shadow-sm navbar navbar-expand-lg p-0">
       <div className="container d-flex justify-content-between align-items-center">
         {/* LOGO */}
         <div className="logo-section">
@@ -43,13 +43,13 @@ const Header = () => {
             <img
               src="/img/logo.jpg"
               alt="Logo"
-              width="55"
-              height="55"
+              width="50"
+              height="50"
               className="rounded-circle shadow-sm border border-2 border-white"
               style={{ objectFit: "cover" }}
             />
             <span
-              className="fw-bold text-espresso ms-2 d-none d-md-inline"
+              className="fw-bold text-espresso ms-2 d-none d-sm-inline"
               style={{ letterSpacing: "1.5px", fontSize: "1.1rem" }}
             >
               BEANS CAFÉ
@@ -57,56 +57,39 @@ const Header = () => {
           </Link>
         </div>
 
-        {/* NAVIGATION GROUP */}
-        <div className="d-flex align-items-center">
-          <nav className="d-none d-lg-block me-3">
-            <ul className="nav align-items-center mb-0">
-              <li className="nav-item">
-                <Link to="/" className="btn-espresso-outline ms-2">
-                  Trang chủ
-                </Link>
-              </li>
-              <li className="nav-item">
-                <Link to="/menu" className="btn-espresso-outline ms-2">
-                  Menu
-                </Link>
-              </li>
-
-              {/* GIỎ HÀNG */}
-              <li className="nav-item ms-3">
-                <Link
-                  to="/cart"
-                  className="position-relative d-flex align-items-center cart-wrapper px-2"
-                >
-                  <img
-                    src="/img/shopping-cart3.png"
-                    alt="Cart"
-                    className="cart-icon-original"
-                    style={{
-                      width: "28px",
-                      height: "28px",
-                      objectFit: "contain",
-                    }}
-                  />
-                  {totalItems > 0 && (
-                    <span className="cart-badge-custom">{totalItems}</span>
-                  )}
-                </Link>
-              </li>
-            </ul>
-          </nav>
+        {/* NAVIGATION GROUP - Bao gồm nút Hamburger trên Mobile */}
+        <div className="d-flex align-items-center order-lg-last">
+          {/* GIỎ HÀNG - Đưa ra ngoài để Mobile luôn nhìn thấy */}
+          <Link
+            to="/cart"
+            className="position-relative d-flex align-items-center cart-wrapper px-2 me-2 me-lg-3"
+          >
+            <img
+              src="/img/shopping-cart3.png"
+              alt="Cart"
+              className="cart-icon-original"
+              style={{
+                width: "26px",
+                height: "26px",
+                objectFit: "contain",
+              }}
+            />
+            {totalItems > 0 && (
+              <span className="cart-badge-custom">{totalItems}</span>
+            )}
+          </Link>
 
           {/* USER DROPDOWN */}
-          <div className="dropdown ms-2">
+          <div className="dropdown ms-1 ms-md-2">
             <button
-              className="btn btn-espresso-outline dropdown-toggle shadow-sm"
+              className="btn btn-espresso-outline dropdown-toggle shadow-sm py-1 py-md-2"
               type="button"
               id="userDropdown"
               data-bs-toggle="dropdown"
               aria-expanded="false"
             >
-              <i className="fa-solid fa-circle-user me-2"></i>
-              <span>{user ? user.username : "Tài khoản"}</span>
+              <i className="fa-solid fa-circle-user"></i>
+              <span className="ms-2 d-none d-md-inline">{user ? user.username : "Tài khoản"}</span>
             </button>
 
             <ul
@@ -133,7 +116,6 @@ const Header = () => {
                       sử đơn hàng
                     </Link>
                   </li>
-                  {/* PHẦN QUẢN TRỊ (ADMIN) */}
                   {(user.role === "admin" || user.role === 1) && (
                     <>
                       <li>
@@ -200,6 +182,35 @@ const Header = () => {
               )}
             </ul>
           </div>
+
+          {/* NÚT HAMBURGER (Hiện trên Mobile/Tablet) */}
+          <button 
+            className="navbar-toggler ms-2 p-1 border-0" 
+            type="button" 
+            data-bs-toggle="collapse" 
+            data-bs-target="#navbarContent"
+            aria-controls="navbarContent" 
+            aria-expanded="false" 
+            aria-label="Toggle navigation"
+          >
+            <i className="fa-solid fa-bars text-espresso fs-3"></i>
+          </button>
+        </div>
+
+        {/* MENU TRANG CHỦ & MENU (Collapse) */}
+        <div className="collapse navbar-collapse" id="navbarContent">
+          <ul className="navbar-nav ms-auto pt-3 pt-lg-0">
+            <li className="nav-item mb-2 mb-lg-0">
+              <Link to="/" className="btn-espresso-outline mx-0 mx-lg-2 d-block d-lg-inline-block text-center">
+                Trang chủ
+              </Link>
+            </li>
+            <li className="nav-item">
+              <Link to="/menu" className="btn-espresso-outline mx-0 mx-lg-2 d-block d-lg-inline-block text-center">
+                Menu
+              </Link>
+            </li>
+          </ul>
         </div>
       </div>
     </header>

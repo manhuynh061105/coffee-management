@@ -1,4 +1,4 @@
-/* Giữ nguyên phần CSS của bạn */
+/* --- GIỮ NGUYÊN VÀ NÂNG CẤP PHẦN CŨ --- */
 .header-custom {
   background-color: rgba(255, 255, 255, 0.98);
   backdrop-filter: blur(10px);
@@ -35,10 +35,46 @@
   box-shadow: 0 5px 15px rgba(111, 78, 55, 0.25);
 }
 
-.btn-espresso-outline::after {
-  display: none;
+/* --- TỐI ƯU CHO MOBILE (THÊM MỚI) --- */
+
+@media (max-width: 991.98px) {
+  /* Làm cho menu xổ xuống trông đẹp hơn */
+  .navbar-collapse {
+    background: white;
+    margin-top: 10px;
+    border-radius: 20px;
+    padding: 20px;
+    box-shadow: 0 10px 30px rgba(111, 78, 55, 0.15);
+    border: 1px solid rgba(111, 78, 55, 0.1);
+  }
+
+  .navbar-nav .nav-item {
+    width: 100%;
+  }
+
+  /* Nút bấm trên mobile dàn hàng dọc và rộng 100% */
+  .btn-espresso-outline {
+    width: 100%;
+    margin-bottom: 10px;
+    padding: 12px;
+    border-radius: 12px; /* Bo góc vuông vắn hơn trên mobile */
+  }
+
+  /* Chỉnh lại size logo để không chiếm diện tích */
+  .logo-section img {
+    width: 45px !important;
+    height: 45px !important;
+  }
+
+  /* Nút tài khoản gọn hơn trên mobile */
+  .btn-sm-custom {
+    padding: 6px 12px !important;
+    font-size: 0.8rem;
+    border-radius: 50px;
+  }
 }
 
+/* --- GIỎ HÀNG & BADGE --- */
 .cart-icon-original {
   filter: sepia(100%) hue-rotate(350deg) saturate(300%) brightness(50%);
   transition: all 0.3s ease;
@@ -46,28 +82,34 @@
 
 .cart-wrapper:hover .cart-icon-original {
   filter: sepia(100%) hue-rotate(350deg) saturate(500%) brightness(30%);
-  transform: scale(1.15);
+  transform: scale(1.1);
 }
 
 .cart-badge-custom {
   position: absolute;
-  top: -5px;
-  right: -5px;
-  background-color: #6f4e37;
+  top: -2px;
+  right: -2px;
+  background-color: #d32f2f; /* Màu đỏ đô cho nổi bật */
   color: white;
-  font-size: 0.65rem;
+  font-size: 0.7rem;
   font-weight: bold;
-  padding: 2px 6px;
+  min-width: 18px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   border-radius: 50%;
-  border: 2px solid white;
+  border: 1.5px solid white;
 }
 
+/* --- DROPDOWN CUSTOM --- */
 .dropdown-menu {
   border-radius: 18px;
   padding: 10px;
   min-width: 230px;
   border: none;
   box-shadow: 0 15px 40px rgba(0, 0, 0, 0.12);
+  margin-top: 10px !important;
 }
 
 .dropdown-item {
@@ -75,6 +117,7 @@
   transition: 0.2s;
   font-weight: 600;
   color: #5d4037;
+  padding: 10px 15px;
 }
 
 .dropdown-item:hover {
@@ -83,17 +126,24 @@
   transform: translateX(5px);
 }
 
+/* --- ANIMATIONS --- */
 .animate-slide-in {
-  animation: slideIn 0.2s ease-out;
+  animation: slideIn 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 @keyframes slideIn {
   from {
     opacity: 0;
-    transform: translateY(10px);
+    transform: translateY(15px);
   }
   to {
     opacity: 1;
     transform: translateY(0);
   }
+}
+
+/* Loại bỏ viền xanh khi bấm nút toggler trên mobile */
+.navbar-toggler:focus {
+  box-shadow: none;
+  outline: none;
 }
