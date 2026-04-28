@@ -1,4 +1,6 @@
 import React, { useState } from "react";
+import { toast } from "react-toastify";
+
 import api from "../configs/api";
 import "../pages/AddProduct.css";
 
@@ -19,7 +21,7 @@ const AddProduct = ({ isOpen, onClose }) => {
     const file = e.target.files[0];
     if (file) {
       if (file.size > 2 * 1024 * 1024) {
-        alert("Ảnh quá lớn! Vui lòng chọn ảnh dưới 2MB.");
+        toast.error("Ảnh quá lớn! Vui lòng chọn ảnh dưới 2MB.");
         return;
       }
       setImage(file);
@@ -32,7 +34,7 @@ const AddProduct = ({ isOpen, onClose }) => {
 
     // Kiểm tra giá trước khi gửi
     if (Number(price) > MAX_PRICE) {
-      alert(
+      toast.error(
         `Giá sản phẩm không được vượt quá ${MAX_PRICE.toLocaleString()} VNĐ!`,
       );
       return;
@@ -52,7 +54,7 @@ const AddProduct = ({ isOpen, onClose }) => {
       });
 
       if (response.data.success) {
-        alert("Thêm món mới thành công! Đang cập nhật Menu...");
+        toast.success("Thêm món mới thành công! Đang cập nhật Menu...");
         setName("");
         setPrice("");
         setImage(null);
@@ -62,7 +64,7 @@ const AddProduct = ({ isOpen, onClose }) => {
       }
     } catch (error) {
       console.error("Lỗi upload:", error);
-      alert(
+      toast.error(
         error.response?.data?.message ||
           "Không thể thêm sản phẩm. Vui lòng thử lại!",
       );

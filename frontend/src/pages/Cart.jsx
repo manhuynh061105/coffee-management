@@ -3,6 +3,8 @@ import Header from "../components/Header";
 import Footer from "../components/Footer";
 import { useCart } from "../context/CartContext";
 import { Link, useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
+import "../pages/Cart.css";
 import api from "../configs/api";
 
 const Cart = () => {
@@ -18,7 +20,7 @@ const Cart = () => {
 
   const handleCheckout = () => {
     if (cart.length === 0) {
-      alert("Giỏ hàng của bạn đang trống!");
+      toast.error("Giỏ hàng của bạn đang trống!");
       return;
     }
     navigate("/checkout");

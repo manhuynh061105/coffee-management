@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 import api from "../configs/api";
+import "../pages/Register.css";
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -33,12 +35,12 @@ const Register = () => {
 
     // Kiểm tra độ dài lần cuối
     if (formData.username.length > 20) {
-      alert("Tên đăng nhập không được vượt quá 20 ký tự!");
+      toast.error("Tên đăng nhập không được vượt quá 20 ký tự!");
       return;
     }
 
     if (formData.password !== formData.confirmPassword) {
-      alert("Mật khẩu xác nhận không khớp!");
+      toast.error("Mật khẩu xác nhận không khớp!");
       return;
     }
 
@@ -50,12 +52,12 @@ const Register = () => {
       });
 
       if (response.data.success) {
-        alert("Chào mừng bạn đến với Beans Café! Đăng ký thành công.");
+        toast.success("Chào mừng bạn đến với Beans Café! Đăng ký thành công.");
         navigate("/login");
       }
     } catch (error) {
       console.error("Registration error:", error);
-      alert(
+      toast.error(
         error.response?.data?.message || "Đăng ký thất bại! Vui lòng thử lại.",
       );
     }
