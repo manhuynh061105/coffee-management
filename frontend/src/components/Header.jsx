@@ -16,7 +16,8 @@ const Header = () => {
   try {
     const userData = localStorage.getItem("user");
     user = userData ? JSON.parse(userData) : null;
-  } catch (error) {
+  }
+  catch (error) {
     console.error("Lỗi đọc user:", error);
     user = null;
   }
