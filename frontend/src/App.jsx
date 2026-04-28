@@ -153,6 +153,7 @@ function App() {
         pauseOnHover
         draggable
         theme="light"
+        style={{ zIndex: 99999 }}
       />
     </Router>
   );
