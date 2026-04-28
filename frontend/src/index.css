@@ -367,3 +367,13 @@ footer h4, footer h5 {
     border-color: var(--color-secondary) !important;
     background-color: #fdfbf9 !important; /* Đổi màu nền nhẹ khi hover */
 }
+
+/* Tự động cắt ngắn tên và hiện dấu ... nếu vượt quá khung cho phép */
+.user-name-truncate {
+  max-width: 120px; /* Điều chỉnh tùy layout */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: inline-block;
+  vertical-align: bottom;
+}

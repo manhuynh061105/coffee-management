@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-// 1. Import cấu hình api chung
 import api from '../configs/api'; 
 
 const Register = () => {
@@ -8,11 +7,14 @@ const Register = () => {
     username: '',
     password: '',
     confirmPassword: '',
-    role: 'user' // Mặc định là user
+    role: 'user' 
   });
   const navigate = useNavigate();
 
   const handleChange = (e) => {
+    // Chỉ cập nhật nếu độ dài username <= 20
+    if (e.target.id === 'username' && e.target.value.length > 20) return;
+
     setFormData({
       ...formData,
       [e.target.id]: e.target.value
@@ -28,13 +30,19 @@ const Register = () => {
 
   const handleRegister = async (e) => {
     e.preventDefault();
+
+    // Kiểm tra độ dài lần cuối
+    if (formData.username.length > 20) {
+      alert("Tên đăng nhập không được vượt quá 20 ký tự!");
+      return;
+    }
+
     if (formData.password !== formData.confirmPassword) {
       alert("Mật khẩu xác nhận không khớp!");
       return;
     }
 
     try {
-      // 2. Sử dụng api.post (đã bỏ domain localhost)
       const response = await api.post('/auth/register', {
         username: formData.username,
         password: formData.password,
@@ -46,7 +54,6 @@ const Register = () => {
         navigate('/login');
       }
     } catch (error) {
-      // 3. Hiển thị thông báo lỗi chi tiết từ Backend
       console.error('Registration error:', error);
       alert(error.response?.data?.message || 'Đăng ký thất bại! Vui lòng thử lại.');
     }
@@ -66,13 +73,21 @@ const Register = () => {
 
           <form onSubmit={handleRegister}>
             <div className="mb-3">
-              <label className="form-label-custom">Tên đăng nhập</label>
+              <div className="d-flex justify-content-between align-items-center mb-2">
+                <label className="form-label-custom mb-0">Tên đăng nhập</label>
+                <span className={`small ${formData.username.length >= 18 ? 'text-danger' : 'text-muted'}`} style={{ fontSize: '0.7rem' }}>
+                  {formData.username.length}/20
+                </span>
+              </div>
               <div className="input-group-custom">
                 <span className="input-icon"><i className="fa-solid fa-user-plus"></i></span>
                 <input 
                   type="text" id="username" className="form-control-custom" 
-                  placeholder="Nhập tên tài khoản..." 
-                  value={formData.username} onChange={handleChange} required 
+                  placeholder="Ví dụ: nhuman123..." 
+                  value={formData.username} 
+                  onChange={handleChange} 
+                  maxLength={20} // Giới hạn trực tiếp trên HTML
+                  required 
                 />
               </div>
             </div>
