@@ -5,17 +5,17 @@ import path from "path";
 import { fileURLToPath } from "url";
 
 // - Import các module khác
-import connectDB from "./configs/db.js"; 
+import connectDB from "./configs/db.js";
 import productRoutes from "./routes/productsRoutes.js";
 import orderRoutes from "./routes/ordersRoutes.js";
-import authRoutes from './routes/authRoutes.js';
-import cartRoutes from './routes/cartRoutes.js';
+import authRoutes from "./routes/authRoutes.js";
+import cartRoutes from "./routes/cartRoutes.js";
 
 // - Tải biến môi trường từ file .env
 dotenv.config();
 
 // - Kết nối đến MongoDB Atlas
-connectDB(); 
+connectDB();
 const app = express();
 const PORT = process.env.PORT || 10000;
 
@@ -34,8 +34,8 @@ app.use("/img", express.static(path.join(__dirname, "..", "public", "img")));
 // - API Routes
 app.use("/api/products", productRoutes);
 app.use("/api/orders", orderRoutes);
-app.use('/api/auth', authRoutes);
-app.use('/api/cart', cartRoutes);
+app.use("/api/auth", authRoutes);
+app.use("/api/cart", cartRoutes);
 
 // - Health Check Endpoint
 app.get("/", (req, res) => {
@@ -44,7 +44,6 @@ app.get("/", (req, res) => {
     message: "API Quản Lý Cà Phê Đang Chạy ☕",
   });
 });
-
 
 // - 404 Handler
 app.use((req, res) => {
@@ -56,9 +55,9 @@ app.use((req, res) => {
 
 // - Start the server
 app.listen(PORT, "0.0.0.0", () => {
-    console.log(`
+  console.log(`
 🚀 Máy chủ đang chạy!
 📡 Port: ${PORT}
-🌍 Mode: ${process.env.NODE_ENV || 'development'}
+🌍 Mode: ${process.env.NODE_ENV || "development"}
     `);
 });

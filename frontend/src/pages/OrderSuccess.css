@@ -1,0 +1,29 @@
+.text-espresso {
+  color: #6f4e37;
+}
+.btn-espresso {
+  background-color: #6f4e37;
+  color: #fff;
+  transition: all 0.3s ease;
+}
+.btn-espresso:hover {
+  background-color: #2c2420 !important;
+  color: #fff;
+  transform: translateY(-2px);
+}
+.transition-hover:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+@keyframes zoomIn {
+  from {
+    opacity: 0;
+    transform: scale3d(0.3, 0.3, 0.3);
+  }
+  50% {
+    opacity: 1;
+  }
+}
+.animate__zoomIn {
+  animation: zoomIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}

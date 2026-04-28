@@ -1,10 +1,7 @@
 import { body, validationResult } from "express-validator";
 
 export const validateRegister = [
-  body("username")
-    .trim()
-    .notEmpty()
-    .withMessage("Username is required"),
+  body("username").trim().notEmpty().withMessage("Username is required"),
 
   body("password")
     .trim()

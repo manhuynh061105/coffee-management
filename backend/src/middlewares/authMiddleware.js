@@ -7,7 +7,7 @@ export const verifyToken = (req, res, next) => {
   if (!token) {
     return res.status(401).json({
       success: false,
-      message: "Bạn chưa đăng nhập!"
+      message: "Bạn chưa đăng nhập!",
     });
   }
 
@@ -15,11 +15,10 @@ export const verifyToken = (req, res, next) => {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     req.user = decoded;
     next();
-  }
-  catch (error) {
+  } catch (error) {
     res.status(403).json({
       success: false,
-      message: "Token không hợp lệ hoặc đã hết hạn"
+      message: "Token không hợp lệ hoặc đã hết hạn",
     });
   }
 };
@@ -27,11 +26,10 @@ export const verifyToken = (req, res, next) => {
 export const isAdmin = (req, res, next) => {
   if (req.user && req.user.role === "admin") {
     next();
-  }
-  else {
+  } else {
     res.status(403).json({
       success: false,
-      message: "Quyền truy cập bị từ chối. Chỉ dành cho Admin!"
+      message: "Quyền truy cập bị từ chối. Chỉ dành cho Admin!",
     });
   }
 };

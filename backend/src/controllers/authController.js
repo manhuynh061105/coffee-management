@@ -11,14 +11,14 @@ const generateToken = (user) => {
     process.env.JWT_SECRET,
     {
       expiresIn: "1d",
-    }
+    },
   );
 };
 
 export const register = async (req, res) => {
   try {
     const { username, password, role } = req.body;
-    
+
     if (!username || !password) {
       return res.status(400).json({
         success: false,
@@ -30,7 +30,7 @@ export const register = async (req, res) => {
     if (userExists) {
       return res.status(400).json({
         success: false,
-        message: "Người dùng đã tồn tại"
+        message: "Người dùng đã tồn tại",
       });
     }
 
@@ -39,7 +39,7 @@ export const register = async (req, res) => {
     const newUser = await User.create({
       username,
       password: hashedPassword,
-      role: role || "user"
+      role: role || "user",
     });
 
     res.status(201).json({
@@ -48,15 +48,13 @@ export const register = async (req, res) => {
       data: {
         id: newUser._id,
         username: newUser.username,
-        role: newUser.role
-      }
+        role: newUser.role,
+      },
     });
-
-  }
-  catch (error) {
+  } catch (error) {
     res.status(500).json({
       success: false,
-      message: "Lỗi Server: " + error.message
+      message: "Lỗi Server: " + error.message,
     });
   }
 };
@@ -76,7 +74,7 @@ export const login = async (req, res) => {
     if (!user) {
       return res.status(400).json({
         success: false,
-        message: "Tài khoản không tồn tại"
+        message: "Tài khoản không tồn tại",
       });
     }
 
@@ -84,7 +82,7 @@ export const login = async (req, res) => {
     if (!isMatch) {
       return res.status(400).json({
         success: false,
-        message: "Mật khẩu không chính xác"
+        message: "Mật khẩu không chính xác",
       });
     }
 
@@ -108,14 +106,13 @@ export const login = async (req, res) => {
       message: "Đăng nhập thành công",
       data: {
         token,
-        user: { id: user._id, username: user.username, role: user.role }
-      }
+        user: { id: user._id, username: user.username, role: user.role },
+      },
     });
-  }
-  catch (error) {
+  } catch (error) {
     res.status(500).json({
       success: false,
-      message: "Lỗi Server"
+      message: "Lỗi Server",
     });
   }
 };
