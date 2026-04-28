@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
-// 1. Import cấu hình api chung
 import api from '../configs/api'; 
 
 const AdminProducts = () => {
@@ -13,12 +12,13 @@ const AdminProducts = () => {
     category: "",
   });
 
-  // 2. Lấy URL gốc cho hình ảnh từ config (để thay thế localhost)
+  // Ngưỡng giá tối đa
+  const MAX_PRICE = 150000;
+
   const IMAGE_BASE_URL = api.defaults.baseURL.replace('/api', '');
 
   const fetchProducts = async () => {
     try {
-      // 3. Sử dụng api.get thay cho fetch thủ công
       const res = await api.get('/products');
       setProducts(res.data.data || []);
     } catch (error) {
@@ -33,7 +33,6 @@ const AdminProducts = () => {
   const handleDelete = async (id) => {
     if (!window.confirm("Bạn có chắc muốn xoá sản phẩm này khỏi thực đơn?")) return;
     try {
-      // 4. Sử dụng api.delete (Token tự động đính kèm nhờ interceptor)
       const res = await api.delete(`/products/${id}`);
       if (res.data.success) {
         alert("Đã xoá sản phẩm thành công!");
@@ -49,8 +48,14 @@ const AdminProducts = () => {
 
   const handleUpdate = async (e) => {
     e.preventDefault();
+
+    // KIỂM TRA GIÁ TRƯỚC KHI CẬP NHẬT
+    if (Number(formData.price) > MAX_PRICE) {
+      alert(`Giá bán không được vượt quá ${MAX_PRICE.toLocaleString()} VNĐ!`);
+      return;
+    }
+
     try {
-      // 5. Sử dụng api.put
       const res = await api.put(`/products/${editingProduct._id}`, formData);
       if (res.data.success) {
         alert("Cập nhật thông tin thành công!");
@@ -78,14 +83,12 @@ const AdminProducts = () => {
     const { name, value } = e.target;
     setFormData({
       ...formData,
-      [name]: name === "price" ? Number(value) : value,
+      [name]: name === "price" ? (value === "" ? "" : Number(value)) : value,
     });
   };
 
-  // 6. Cập nhật hàm xử lý đường dẫn ảnh linh hoạt với IMAGE_BASE_URL mới
   const getImageUrl = (imagePath) => {
     if (!imagePath) return "https://placehold.co/100x100?text=No+Image";
-    
     if (imagePath.startsWith('/img')) {
       return `${IMAGE_BASE_URL}${imagePath}`;
     }
@@ -111,7 +114,6 @@ const AdminProducts = () => {
           </div>
         </div>
 
-        {/* --- BẢNG DANH SÁCH --- */}
         <div className="card border-0 shadow-soft rounded-4 overflow-hidden bg-white">
           <div className="table-responsive">
             <table className="table table-hover align-middle mb-0">
@@ -173,7 +175,6 @@ const AdminProducts = () => {
           </div>
         </div>
 
-        {/* --- POP-UP MODAL EDIT (GIỮ NGUYÊN) --- */}
         {editingProduct && (
           <div className="custom-modal-overlay">
             <div className="custom-modal-content fade-in-up shadow-lg">
@@ -192,8 +193,20 @@ const AdminProducts = () => {
                 
                 <div className="row g-3 mb-4">
                   <div className="col-md-6">
-                    <label className="form-label small fw-bold text-muted text-uppercase">Giá bán (VNĐ)</label>
-                    <input type="number" name="price" className="form-control custom-input" value={formData.price} onChange={handleChange} required />
+                    <div className="d-flex justify-content-between">
+                        <label className="form-label small fw-bold text-muted text-uppercase">Giá bán (VNĐ)</label>
+                        {formData.price > MAX_PRICE && <small className="text-danger fw-bold">Quá giới hạn!</small>}
+                    </div>
+                    <input 
+                        type="number" 
+                        name="price" 
+                        className={`form-control custom-input ${formData.price > MAX_PRICE ? 'border-danger text-danger' : ''}`} 
+                        value={formData.price} 
+                        onChange={handleChange} 
+                        max={MAX_PRICE}
+                        required 
+                    />
+                    <small className="text-muted" style={{ fontSize: '0.75rem' }}>Tối đa: 150.000₫</small>
                   </div>
                   <div className="col-md-6">
                     <label className="form-label small fw-bold text-muted text-uppercase">Danh mục</label>
@@ -207,7 +220,11 @@ const AdminProducts = () => {
                 </div>
 
                 <div className="d-flex gap-3">
-                  <button type="submit" className="btn btn-espresso w-100 py-3 rounded-pill fw-bold shadow-sm">
+                  <button 
+                    type="submit" 
+                    className={`btn ${formData.price > MAX_PRICE ? 'btn-danger' : 'btn-espresso'} w-100 py-3 rounded-pill fw-bold shadow-sm`}
+                    disabled={formData.price > MAX_PRICE}
+                  >
                     LƯU THAY ĐỔI
                   </button>
                   <button type="button" className="btn btn-outline-secondary px-4 rounded-pill fw-bold" onClick={() => setEditingProduct(null)}>
@@ -221,7 +238,6 @@ const AdminProducts = () => {
       </div>
 
       <Footer />
-      {/* GIỮ NGUYÊN CSS */}
       <style>{`
         .text-espresso { color: #6F4E37; }
         .bg-espresso { background-color: #6F4E37; }

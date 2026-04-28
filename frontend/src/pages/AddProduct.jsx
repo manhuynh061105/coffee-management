@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-// 1. Dùng api instance thay vì axios gốc
 import api from '../configs/api'; 
 
 const AddProduct = ({ isOpen, onClose }) => {
@@ -10,12 +9,14 @@ const AddProduct = ({ isOpen, onClose }) => {
   const [preview, setPreview] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // Ngưỡng giá tối đa
+  const MAX_PRICE = 150000;
+
   if (!isOpen) return null;
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-      // Kiểm tra kích thước file (Render/Free tier nên giới hạn < 2MB cho an toàn)
       if (file.size > 2 * 1024 * 1024) {
         alert("Ảnh quá lớn! Vui lòng chọn ảnh dưới 2MB.");
         return;
@@ -27,6 +28,13 @@ const AddProduct = ({ isOpen, onClose }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // Kiểm tra giá trước khi gửi
+    if (Number(price) > MAX_PRICE) {
+      alert(`Giá sản phẩm không được vượt quá ${MAX_PRICE.toLocaleString()} VNĐ!`);
+      return;
+    }
+
     setIsSubmitting(true);
 
     const formData = new FormData();
@@ -36,20 +44,14 @@ const AddProduct = ({ isOpen, onClose }) => {
     formData.append('image', image);
 
     try {
-      // 2. Sử dụng api.post. 
-      // Lưu ý: api instance đã tự có Authorization Token từ interceptor
       const response = await api.post('/products', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data'
-        }
+        headers: { 'Content-Type': 'multipart/form-data' }
       });
 
       if (response.data.success) {
         alert('Thêm món mới thành công! Đang cập nhật Menu...');
-        // Reset form
         setName(''); setPrice(''); setImage(null); setPreview(null);
         onClose();
-        // Thay vì reload cả trang, bạn nên dùng logic callback để load lại danh sách món
         window.location.reload(); 
       }
     } catch (error) {
@@ -64,16 +66,14 @@ const AddProduct = ({ isOpen, onClose }) => {
     <div className="custom-modal-overlay">
       <div className="custom-modal-content fade-in-up shadow-lg border-0" style={{ maxWidth: '550px', borderRadius: '30px', overflow: 'hidden' }}>
         
-        {/* Header Modal */}
         <div className="p-4 border-bottom bg-white d-flex justify-content-between align-items-center">
           <h4 className="fw-bold mb-0 text-espresso text-uppercase" style={{ letterSpacing: '1px' }}>
-             ✨ Món mới cho Menu
+              ✨ Món mới cho Menu
           </h4>
           <button className="btn-close shadow-none" onClick={onClose} disabled={isSubmitting}></button>
         </div>
 
         <form onSubmit={handleSubmit} className="p-4 bg-white">
-          {/* Input Tên */}
           <div className="mb-4">
             <label className="form-label small fw-bold text-muted text-uppercase">Tên sản phẩm</label>
             <input 
@@ -88,24 +88,27 @@ const AddProduct = ({ isOpen, onClose }) => {
           </div>
 
           <div className="row">
-            {/* Input Giá */}
             <div className="col-md-6 mb-4">
-              <label className="form-label small fw-bold text-muted text-uppercase">Giá (VNĐ)</label>
+              <div className="d-flex justify-content-between">
+                <label className="form-label small fw-bold text-muted text-uppercase">Giá (VNĐ)</label>
+                {price > MAX_PRICE && <small className="text-danger fw-bold" style={{ fontSize: '0.7rem' }}>Quá giới hạn!</small>}
+              </div>
               <div className="input-group">
                 <input 
                   type="number" 
-                  className="form-control custom-input border-end-0" 
+                  className={`form-control custom-input border-end-0 ${price > MAX_PRICE ? 'border-danger' : ''}`} 
                   placeholder="0"
+                  max={MAX_PRICE} // Giới hạn thuộc tính HTML
                   value={price} 
                   onChange={(e) => setPrice(e.target.value)} 
                   required 
                   disabled={isSubmitting}
                 />
-                <span className="input-group-text bg-white custom-input border-start-0 fw-bold text-muted">₫</span>
+                <span className={`input-group-text bg-white custom-input border-start-0 fw-bold ${price > MAX_PRICE ? 'border-danger text-danger' : 'text-muted'}`}>₫</span>
               </div>
+              <small className="text-muted mt-1 d-block" style={{ fontSize: '0.75rem' }}>Tối đa 150.000₫</small>
             </div>
 
-            {/* Input Danh mục */}
             <div className="col-md-6 mb-4">
               <label className="form-label small fw-bold text-muted text-uppercase">Danh mục</label>
               <select 
@@ -121,7 +124,6 @@ const AddProduct = ({ isOpen, onClose }) => {
             </div>
           </div>
 
-          {/* Upload Ảnh */}
           <div className="mb-4">
             <label className="form-label small fw-bold text-muted text-uppercase">Hình ảnh sản phẩm</label>
             <div className={`upload-zone ${preview ? 'has-image' : ''}`}>
@@ -150,7 +152,6 @@ const AddProduct = ({ isOpen, onClose }) => {
             </div>
           </div>
 
-          {/* Footer Nút bấm */}
           <div className="d-flex gap-3 mt-4 pt-2">
             <button 
               type="button" 
@@ -162,8 +163,8 @@ const AddProduct = ({ isOpen, onClose }) => {
             </button>
             <button 
               type="submit" 
-              className="btn btn-espresso w-100 py-3 rounded-pill fw-bold shadow d-flex align-items-center justify-content-center"
-              disabled={isSubmitting}
+              className={`btn ${price > MAX_PRICE ? 'btn-danger' : 'btn-espresso'} w-100 py-3 rounded-pill fw-bold shadow d-flex align-items-center justify-content-center`}
+              disabled={isSubmitting || price > MAX_PRICE}
             >
               {isSubmitting ? (
                 <>
