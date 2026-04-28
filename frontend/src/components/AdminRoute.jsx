@@ -7,24 +7,22 @@ const AdminRoute = ({ children }) => {
   try {
     const userData = localStorage.getItem('user');
     user = userData ? JSON.parse(userData) : null;
-  } catch (error) {
+  }
+  catch (error) {
     console.error("Lỗi đọc dữ liệu người dùng:", error);
     user = null;
   }
 
-  // 1. Kiểm tra nếu chưa đăng nhập
+  // - Kiểm tra xem người dùng đã đăng nhập chưa
   if (!user) {
-    return <Navigate to="/login" />;
+    return <Navigate to="/login" replace />;
   }
 
-  // 2. Kiểm tra quyền Admin 
-  // Lưu ý: Nếu backend trả về số 1 thì sửa thành: user.role !== 1
+  // - Kiểm tra vai trò của người dùng (Admin)
   if (user.role !== 'admin' && user.role !== 1) {
-    alert("Dừng lại! Khu vực này chỉ dành cho quản trị viên.");
-    return <Navigate to="/" />;
+    return <Navigate to="/" replace />;
   }
-
-  // Nếu mọi thứ ổn, cho phép truy cập
+  
   return children;
 };
 
