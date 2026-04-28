@@ -14,7 +14,7 @@ import cartRoutes from './routes/cartRoutes.js';
 // - Tải biến môi trường từ file .env
 dotenv.config();
 
-// - Kết nối đến MongoDB
+// - Kết nối đến MongoDB Atlas
 connectDB(); 
 const app = express();
 const PORT = process.env.PORT || 10000;
