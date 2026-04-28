@@ -2,9 +2,9 @@ import mongoose from 'mongoose';
 
 const cartSchema = new mongoose.Schema({
   userId: { 
-    type: String, // Đổi từ ObjectId sang String để đồng bộ với Frontend
+    type: String,
     required: true,
-    unique: true // Mỗi User chỉ có duy nhất 1 giỏ hàng
+    unique: true
   },
   items: [{
     _id: String, 

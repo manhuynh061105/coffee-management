@@ -1,21 +1,30 @@
-import { body, validationResult } from 'express-validator';
+import { body, validationResult } from "express-validator";
 
 export const validateRegister = [
-  body('username').notEmpty().withMessage('Username không được để trống'),
-  body('password').isLength({ min: 6 }).withMessage('Password phải có ít nhất 6 ký tự'),
+  body("username")
+    .trim()
+    .notEmpty()
+    .withMessage("Username is required"),
+
+  body("password")
+    .trim()
+    .isLength({ min: 6 })
+    .withMessage("Password must be at least 6 characters"),
+
   (req, res, next) => {
     const errors = validationResult(req);
+
     if (!errors.isEmpty()) {
-      // Trả về ĐÚNG format Validation Error mà em đã quy định
       return res.status(400).json({
         success: false,
         message: "Validation error",
-        errors: errors.array().map(err => ({
-          field: err.path,
-          message: err.msg
-        }))
+        errors: errors.array().map((error) => ({
+          field: error.path,
+          message: error.msg,
+        })),
       });
     }
+
     next();
-  }
+  },
 ];

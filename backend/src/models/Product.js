@@ -17,15 +17,14 @@ const productSchema = new mongoose.Schema(
     },
     image: { 
       type: String, 
-      default: "default-coffee.jpg" // Ảnh mặc định nếu admin không tải ảnh lên
+      default: "default-coffee.jpg"
     }
   },
   { 
-    timestamps: true // Tự động thêm createdAt và updatedAt (rất cần cho Admin quản lý)
+    timestamps: true
   }
 );
 
-// Kiểm tra nếu model đã tồn tại thì dùng lại, chưa có thì mới tạo mới (tránh lỗi OverwriteModelError)
 const Product = mongoose.models.Product || mongoose.model("Product", productSchema);
 
 export default Product;

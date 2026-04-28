@@ -1,20 +1,19 @@
 import mongoose from 'mongoose';
-import dotenv from 'dotenv';
-
-dotenv.config();
 
 const connectDB = async () => {
-  const uri = process.env.MONGODB_URI;
-  
-  // Log này giúp bạn kiểm tra trên Render xem nó đã đọc đúng link Atlas chưa
-  console.log("Attempting to connect to:", uri ? "Atlas (Remote)" : "Localhost/Undefined");
-
   try {
-    await mongoose.connect(uri);
-    console.log("=== MongoDB Connected Successfully! ===");
-  } catch (error) {
-    console.error("MongoDB Connection Failed:", error.message);
-    process.exit(1);
+    const mongoURI = process.env.MONGODB_URI;
+
+    if (!mongoURI) {
+      throw new Error("MONGODB_URI chưa được cấu hình trong .env");
+    }
+
+    await mongoose.connect(mongoURI);
+    console.log("MongoDB Đã Kết Nối Thành Công!");
+  }
+  catch (error) {
+      console.error("MongoDB Kết Nối Thất Bại:", error.message);
+      process.exit(1);
   }
 };
 

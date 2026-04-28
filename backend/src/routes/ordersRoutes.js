@@ -1,4 +1,5 @@
 import express from "express";
+
 import {
   createOrder,
   getOrders,
@@ -8,16 +9,18 @@ import {
   getOrderById,
   deleteOrder
 } from "../controllers/ordersController.js";
-// Import middleware bảo mật (Thay đổi đường dẫn cho đúng với project của em)
-import { verifyToken, isAdmin } from "../middlewares/authMiddleware.js";
+import {
+  verifyToken,
+  isAdmin
+} from "../middlewares/authMiddleware.js";
 
 const router = express.Router();
 
-// --- ROUTE CHO USER (Cần đăng nhập) ---
+// - Route cho người dùng
 router.post("/", verifyToken, createOrder); 
 router.get("/user/:userId", verifyToken, getOrdersByUser); 
 
-// --- ROUTE CHO ADMIN (Bắt buộc phải là Admin) ---
+// - Route cho admin
 router.get("/stats", verifyToken, isAdmin, getStats); 
 router.get("/", verifyToken, isAdmin, getOrders); 
 router.get("/:id", verifyToken, isAdmin, getOrderById); 

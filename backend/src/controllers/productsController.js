@@ -13,17 +13,15 @@ export const getProducts = async (req, res) => {
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: "Server error"
+      message: "Lỗi Server: " + error.message
     });
   }
 };
 
-// --- Lấy chi tiết 1 sản phẩm ---
 export const getProductById = async (req, res) => {
   try {
     const { id } = req.params;
 
-    // Tìm sản phẩm theo ID trong Database
     const product = await Product.findById(id);
 
     if (!product) {
@@ -39,25 +37,23 @@ export const getProductById = async (req, res) => {
       data: product
     });
 
-  } catch (error) {
+  }
+  catch (error) {
     console.error("Lỗi Get Product By Id:", error.message);
     res.status(500).json({
       success: false,
-      message: "Server error: ID không hợp lệ hoặc lỗi hệ thống"
+      message: "Lỗi Server: ID không hợp lệ hoặc lỗi hệ thống"
     });
   }
 };
 
 export const createProduct = async (req, res) => {
   try {
-    // 1. Lấy dữ liệu từ body và file từ multer
     const { name, price, category } = req.body;
     const image = req.file ? req.file.filename : "default-coffee.jpg";
 
-    // 2. Ép kiểu price sang Number (vì FormData luôn gửi lên String)
     const numericPrice = Number(price);
 
-    // 3. Kiểm tra các trường bắt buộc
     if (!name || isNaN(numericPrice) || !category) {
       return res.status(400).json({
         success: false,
@@ -65,12 +61,11 @@ export const createProduct = async (req, res) => {
       });
     }
 
-    // 4. Tạo sản phẩm mới trong Database
     const product = await Product.create({
       name,
       price: numericPrice,
       category,
-      image // Đã bao gồm ảnh ở đây
+      image
     });
 
     res.status(201).json({
@@ -79,11 +74,12 @@ export const createProduct = async (req, res) => {
       data: product
     });
 
-  } catch (error) {
+  }
+  catch (error) {
     console.error("Lỗi Create Product:", error.message);
     res.status(500).json({
       success: false,
-      message: "Server error: " + error.message
+      message: "Lỗi Server: " + error.message
     });
   }
 };
@@ -93,7 +89,6 @@ export const updateProduct = async (req, res) => {
     const { id } = req.params;
     const { name, price, category } = req.body;
 
-    // validate
     if (price !== undefined && typeof price !== "number") {
       return res.status(400).json({
         success: false,
@@ -123,7 +118,7 @@ export const updateProduct = async (req, res) => {
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: "Server error"
+      message: "Lỗi Server: " + error.message
     });
   }
 };
@@ -149,7 +144,7 @@ export const deleteProduct = async (req, res) => {
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: "Server error"
+      message: "Lỗi Server: " + error.message
     });
   }
 };
