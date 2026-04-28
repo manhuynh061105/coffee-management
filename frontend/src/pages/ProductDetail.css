@@ -76,3 +76,8 @@
 .animate__delay-1s {
   animation-delay: 0.2s;
 }
+
+.breadcrumb-item {
+  display: flex;
+  align-items: center;
+}

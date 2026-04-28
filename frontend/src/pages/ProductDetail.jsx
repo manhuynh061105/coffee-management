@@ -89,10 +89,10 @@ const ProductDetail = () => {
           aria-label="breadcrumb"
           className="mb-5 pt-4 animate__animated animate__fadeIn"
         >
-          <ol className="breadcrumb bg-white p-3 rounded-pill shadow-sm border px-4">
+          <ol className="breadcrumb custom-breadcrumb bg-white p-3 rounded-pill shadow-sm border px-4">
             <li className="breadcrumb-item">
               <button
-                className="btn btn-link p-0 text-decoration-none text-muted small"
+                className="p-0 text-decoration-none text-muted small border-0 bg-transparent"
                 onClick={() => navigate("/")}
               >
                 Trang chủ
@@ -100,7 +100,7 @@ const ProductDetail = () => {
             </li>
             <li className="breadcrumb-item">
               <button
-                className="btn btn-link p-0 text-decoration-none text-muted small"
+                className="p-0 text-decoration-none text-muted small border-0 bg-transparent"
                 onClick={() => navigate("/menu")}
               >
                 Thực đơn
