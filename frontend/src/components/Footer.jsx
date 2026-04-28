@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import './Footer.css';
 
 const Footer = () => {
   return (
@@ -16,10 +17,10 @@ const Footer = () => {
               Tự hào mang đến những hạt cà phê rang xay nguyên chất, đậm đà hương vị truyền thống kết hợp không gian hiện đại tại trung tâm Đà Nẵng.
             </p>
             <div className="social-icons d-flex gap-3 mt-4">
-              <a href="#" className="icon-link"><i className="fa-brands fa-facebook-f"></i></a>
-              <a href="#" className="icon-link"><i className="fa-brands fa-instagram"></i></a>
-              <a href="#" className="icon-link"><i className="fa-brands fa-tiktok"></i></a>
-              <a href="#" className="icon-link"><i className="fa-brands fa-youtube"></i></a>
+              <button type="button" className="icon-link"><i className="fa-brands fa-facebook-f"></i></button>
+              <button type="button" className="icon-link"><i className="fa-brands fa-instagram"></i></button>
+              <button type="button" className="icon-link"><i className="fa-brands fa-tiktok"></i></button>
+              <button type="button" className="icon-link"><i className="fa-brands fa-youtube"></i></button>
             </div>
           </div>
 
@@ -43,11 +44,21 @@ const Footer = () => {
             </div>
             <div className="d-flex align-items-center mb-3">
               <i className="fa-solid fa-phone me-3 text-secondary"></i>
-              <p className="text-muted-footer mb-0">070 446 7304</p>
+              <a
+                href="tel:0704467304"
+                className="text-muted-footer text-decoration-none"
+              >
+                070 446 7304
+              </a>
             </div>
             <div className="d-flex align-items-center mb-4">
               <i className="fa-solid fa-envelope me-3 text-secondary"></i>
-              <p className="text-muted-footer mb-0">beanscoffee@gmail.com</p>
+              <a
+                href="mailto:beanscoffee@gmail.com"
+                className="text-muted-footer text-decoration-none"
+              >
+                beanscoffee@gmail.com
+              </a>
             </div>
             <h6 className="text-white fw-bold mb-2 small"><i className="fa-solid fa-clock me-2 text-secondary"></i>Giờ mở cửa:</h6>
             <p className="text-muted-footer small">07:00 AM - 10:30 PM (Hàng ngày)</p>
@@ -63,7 +74,10 @@ const Footer = () => {
                 className="form-control newsletter-input" 
                 placeholder="Email của bạn..." 
               />
-              <button className="btn btn-espresso-send shadow-sm">
+              <button 
+                className="btn btn-espresso-send shadow-sm"
+                aria-label="Đăng ký nhận tin"
+              >
                 <i className="fa-solid fa-paper-plane"></i>
               </button>
             </div>
@@ -83,106 +97,6 @@ const Footer = () => {
           </ul>
         </div>
       </div>
-
-      <style>{`
-        .footer-espresso {
-          background-color: #2C2420; /* Màu Espresso đậm */
-          border-top-left-radius: 60px; /* Bo góc cực đại ở phía trên */
-          border-top-right-radius: 60px;
-          position: relative;
-          overflow: hidden;
-        }
-
-        .text-muted-footer {
-          color: #B2A296; /* Màu be nhạt cho chữ trên nền nâu */
-          font-size: 0.95rem;
-          line-height: 1.8;
-        }
-
-        .footer-title::after {
-          content: '';
-          position: absolute;
-          left: 0;
-          bottom: -8px;
-          width: 30px;
-          height: 2px;
-          background-color: #6F4E37;
-        }
-
-        .footer-links li {
-          margin-bottom: 12px;
-        }
-
-        .footer-links a {
-          color: #B2A296;
-          text-decoration: none;
-          transition: all 0.3s ease;
-          font-weight: 500;
-        }
-
-        .footer-links a:hover {
-          color: #FFFFFF;
-          padding-left: 10px;
-        }
-
-        .icon-link {
-          width: 38px;
-          height: 38px;
-          background-color: rgba(111, 78, 55, 0.15);
-          border-radius: 50%;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          color: #B2A296;
-          text-decoration: none;
-          transition: 0.3s;
-        }
-
-        .icon-link:hover {
-          background-color: #6F4E37;
-          color: white;
-          transform: translateY(-3px);
-        }
-
-        /* Newsletter Input Style */
-        .newsletter-input {
-          background-color: rgba(255, 255, 255, 0.05) !important;
-          border: 1.5px solid rgba(111, 78, 55, 0.3) !important;
-          border-radius: 30px !important;
-          padding: 12px 60px 12px 20px !important;
-          color: white !important;
-        }
-
-        .newsletter-input:focus {
-          border-color: #6F4E37 !important;
-          box-shadow: none !important;
-        }
-
-        .btn-espresso-send {
-          position: absolute;
-          right: 5px;
-          top: 5px;
-          bottom: 5px;
-          background-color: #6F4E37;
-          border: none;
-          border-radius: 50%;
-          width: 45px;
-          color: white;
-          transition: 0.3s;
-        }
-
-        .btn-espresso-send:hover {
-          background-color: #A67B5B;
-          transform: scale(1.05);
-        }
-
-        .footer-bottom-links a {
-          color: #6F4E37;
-          text-decoration: none;
-        }
-
-        .text-secondary { color: #A67B5B !important; }
-      `}</style>
     </footer>
   );
 };
