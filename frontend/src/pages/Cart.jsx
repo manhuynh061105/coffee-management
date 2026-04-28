@@ -3,14 +3,17 @@ import Header from '../components/Header';
 import Footer from '../components/Footer';
 import { useCart } from '../context/CartContext';
 import { Link, useNavigate } from 'react-router-dom';
-import api from '../configs/api'; // 1. Import api config
+import api from '../configs/api'; 
 
 const Cart = () => {
-  const { cart, updateQuantity, removeFromCart, totalAmount } = useCart();
+  // Lấy thêm MAX_TOTAL_ITEMS từ context
+  const { cart, updateQuantity, removeFromCart, totalAmount, MAX_TOTAL_ITEMS } = useCart();
   const navigate = useNavigate();
 
-  // 2. Lấy URL gốc cho hình ảnh từ config
   const IMAGE_BASE_URL = api.defaults.baseURL.replace('/api', '');
+
+  // Tính tổng số lượng hiện có trong giỏ
+  const currentTotalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
 
   const handleCheckout = () => {
     if (cart.length === 0) {
@@ -26,7 +29,6 @@ const Cart = () => {
         <Header />
       </div>
 
-      {/* --- BANNER --- */}
       <div className="py-5 mt-5" style={{ 
         background: `linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('/img/banner.jpg')`,
         backgroundSize: 'cover',
@@ -52,8 +54,30 @@ const Cart = () => {
         ) : (
           <div className="row g-4">
             <div className="col-lg-8">
-              <div className="bg-white rounded-4 shadow-lg p-4 border" style={{ border: '1px solid rgba(0,0,0,0.1) !important' }}>
-                <h5 className="fw-bold mb-4 text-dark border-bottom pb-3">Sản phẩm trong giỏ ({cart.length})</h5>
+              <div className="bg-white rounded-4 shadow-lg p-4 border">
+                <div className="d-flex justify-content-between align-items-end mb-4 border-bottom pb-3">
+                  <h5 className="fw-bold mb-0 text-dark">Sản phẩm trong giỏ ({cart.length})</h5>
+                  
+                  {/* HIỂN THỊ GIỚI HẠN SỐ LƯỢNG */}
+                  <div className="text-end" style={{ width: '200px' }}>
+                    <div className="d-flex justify-content-between mb-1">
+                      <small className="fw-bold text-muted">Sức chứa đơn hàng:</small>
+                      <small className={`fw-bold ${currentTotalItems >= MAX_TOTAL_ITEMS ? 'text-danger' : 'text-success'}`}>
+                        {currentTotalItems}/{MAX_TOTAL_ITEMS}
+                      </small>
+                    </div>
+                    <div className="progress" style={{ height: '6px', borderRadius: '10px', backgroundColor: '#E9ECEF' }}>
+                      <div 
+                        className="progress-bar" 
+                        style={{ 
+                          width: `${(currentTotalItems / MAX_TOTAL_ITEMS) * 100}%`,
+                          backgroundColor: currentTotalItems >= MAX_TOTAL_ITEMS ? '#dc3545' : '#6F4E37',
+                          transition: 'width 0.5s ease'
+                        }}
+                      ></div>
+                    </div>
+                  </div>
+                </div>
                 
                 <div className="d-none d-md-flex fw-bold text-secondary border-bottom pb-3 mb-3 px-2 small text-uppercase">
                   <div style={{ width: '45%' }}>Sản phẩm</div>
@@ -67,7 +91,6 @@ const Cart = () => {
                     <div className="d-flex align-items-center" style={{ width: '45%', minWidth: '250px' }}>
                       <Link to={`/product/${item._id}`}>
                         <img 
-                          /* 3. Cập nhật đường dẫn ảnh */
                           src={`${IMAGE_BASE_URL}/img/${item.image || 'bac-xiu.jpg'}`} 
                           alt={item.name} 
                           className="rounded-3 shadow-sm me-3 border" 
@@ -102,7 +125,15 @@ const Cart = () => {
                         <button 
                           className="btn d-flex align-items-center justify-content-center p-0 quantity-control-btn" 
                           onClick={() => updateQuantity(item._id, 1)}
-                          style={{ width: '30px', height: '30px', backgroundColor: '#6F4E37', borderRadius: '50%', border: 'none' }}
+                          style={{ 
+                            width: '30px', 
+                            height: '30px', 
+                            backgroundColor: currentTotalItems >= MAX_TOTAL_ITEMS ? '#A6A6A6' : '#6F4E37', 
+                            borderRadius: '50%', 
+                            border: 'none',
+                            cursor: currentTotalItems >= MAX_TOTAL_ITEMS ? 'not-allowed' : 'pointer'
+                          }}
+                          disabled={currentTotalItems >= MAX_TOTAL_ITEMS}
                         >
                           <i className="fa-solid fa-plus text-white" style={{ fontSize: '10px' }}></i>
                         </button>
@@ -118,10 +149,14 @@ const Cart = () => {
             </div>
 
             <div className="col-lg-4">
-              <div className="bg-white p-4 rounded-4 shadow-lg border-2 border border-primary-subtle sticky-top" 
-                   style={{ top: '100px', zIndex: 100 }}>
+              <div className="bg-white p-4 rounded-4 shadow-lg border-2 border border-primary-subtle sticky-top" style={{ top: '100px', zIndex: 100 }}>
                 <h4 className="fw-bold mb-4 text-dark border-bottom pb-3">Chi tiết thanh toán</h4>
                 
+                <div className="d-flex justify-content-between mb-3 fs-6">
+                  <span className="text-muted">Tổng lượng hàng:</span>
+                  <span className="fw-bold">{currentTotalItems} sản phẩm</span>
+                </div>
+
                 <div className="d-flex justify-content-between mb-3 fs-6">
                   <span className="text-muted">Tổng tiền hàng:</span>
                   <span className="fw-bold">{totalAmount.toLocaleString()}₫</span>
@@ -150,18 +185,11 @@ const Cart = () => {
                 <Link to="/menu" className="btn btn-outline-secondary w-100 py-3 rounded-pill fw-bold border-2">
                   <i className="fa-solid fa-arrow-left me-2 small"></i> TIẾP TỤC CHỌN MÓN
                 </Link>
-
-                <div className="mt-4 pt-3 border-top text-center opacity-75 d-flex justify-content-center gap-3">
-                   <i className="fa-brands fa-cc-visa fs-3"></i>
-                   <i className="fa-brands fa-cc-mastercard fs-3"></i>
-                   <i className="fa-solid fa-wallet fs-3"></i>
-                </div>
               </div>
             </div>
           </div>
         )}
       </div>
-
       <Footer />
       <style>{`
         .product-link-bold:hover h6 {

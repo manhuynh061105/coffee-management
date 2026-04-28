@@ -1,5 +1,4 @@
 import React, { createContext, useState, useEffect, useContext } from 'react';
-// 1. Import api instance thay vì axios gốc
 import api from '../configs/api'; 
 
 const CartContext = createContext();
@@ -8,7 +7,9 @@ export const CartProvider = ({ children }) => {
   const [cart, setCart] = useState([]);
   const [userId, setUserId] = useState(null);
 
-  // --- Hàm hỗ trợ lấy ID "tươi" nhất ---
+  // --- Cấu hình giới hạn ---
+  const MAX_TOTAL_ITEMS = 30;
+
   const getUserIdFromStorage = () => {
     const userData = localStorage.getItem('user');
     if (!userData) return null;
@@ -16,7 +17,6 @@ export const CartProvider = ({ children }) => {
     return user._id || user.id;
   };
 
-  // 1. Theo dõi đăng nhập/đăng xuất (Auth Watcher)
   useEffect(() => {
     const checkAuth = () => {
       const currentId = getUserIdFromStorage();
@@ -25,13 +25,11 @@ export const CartProvider = ({ children }) => {
         if (!currentId) setCart([]);
       }
     };
-
     checkAuth();
     const interval = setInterval(checkAuth, 1000);
     return () => clearInterval(interval);
   }, [userId]);
 
-  // 2. Load dữ liệu khi UserId thay đổi (F5 hoặc Đổi Acc)
   useEffect(() => {
     const loadCartData = async () => {
       const currentId = getUserIdFromStorage();
@@ -41,7 +39,6 @@ export const CartProvider = ({ children }) => {
       if (localData) setCart(JSON.parse(localData));
 
       try {
-        // 2. Sử dụng api.get (bỏ domain localhost)
         const res = await api.get(`/cart/${currentId}`);
         if (res.data.success && res.data.data?.items) {
           const serverItems = res.data.data.items;
@@ -54,17 +51,13 @@ export const CartProvider = ({ children }) => {
         console.error("❌ Lỗi load cart từ server:", error.message);
       }
     };
-
     loadCartData();
   }, [userId]);
 
-  // 3. Hàm Sync lên Server
   const syncCartWithServer = async (newCart) => {
     const currentId = getUserIdFromStorage();
     if (!currentId) return;
-
     try {
-      // 3. Sử dụng api.post (bỏ domain localhost)
       await api.post('/cart', {
         userId: currentId,
         items: newCart
@@ -74,7 +67,6 @@ export const CartProvider = ({ children }) => {
     }
   };
 
-  // 4. Tự động lưu LocalStorage mỗi khi giỏ hàng thay đổi
   useEffect(() => {
     const currentId = getUserIdFromStorage();
     if (currentId) {
@@ -82,13 +74,20 @@ export const CartProvider = ({ children }) => {
     }
   }, [cart]);
 
-  // --- CÁC HÀM THAO TÁC ---
+  // --- CÁC HÀM THAO TÁC (ĐÃ THÊM GIỚI HẠN) ---
 
-  // Thêm vào giỏ
   const addToCart = (product) => {
     const currentId = getUserIdFromStorage();
     if (!currentId) {
       alert("Vui lòng đăng nhập để mua hàng!");
+      return;
+    }
+
+    // Tính tổng số lượng hiện tại trong giỏ
+    const currentTotalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+
+    if (currentTotalItems >= MAX_TOTAL_ITEMS) {
+      alert(`Giỏ hàng đã đạt giới hạn tối đa ${MAX_TOTAL_ITEMS} sản phẩm cho mỗi đơn hàng!`);
       return;
     }
 
@@ -107,8 +106,16 @@ export const CartProvider = ({ children }) => {
     });
   };
 
-  // Cập nhật số lượng
   const updateQuantity = (productId, amount) => {
+    // Tính tổng số lượng hiện tại
+    const currentTotalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+
+    // Nếu là thao tác tăng (amount > 0) và đã chạm mốc 30
+    if (amount > 0 && currentTotalItems >= MAX_TOTAL_ITEMS) {
+      alert(`Bạn chỉ có thể mua tối đa ${MAX_TOTAL_ITEMS} sản phẩm trong một đơn hàng.`);
+      return;
+    }
+
     setCart(prevCart => {
       const updatedCart = prevCart.map(item => {
         if (item._id === productId) {
@@ -123,7 +130,6 @@ export const CartProvider = ({ children }) => {
     });
   };
 
-  // Xóa 1 sản phẩm
   const removeFromCart = (productId) => {
     setCart(prevCart => {
       const updatedCart = prevCart.filter(item => item._id !== productId);
@@ -132,32 +138,22 @@ export const CartProvider = ({ children }) => {
     });
   };
 
-  // --- MỚI: Xóa sạch giỏ hàng (Sau khi thanh toán thành công) ---
   const clearCart = async () => {
     const currentId = getUserIdFromStorage();
-    
-    // 1. Xóa trong State UI
     setCart([]);
-    
-    // 2. Xóa trong LocalStorage
     if (currentId) {
       localStorage.removeItem(`cart_${currentId}`);
-      
-      // 3. Xóa trên Server
       try {
-        // 4. Sử dụng api.post (bỏ domain localhost)
         await api.post('/cart', {
           userId: currentId,
-          items: [] // Gửi mảng rỗng để reset giỏ hàng trong DB
+          items: [] 
         });
-        console.log("✅ Đã clear giỏ hàng thành công!");
       } catch (error) {
         console.error("❌ Lỗi clear giỏ hàng server:", error.message);
       }
     }
   };
 
-  // Tính tổng tiền (Tiện ích thêm)
   const totalAmount = cart.reduce((total, item) => total + (item.price * item.quantity), 0);
 
   return (
@@ -167,7 +163,8 @@ export const CartProvider = ({ children }) => {
       updateQuantity, 
       removeFromCart, 
       clearCart, 
-      totalAmount 
+      totalAmount,
+      MAX_TOTAL_ITEMS // Truyền thêm biến này để bên Cart.jsx dùng nếu cần
     }}>
       {children}
     </CartContext.Provider>
