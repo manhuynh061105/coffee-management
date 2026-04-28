@@ -1,6 +1,5 @@
 import Cart from '../models/Cart.js';
 
-// - Đồng bộ giỏ hàng (Lưu hoặc Cập nhật)
 export const syncCart = async (req, res) => {
   try {
     const { userId, items } = req.body;
@@ -24,10 +23,10 @@ export const syncCart = async (req, res) => {
     // - Sử dụng findOneAndUpdate với upsert và bỏ qua kiểm tra version
     const cart = await Cart.findOneAndUpdate(
       { userId: userId },
-      { $set: { items: items } },
+      { $set: { items: items } }, // Ép ghi đè mảng items mới
       { 
         new: true, 
-        upsert: true,
+        upsert: true, // Nếu không có thì tạo mới
         runValidators: true 
       }
     );
@@ -46,7 +45,6 @@ export const syncCart = async (req, res) => {
   }
 };
 
-// - Lấy giỏ hàng của user
 export const getCart = async (req, res) => {
   try {
     const { userId } = req.params;
@@ -55,7 +53,7 @@ export const getCart = async (req, res) => {
     if (!userId) {
       return res.status(400).json({
         success: false,
-        message: "User ID is required",
+        message: "Thiếu UserId",
       });
     }
 

@@ -5,7 +5,7 @@ const userSchema = new mongoose.Schema({
     type: String, 
     required: [true, "Username không được để trống"], 
     unique: true, // Tránh trùng lặp tài khoản
-    trim: true    // Tự động xóa khoảng trắng thừa
+    trim: true // Tự động xóa khoảng trắng thừa
   },
   password: { 
     type: String, 
