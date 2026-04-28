@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
-// 1. Dùng api instance thay vì axios gốc
-import api from '../configs/api'; 
+import { toast } from "react-toastify";
+
+import api from '../configs/api';
+import '../pages/AddProduct.css';
 
 const AddProduct = ({ isOpen, onClose }) => {
   const [name, setName] = useState('');
@@ -15,9 +17,8 @@ const AddProduct = ({ isOpen, onClose }) => {
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-      // Kiểm tra kích thước file (Render/Free tier nên giới hạn < 2MB cho an toàn)
       if (file.size > 2 * 1024 * 1024) {
-        alert("Ảnh quá lớn! Vui lòng chọn ảnh dưới 2MB.");
+        toast.error("Ảnh quá lớn! Vui lòng chọn ảnh dưới 2MB.");
         return;
       }
       setImage(file);
@@ -36,8 +37,6 @@ const AddProduct = ({ isOpen, onClose }) => {
     formData.append('image', image);
 
     try {
-      // 2. Sử dụng api.post. 
-      // Lưu ý: api instance đã tự có Authorization Token từ interceptor
       const response = await api.post('/products', formData, {
         headers: {
           'Content-Type': 'multipart/form-data'
@@ -45,17 +44,19 @@ const AddProduct = ({ isOpen, onClose }) => {
       });
 
       if (response.data.success) {
-        alert('Thêm món mới thành công! Đang cập nhật Menu...');
+        toast.success('Thêm món mới thành công! Đang cập nhật Menu...');
         // Reset form
         setName(''); setPrice(''); setImage(null); setPreview(null);
         onClose();
         // Thay vì reload cả trang, bạn nên dùng logic callback để load lại danh sách món
         window.location.reload(); 
       }
-    } catch (error) {
+    }
+    catch (error) {
       console.error("Lỗi upload:", error);
-      alert(error.response?.data?.message || 'Không thể thêm sản phẩm. Vui lòng thử lại!');
-    } finally {
+      toast.error(error.response?.data?.message || 'Không thể thêm sản phẩm. Vui lòng thử lại!');
+    }
+    finally {
       setIsSubmitting(false);
     }
   };
@@ -175,61 +176,6 @@ const AddProduct = ({ isOpen, onClose }) => {
           </div>
         </form>
       </div>
-
-      <style>{`
-        .text-espresso { color: #6F4E37; }
-        .btn-espresso { background-color: #6F4E37; color: white; border: none; }
-        .btn-espresso:hover { background-color: #2C2420; color: white; transform: translateY(-2px); transition: 0.3s; }
-        
-        .custom-input {
-          border-radius: 12px;
-          padding: 12px 15px;
-          border: 1px solid #E0E0E0;
-          font-size: 0.95rem;
-        }
-        .custom-input:focus {
-          border-color: #6F4E37;
-          box-shadow: 0 0 0 3px rgba(111, 78, 55, 0.1);
-        }
-
-        /* Upload Area */
-        .upload-zone {
-          border: 2px dashed #D7CCC8;
-          border-radius: 20px;
-          position: relative;
-          height: 180px;
-          transition: 0.3s;
-          overflow: hidden;
-          background: #FCFBFA;
-        }
-        .upload-zone:hover { border-color: #6F4E37; background: #FDF8F5; }
-        .file-input { position: absolute; width: 100%; height: 100%; opacity: 0; cursor: pointer; z-index: 2; }
-        .file-label { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; margin: 0; }
-        
-        .upload-placeholder { text-align: center; color: #A1887F; }
-        
-        .preview-container { position: relative; width: 100%; height: 100%; }
-        .preview-container img { width: 100%; height: 100%; object-fit: cover; }
-        
-        .change-overlay {
-          position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-          background: rgba(0,0,0,0.4); color: white; display: flex; 
-          align-items: center; justify-content: center; opacity: 0; transition: 0.3s;
-        }
-        .preview-container:hover .change-overlay { opacity: 1; }
-
-        .fade-in-up { animation: fadeInUp 0.4s ease-out; }
-        @keyframes fadeInUp { 
-          from { opacity: 0; transform: translateY(40px); } 
-          to { opacity: 1; transform: translateY(0); } 
-        }
-
-        .custom-modal-overlay {
-          position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-          background: rgba(44, 36, 32, 0.7); display: flex; align-items: center;
-          justify-content: center; z-index: 10001; backdrop-filter: blur(8px);
-        }
-      `}</style>
     </div>
   );
 };

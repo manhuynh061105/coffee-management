@@ -1,9 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useCart } from '../context/CartContext';
 import { useNavigate } from 'react-router-dom';
+import { toast } from "react-toastify";
+
 import Header from '../components/Header';
 import Footer from '../components/Footer';
-import api from '../configs/api'; // 1. Import cấu hình api chung
+import api from '../configs/api';
+import '../pages/Checkout.css';
 
 const Checkout = () => {
   const { cart, totalAmount, clearCart } = useCart();
@@ -12,7 +15,7 @@ const Checkout = () => {
   const user = JSON.parse(localStorage.getItem('user'));
 
   const [orderInfo, setOrderInfo] = useState({
-    customerName: user?.username || user?.name || '', // Sửa nhẹ để lấy đúng key username nếu cần
+    customerName: user?.username || user?.name || '',
     phone: '',
     address: '',
     note: ''
@@ -22,7 +25,6 @@ const Checkout = () => {
   const [finalOrderData, setFinalOrderData] = useState(null);
   const [displayAmount, setDisplayAmount] = useState(0);
 
-  // 2. Lấy URL gốc cho hình ảnh
   const IMAGE_BASE_URL = api.defaults.baseURL.replace('/api', '');
 
   useEffect(() => {
@@ -37,7 +39,7 @@ const Checkout = () => {
 
     const phoneRegex = /^[0-9]{10}$/;
     if (!phoneRegex.test(orderInfo.phone)) {
-        alert("Số điện thoại không hợp lệ (phải có 10 chữ số)!");
+        toast.error("Số điện thoại không hợp lệ (phải có 10 chữ số)!");
         return;
     }
     
@@ -56,7 +58,6 @@ const Checkout = () => {
     };
 
     try {
-      // 3. Sử dụng api.post thay cho fetch (Token đã được tự động đính kèm bởi interceptor)
       const response = await api.post('/orders', orderData);
 
       if (response.data.success) {
@@ -65,11 +66,11 @@ const Checkout = () => {
         setShowSuccess(true);           
         await clearCart();              
       } else {
-        alert("Lỗi: " + response.data.message);
+        toast.error("Lỗi: " + response.data.message);
       }
     } catch (error) {
       console.error("Payment Error:", error);
-      alert(error.response?.data?.message || "Không thể kết nối đến máy chủ!");
+      toast.error(error.response?.data?.message || "Không thể kết nối đến máy chủ!");
     }
   };
 
@@ -163,7 +164,6 @@ const Checkout = () => {
                     <div className="d-flex align-items-center">
                         <div className="bg-white rounded-3 p-1 me-3">
                             <img 
-                              /* 4. Cập nhật đường dẫn ảnh linh hoạt */
                               src={`${IMAGE_BASE_URL}/img/${item.image}`} 
                               alt="" 
                               style={{ width: '40px', height: '40px', objectFit: 'cover' }} 
@@ -248,42 +248,6 @@ const Checkout = () => {
       )}
 
       <Footer />
-      <style>{`
-        .custom-modal-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background-color: rgba(0, 0, 0, 0.7); display: flex;
-            align-items: center; justify-content: center; z-index: 10000;
-            backdrop-filter: blur(5px);
-        }
-        .custom-modal-content {
-            background: white; padding: 35px; border-radius: 28px;
-            width: 90%; position: relative;
-        }
-        .text-espresso { color: #6F4E37; }
-        .btn-espresso:hover { background-color: #2C2420 !important; transform: translateY(-2px); }
-        .shadow-soft { box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
-        .icon-circle-sm {
-            width: 35px; height: 35px; border-radius: 50%;
-            display: flex; align-items: center; justify-content: center;
-            font-weight: bold; font-size: 0.9rem;
-        }
-        .custom-scrollbar::-webkit-scrollbar { width: 5px; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: #555; border-radius: 10px; }
-        .success-checkmark {
-            width: 100px; height: 100px; border-radius: 50%;
-            background-color: #FDF8F5; border: 4px solid #6F4E37;
-            display: flex; align-items: center; justify-content: center;
-        }
-        .animate__fadeInLeft { animation: fadeInLeft 0.8s ease; }
-        .animate__fadeInRight { animation: fadeInRight 0.8s ease; }
-        .fade-in-up { animation: fadeInUp 0.5s ease-out; }
-        .bounce-in { animation: bounceIn 0.8s ease; }
-
-        @keyframes fadeInUp { from { opacity: 0; transform: translateY(40px); } to { opacity: 1; transform: translateY(0); } }
-        @keyframes bounceIn { 0% { transform: scale(0); } 70% { transform: scale(1.1); } 100% { transform: scale(1); } }
-        @keyframes fadeInLeft { from { opacity: 0; transform: translateX(-20px); } to { opacity: 1; transform: translateX(0); } }
-        @keyframes fadeInRight { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); } }
-      `}</style>
     </div>
   );
 };

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import { useNavigate, Link } from 'react-router-dom';
+import { toast } from "react-toastify";
 // 1. Import api instance thay vì dùng fetch thủ công
 import api from '../configs/api'; 
 
@@ -53,11 +54,11 @@ const OrderHistory = () => {
               ord._id === orderId ? { ...ord, status: 'completed' } : ord
             )
           );
-          alert("Tuyệt vời! Chúc bạn thưởng thức cà phê ngon miệng.");
+          toast.success("Tuyệt vời! Chúc bạn thưởng thức cà phê ngon miệng.");
         }
       } catch (error) {
         console.error("Lỗi xác nhận đơn hàng:", error);
-        alert(error.response?.data?.message || "Không thể kết nối đến máy chủ!");
+        toast.error(error.response?.data?.message || "Không thể kết nối đến máy chủ!");
       }
     }
   };

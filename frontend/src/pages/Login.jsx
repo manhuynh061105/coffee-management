@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { toast } from "react-toastify";
 // 1. Đổi từ axios sang api config của bạn
 import api from '../configs/api'; 
 
@@ -23,13 +24,13 @@ const Login = () => {
         localStorage.setItem('user', JSON.stringify(response.data.data.user));
         
         // Thông báo thành công (tùy chọn)
-        alert('Đăng nhập thành công! Chào mừng bạn quay lại.');
+        toast.success('Đăng nhập thành công! Chào mừng bạn quay lại.');
         window.location.href = '/'; 
       }
     } catch (error) {
       console.error('Login error:', error);
       // Hiển thị lỗi từ server hoặc lỗi mặc định
-      alert(error.response?.data?.message || 'Đăng nhập thất bại! Vui lòng kiểm tra lại.');
+      toast.error(error.response?.data?.message || 'Đăng nhập thất bại! Vui lòng kiểm tra lại.');
     }
   };
 

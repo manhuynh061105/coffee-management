@@ -3,21 +3,18 @@ import { Link } from 'react-router-dom';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import { useCart } from '../context/CartContext';
-import api from '../configs/api'; // 1. Import cấu hình api chung
+import api from '../configs/api';
 
 const Home = () => {
   const [products, setProducts] = useState([]);
   const { addToCart } = useCart();
   const footerRef = useRef(null);
 
-  // 2. Lấy URL gốc để hiển thị hình ảnh (loại bỏ phần /api ở cuối nếu có)
   const IMAGE_BASE_URL = api.defaults.baseURL.replace('/api', '');
 
   useEffect(() => {
-    // 3. Sử dụng api.get thay cho fetch
     api.get('/products')
       .then(res => {
-        // Axios tự động parse JSON, dữ liệu nằm trong res.data
         const allProducts = res.data.data || res.data;
         setProducts(allProducts);
       })
@@ -102,7 +99,6 @@ const Home = () => {
 
                 <div className="image-container p-3 overflow-hidden">
                   <img 
-                    /* 4. Cập nhật đường dẫn ảnh linh hoạt */
                     src={`${IMAGE_BASE_URL}/img/${item.image || 'bac-xiu.jpg'}`} 
                     className="card-img-top shadow-sm" 
                     alt={item.name}

@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from "react";
+
 import Header from "../components/Header";
 import Footer from "../components/Footer";
-// 1. Sử dụng api instance để tự động đính kèm Token
 import api from '../configs/api'; 
+import '../pages/AdminDashboard.css';
+
 import {
   BarChart,
   Bar,
@@ -28,7 +30,6 @@ const AdminDashboard = () => {
     try {
       setLoading(true);
       
-      // 2. Gọi đồng thời cả 2 API để tối ưu tốc độ load
       const [productRes, statsRes] = await Promise.all([
         api.get('/products'),
         api.get('/orders/stats')
@@ -44,18 +45,19 @@ const AdminDashboard = () => {
           totalRevenue: statsData.data.totalRevenue || 0,
         });
 
-        // Xử lý dữ liệu biểu đồ
         if (statsData.data.monthlyRevenue && statsData.data.monthlyRevenue.length > 0) {
           setRevenueData(statsData.data.monthlyRevenue);
-        } else {
-          // Fallback nếu chưa có dữ liệu tháng
+        }
+        else {
           const currentMonth = new Date().toLocaleString('default', { month: 'short' });
           setRevenueData([{ month: currentMonth, revenue: statsData.data.totalRevenue || 0 }]);
         }
       }
-    } catch (error) {
+    }
+    catch (error) {
       console.error("Lỗi kết nối Dashboard:", error.response?.data || error.message);
-    } finally {
+    }
+    finally {
       setLoading(false);
     }
   };
@@ -195,53 +197,7 @@ const AdminDashboard = () => {
           </div>
         </div>
       </div>
-
       <Footer />
-      <style>{`
-        .text-espresso { color: #3E2723; }
-        .fw-black { font-weight: 900; }
-        .text-muted-dark { color: #7D6B5D; }
-        
-        /* Đổ bóng mạnh hơn để card nổi lên */
-        .shadow-lg-soft { 
-          box-shadow: 0 20px 40px rgba(62, 39, 35, 0.08) !important; 
-        }
-
-        .stat-card-premium {
-          background: white;
-          border-radius: 28px;
-          transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
-        }
-        .stat-card-premium:hover {
-          transform: translateY(-10px);
-          box-shadow: 0 30px 60px rgba(62, 39, 35, 0.12) !important;
-        }
-
-        /* Gradient cho Icon giúp nổi bật hơn màu phẳng */
-        .icon-circle {
-          width: 65px;
-          height: 65px;
-          border-radius: 22px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-size: 26px;
-        }
-        .bg-espresso-gradient { background: linear-gradient(135deg, #4B3621, #6F4E37); }
-        .bg-caramel-gradient { background: linear-gradient(135deg, #A67B5B, #D4A373); }
-        .bg-gold-gradient { background: linear-gradient(135deg, #D4A373, #FED8B1); }
-
-        .rounded-5 { border-radius: 40px !important; }
-        
-        /* Nhấn mạnh viền trên của Card biểu đồ */
-        .border-top-espresso {
-          border-top: 5px solid #6F4E37 !important;
-        }
-
-        .page-wrapper {
-          overflow-x: hidden;
-        }
-      `}</style>
     </div>
   );
 };

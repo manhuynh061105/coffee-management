@@ -1,20 +1,22 @@
 import React from 'react';
-import Header from '../components/Header';
-import Footer from '../components/Footer';
 import { useCart } from '../context/CartContext';
 import { Link, useNavigate } from 'react-router-dom';
-import api from '../configs/api'; // 1. Import api config
+import { toast } from "react-toastify";
+
+import Header from '../components/Header';
+import Footer from '../components/Footer';
+import api from '../configs/api';
+import '../pages/Cart.css';
 
 const Cart = () => {
   const { cart, updateQuantity, removeFromCart, totalAmount } = useCart();
   const navigate = useNavigate();
 
-  // 2. Lấy URL gốc cho hình ảnh từ config
   const IMAGE_BASE_URL = api.defaults.baseURL.replace('/api', '');
 
   const handleCheckout = () => {
     if (cart.length === 0) {
-      alert("Giỏ hàng của bạn đang trống!");
+      toast.error("Giỏ hàng của bạn đang trống!");
       return;
     }
     navigate('/checkout');
@@ -67,8 +69,7 @@ const Cart = () => {
                     <div className="d-flex align-items-center" style={{ width: '45%', minWidth: '250px' }}>
                       <Link to={`/product/${item._id}`}>
                         <img 
-                          /* 3. Cập nhật đường dẫn ảnh */
-                          src={`${IMAGE_BASE_URL}/img/${item.image || 'bac-xiu.jpg'}`} 
+                          src={item.image ? `${IMAGE_BASE_URL}/img/${item.image}` : '/img/default-coffee.jpg'} 
                           alt={item.name} 
                           className="rounded-3 shadow-sm me-3 border" 
                           style={{ width: '80px', height: '80px', objectFit: 'cover' }}
@@ -163,36 +164,6 @@ const Cart = () => {
       </div>
 
       <Footer />
-      <style>{`
-        .product-link-bold:hover h6 {
-            color: #6F4E37 !important;
-            text-decoration: underline;
-        }
-
-        .quantity-control-btn {
-            transition: all 0.2s ease;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-        }
-
-        .quantity-control-btn:hover {
-            transform: scale(1.15);
-            background-color: #2C2420 !important;
-        }
-
-        .cart-item-row {
-            transition: all 0.3s ease;
-        }
-
-        .cart-item-row:hover {
-            border-color: #6F4E37 !important;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.05) !important;
-        }
-
-        .transition-hover:hover {
-            filter: brightness(1.1);
-            transform: translateY(-2px);
-        }
-      `}</style>
     </div>
   );
 };

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { toast } from "react-toastify";
 // 1. Import cấu hình api chung
 import api from '../configs/api'; 
 
@@ -29,7 +30,7 @@ const Register = () => {
   const handleRegister = async (e) => {
     e.preventDefault();
     if (formData.password !== formData.confirmPassword) {
-      alert("Mật khẩu xác nhận không khớp!");
+      toast.error("Mật khẩu xác nhận không khớp!");
       return;
     }
 
@@ -42,13 +43,13 @@ const Register = () => {
       });
 
       if (response.data.success) {
-        alert('Chào mừng bạn đến với Beans Café! Đăng ký thành công.');
+        toast.success('Chào mừng bạn đến với Beans Café! Đăng ký thành công.');
         navigate('/login');
       }
     } catch (error) {
       // 3. Hiển thị thông báo lỗi chi tiết từ Backend
       console.error('Registration error:', error);
-      alert(error.response?.data?.message || 'Đăng ký thất bại! Vui lòng thử lại.');
+      toast.error(error.response?.data?.message || 'Đăng ký thất bại! Vui lòng thử lại.');
     }
   };
 

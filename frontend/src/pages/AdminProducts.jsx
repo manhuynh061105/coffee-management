@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from "react";
+import { toast } from "react-toastify";
+
 import Header from "../components/Header";
 import Footer from "../components/Footer";
-// 1. Import cấu hình api chung
-import api from '../configs/api'; 
+import api from '../configs/api';
+import '../pages/AdminProducts.css';
 
 const AdminProducts = () => {
   const [products, setProducts] = useState([]);
@@ -13,15 +15,14 @@ const AdminProducts = () => {
     category: "",
   });
 
-  // 2. Lấy URL gốc cho hình ảnh từ config (để thay thế localhost)
   const IMAGE_BASE_URL = api.defaults.baseURL.replace('/api', '');
 
   const fetchProducts = async () => {
     try {
-      // 3. Sử dụng api.get thay cho fetch thủ công
       const res = await api.get('/products');
       setProducts(res.data.data || []);
-    } catch (error) {
+    }
+    catch (error) {
       console.error("Lỗi tải sản phẩm:", error);
     }
   };
@@ -33,35 +34,37 @@ const AdminProducts = () => {
   const handleDelete = async (id) => {
     if (!window.confirm("Bạn có chắc muốn xoá sản phẩm này khỏi thực đơn?")) return;
     try {
-      // 4. Sử dụng api.delete (Token tự động đính kèm nhờ interceptor)
       const res = await api.delete(`/products/${id}`);
       if (res.data.success) {
-        alert("Đã xoá sản phẩm thành công!");
+        toast.success("Đã xoá sản phẩm thành công!");
         fetchProducts();
-      } else {
-        alert("Lỗi: " + (res.data.message || "Bạn không có quyền này"));
       }
-    } catch (error) {
+      else {
+        toast.error("Lỗi: " + (res.data.message || "Bạn không có quyền này"));
+      }
+    } 
+    catch (error) {
       console.error("Lỗi xoá sản phẩm:", error);
-      alert(error.response?.data?.message || "Có lỗi xảy ra khi xoá");
+      toast.error(error.response?.data?.message || "Có lỗi xảy ra khi xoá");
     }
   };
 
   const handleUpdate = async (e) => {
     e.preventDefault();
     try {
-      // 5. Sử dụng api.put
       const res = await api.put(`/products/${editingProduct._id}`, formData);
       if (res.data.success) {
-        alert("Cập nhật thông tin thành công!");
+        toast.success("Cập nhật thông tin thành công!");
         setEditingProduct(null);
         fetchProducts();
-      } else {
-        alert("Lỗi: " + res.data.message);
       }
-    } catch (error) {
+      else {
+        toast.error("Lỗi: " + res.data.message);
+      }
+    }
+    catch (error) {
       console.error("Lỗi cập nhật:", error);
-      alert(error.response?.data?.message || "Không thể cập nhật sản phẩm");
+      toast.error(error.response?.data?.message || "Không thể cập nhật sản phẩm");
     }
   };
 
@@ -82,7 +85,6 @@ const AdminProducts = () => {
     });
   };
 
-  // 6. Cập nhật hàm xử lý đường dẫn ảnh linh hoạt với IMAGE_BASE_URL mới
   const getImageUrl = (imagePath) => {
     if (!imagePath) return "https://placehold.co/100x100?text=No+Image";
     
@@ -106,7 +108,7 @@ const AdminProducts = () => {
           </div>
           <div className="mt-3 mt-md-0">
              <span className="badge bg-espresso text-white px-4 py-2 rounded-pill shadow-sm">
-               sản phẩm hiện có: {products.length} 
+               Sản phẩm hiện có: {products.length} 
              </span>
           </div>
         </div>
@@ -221,46 +223,6 @@ const AdminProducts = () => {
       </div>
 
       <Footer />
-      {/* GIỮ NGUYÊN CSS */}
-      <style>{`
-        .text-espresso { color: #6F4E37; }
-        .bg-espresso { background-color: #6F4E37; }
-        .btn-espresso { background-color: #6F4E37; color: white; border: none; transition: 0.3s; }
-        .btn-espresso:hover { background-color: #2C2420; color: white; transform: translateY(-2px); }
-        
-        .btn-action-edit { background-color: #FDF8F5; color: #6F4E37; border: 1px solid #E6DED5; transition: 0.3s; }
-        .btn-action-edit:hover { background-color: #6F4E37; color: white; }
-        
-        .btn-action-delete { background-color: #FFF5F5; color: #DC3545; border: 1px solid #FAD2D2; transition: 0.3s; }
-        .btn-action-delete:hover { background-color: #DC3545; color: white; }
-
-        .shadow-soft { box-shadow: 0 10px 40px rgba(0,0,0,0.04); }
-        .border-bottom-lighter { border-bottom: 1px solid #F5F5F5; }
-
-        .custom-input {
-          border-radius: 12px;
-          padding: 12px 15px;
-          border: 1px solid #E0E0E0;
-          font-size: 0.95rem;
-        }
-        .custom-input:focus { border-color: #6F4E37; box-shadow: 0 0 0 3px rgba(111, 78, 55, 0.1); }
-
-        .custom-modal-overlay {
-          position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-          background: rgba(44, 36, 32, 0.7); display: flex; align-items: center;
-          justify-content: center; z-index: 10001; backdrop-filter: blur(8px);
-        }
-        .custom-modal-content {
-          background: white; padding: 35px; border-radius: 30px;
-          width: 95%; max-width: 500px;
-        }
-
-        .fade-in-up { animation: fadeInUp 0.4s ease-out; }
-        @keyframes fadeInUp { from { opacity: 0; transform: translateY(40px); } to { opacity: 1; transform: translateY(0); } }
-
-        .table thead th { border-bottom: none; }
-        .table tbody tr:hover { background-color: #FCF9F7 !important; transition: 0.2s; }
-      `}</style>
     </div>
   );
 };
