@@ -121,14 +121,14 @@ const OrderHistory = () => {
             <div className="card border-0 shadow-soft rounded-4 p-3 bg-white">
               <div className="d-flex align-items-center mb-3 p-2">
                 <div
-                  className="rounded-circle bg-espresso text-white d-flex align-items-center justify-content-center fw-bold"
+                  className="rounded-circle bg-espresso text-white d-flex align-items-center justify-content-center fw-bold flex-shrink-0"
                   style={{ width: "45px", height: "45px" }}
                 >
                   {user?.username?.charAt(0).toUpperCase() || "U"}
                 </div>
-                <div className="ms-3">
+                <div className="ms-3" style={{ maxWidth: "175px" }}>
                   <p className="mb-0 text-muted small">Xin chào,</p>
-                  <p className="mb-0 fw-bold text-espresso">
+                  <p className="mb-0 fw-bold text-espresso text-truncate">
                     {user?.username || "Khách hàng"}
                   </p>
                 </div>
