@@ -2,24 +2,33 @@ import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { useModal } from '../context/ModalContext';
+import { toast } from 'react-toastify';
+
+import './Header.css';
 
 const Header = () => {
   const navigate = useNavigate();
   const { cart } = useCart();
   const { openAddProduct } = useModal(); 
   
-  // Lấy thông tin user từ localStorage
-  const user = JSON.parse(localStorage.getItem('user'));
+  let user = null;
+
+  try {
+    const userData = localStorage.getItem("user");
+    user = userData ? JSON.parse(userData) : null;
+  } catch (error) {
+    console.error("Lỗi đọc user:", error);
+    user = null;
+  }
+
   const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
 
   const handleLogout = () => {
-    // 1. Xóa toàn bộ dấu vết đăng nhập
     localStorage.removeItem('user');
     localStorage.removeItem('token');
     
-    // 2. Chuyển hướng về trang chủ hoặc login và làm mới trạng thái app
-    alert('Đã đăng xuất thành công!');
-    window.location.href = '/'; 
+    toast.success("Đăng xuất thành công!");
+    navigate('/');
   };
 
   return (
@@ -93,7 +102,7 @@ const Header = () => {
                     </Link>
                   </li>
                   {/* PHẦN QUẢN TRỊ (ADMIN) */}
-                  {user.role === 'admin' && (
+                  {(user.role === 'admin' || user.role === 1) && (
                     <>
                       <li><hr className="dropdown-divider" /></li>
                       <li className="dropdown-header text-uppercase small text-muted">Quản trị</li>
@@ -131,98 +140,6 @@ const Header = () => {
           </div>
         </div>
       </div>
-
-      <style>{`
-        /* Giữ nguyên phần CSS của bạn */
-        .header-custom {
-          background-color: rgba(255, 255, 255, 0.98); 
-          backdrop-filter: blur(10px);
-          border-bottom: 2px solid rgba(111, 78, 55, 0.15);
-          box-shadow: 0 4px 20px rgba(44, 36, 32, 0.08);
-          z-index: 1000;
-          transition: all 0.3s ease;
-        }
-
-        .text-espresso { color: #6F4E37; }
-
-        .btn-espresso-outline {
-          background-color: transparent !important;
-          color: #6F4E37 !important;
-          text-decoration: none;
-          font-weight: 700;
-          padding: 8px 22px;
-          border-radius: 25px;
-          border: 2px solid #6F4E37 !important;
-          display: inline-flex;
-          align-items: center;
-          justify-content: center;
-          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-          font-size: 0.9rem;
-          cursor: pointer;
-        }
-
-        .btn-espresso-outline:hover {
-          background-color: #6F4E37 !important;
-          color: #FFFFFF !important;
-          transform: translateY(-2px);
-          box-shadow: 0 5px 15px rgba(111, 78, 55, 0.25);
-        }
-        
-        .btn-espresso-outline::after { display: none; }
-
-        .cart-icon-original {
-          filter: sepia(100%) hue-rotate(350deg) saturate(300%) brightness(50%);
-          transition: all 0.3s ease;
-        }
-
-        .cart-wrapper:hover .cart-icon-original {
-          filter: sepia(100%) hue-rotate(350deg) saturate(500%) brightness(30%);
-          transform: scale(1.15);
-        }
-
-        .cart-badge-custom {
-          position: absolute;
-          top: -5px;
-          right: -5px;
-          background-color: #6F4E37;
-          color: white;
-          font-size: 0.65rem;
-          font-weight: bold;
-          padding: 2px 6px;
-          border-radius: 50%;
-          border: 2px solid white;
-        }
-
-        .dropdown-menu {
-          border-radius: 18px;
-          padding: 10px;
-          min-width: 230px;
-          border: none;
-          box-shadow: 0 15px 40px rgba(0,0,0,0.12);
-        }
-
-        .dropdown-item {
-          border-radius: 10px;
-          transition: 0.2s;
-          font-weight: 600;
-          color: #5D4037;
-        }
-
-        .dropdown-item:hover {
-          background-color: #FDF8F5;
-          color: #6F4E37;
-          transform: translateX(5px);
-        }
-
-        .animate-slide-in {
-          animation: slideIn 0.2s ease-out;
-        }
-
-        @keyframes slideIn {
-          from { opacity: 0; transform: translateY(10px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-      `}</style>
     </header>
   );
 };
