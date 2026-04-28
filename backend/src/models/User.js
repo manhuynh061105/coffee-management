@@ -4,8 +4,8 @@ const userSchema = new mongoose.Schema({
   username: { 
     type: String, 
     required: [true, "Username không được để trống"], 
-    unique: true, // Tránh trùng lặp tài khoản
-    trim: true // Tự động xóa khoảng trắng thừa
+    unique: true,
+    trim: true
   },
   password: { 
     type: String, 
@@ -14,11 +14,11 @@ const userSchema = new mongoose.Schema({
   },
   role: { 
     type: String, 
-    enum: ["user", "admin"], // Chỉ cho phép 2 giá trị này
+    enum: ["user", "admin"],
     default: "user" 
   }
 }, { 
-  timestamps: true // Tự động tạo createdAt và updatedAt (rất quan trọng để quản lý)
+  timestamps: true
 });
 
 export default mongoose.model("User", userSchema);
