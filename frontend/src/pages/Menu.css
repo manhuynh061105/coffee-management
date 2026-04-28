@@ -1,57 +1,157 @@
+/* --- BỐ CỤC CHUNG --- */
 .mt-n5 {
-  margin-top: -80px !important;
+  margin-top: -80px !important; /* Đẩy thanh lọc đè lên banner */
 }
 
-.menu-item-card-premium {
-  transition: all 0.4s ease;
-  background: #fdfaf7;
-
-  border-radius: 24px;
-  border: 1px solid rgba(111, 78, 55, 0.08);
-
-  box-shadow:
-    0 8px 24px rgba(0, 0, 0, 0.05),
-    0 2px 8px rgba(0, 0, 0, 0.03);
+/* --- THANH BỘ LỌC (FILTER WRAPPER) --- */
+.filter-wrapper {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(111, 78, 55, 0.1) !important;
+  transition: all 0.3s ease;
+  z-index: 10;
 }
 
-.menu-item-card-premium:hover {
-  transform: translateY(-10px);
-
-  box-shadow:
-    0 18px 40px rgba(111, 78, 55, 0.12),
-    0 6px 18px rgba(0, 0, 0, 0.05) !important;
+.filter-wrapper:hover {
+  box-shadow: 0 20px 40px rgba(111, 78, 55, 0.15) !important;
 }
 
-.menu-item-card-premium:hover img {
+.search-box-custom {
+  transition: all 0.3s ease;
+  border: 1px solid transparent;
+}
+
+.search-box-custom:focus-within {
+  background-color: #ffffff !important;
+  border-color: #6f4e37;
+  box-shadow: 0 0 0 4px rgba(111, 78, 55, 0.1);
+}
+
+.search-box-custom input::placeholder {
+  color: #adb5bd;
+  font-size: 0.9rem;
+}
+
+/* Custom Select Arrow */
+.form-select {
+  cursor: pointer;
+  font-size: 0.9rem;
+  color: #444;
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%236F4E37' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e") !important;
+}
+
+/* --- CARD SẢN PHẨM (ĐỒNG BỘ VỚI HOME) --- */
+.item-card-highlight {
+  background-color: #ffffff;
+  border-radius: 30px !important;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  z-index: 1;
+  border: 1px solid rgba(0, 0, 0, 0.05) !important;
+}
+
+.item-card-highlight:hover {
+  transform: translateY(-15px);
+  box-shadow: 0 25px 50px rgba(111, 78, 55, 0.2) !important;
+  background-color: #fffaf7;
+}
+
+.item-card-highlight img {
+  transition: transform 0.6s cubic-bezier(0.165, 0.84, 0.44, 1);
+}
+
+.item-card-highlight:hover img {
   transform: scale(1.08);
 }
 
-.btn-coffee {
-  background-color: #6f4e37;
-  color: white;
-  border: none;
-  transition: 0.3s;
+/* --- HỆ THỐNG NÚT BẤM (ESPRESSO) --- */
+.btn-espresso-main {
+  background-color: #6f4e37 !important;
+  color: #ffffff !important;
+  border: none !important;
+  transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.btn-coffee:hover {
-  background-color: #2c2420;
-  color: white;
+.btn-espresso-main:hover {
+  background-color: #2c2420 !important;
+  color: #ffffff !important;
   transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(111, 78, 55, 0.3);
 }
 
-.btn-outline-coffee {
-  border: 2px solid #6f4e37;
-  color: #6f4e37;
+.btn-espresso-outline {
+  background-color: transparent !important;
+  color: #6f4e37 !important;
+  border: 2px solid #6f4e37 !important;
   font-size: 0.85rem;
-  transition: 0.3s;
+  transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.btn-outline-coffee:hover {
-  background-color: #6f4e37;
-  color: white;
+.btn-espresso-outline:hover {
+  background-color: #6f4e37 !important;
+  color: #ffffff !important;
+  text-decoration: none;
 }
 
-.form-select,
-.form-control {
-  font-size: 0.95rem;
+/* --- HIỆU ỨNG TRỐNG (EMPTY STATE) --- */
+.text-muted.fw-light {
+  letter-spacing: 1px;
+}
+
+/* --- RESPONSIVE --- */
+@media (max-width: 768px) {
+  .mt-n5 {
+    margin-top: -50px !important;
+  }
+  
+  .filter-wrapper {
+    border-radius: 25px !important;
+    padding: 10px !important;
+  }
+
+  .item-card-highlight {
+    border-radius: 25px !important;
+  }
+}
+
+/* Nền đậm hơn cho các ô nhập liệu */
+.input-custom-bg {
+  background-color: #f0f0f0 !important; /* Xám đậm hơn bg-light */
+  border: 1.5px solid #dee2e6 !important; /* Viền xám rõ nét */
+  transition: all 0.3s ease;
+}
+
+/* Hiệu ứng khi click vào ô tìm kiếm hoặc select */
+.search-box-custom.input-custom-bg:focus-within,
+select.input-custom-bg:focus {
+  background-color: #ffffff !important;
+  border-color: #6f4e37 !important; /* Viền chuyển sang màu cà phê khi focus */
+  box-shadow: 0 0 0 4px rgba(111, 78, 55, 0.15) !important;
+}
+
+/* Làm cho các icon và text bên trong rõ nét hơn */
+.search-box-custom i {
+  color: #6f4e37 !important; /* Icon màu nâu đậm */
+}
+
+.search-box-custom input, 
+.form-select.input-custom-bg {
+  font-weight: 500;
+  color: #2c2420;
+}
+
+/* Tăng độ đậm cho border của filter-wrapper tổng */
+.filter-wrapper.border {
+  border: 1px solid rgba(111, 78, 55, 0.2) !important;
+}
+
+/* Hover nhẹ cho các ô filter */
+.input-custom-bg:hover {
+  border-color: #adb5bd !important;
+  background-color: #e9ecef !important;
 }

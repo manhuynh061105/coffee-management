@@ -237,7 +237,7 @@ const Checkout = () => {
                           }}
                           className="rounded-2"
                           onError={(e) => {
-                            e.target.src = "/img/default-coffee.jpg";
+                            e.target.src = "/img/bac-xiu.jpg";
                           }}
                         />
                       </div>

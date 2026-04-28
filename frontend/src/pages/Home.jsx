@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useRef } from "react";
 import { Link } from "react-router-dom";
+import { toast } from "react-toastify"; // Import toast để thông báo chuyên nghiệp
 
 import Header from "../components/Header";
 import Footer from "../components/Footer";
@@ -13,6 +14,23 @@ const Home = () => {
   const footerRef = useRef(null);
 
   const IMAGE_BASE_URL = api.defaults.baseURL.replace("/api", "");
+
+  // Hàm xử lý thêm vào giỏ hàng kèm kiểm tra đăng nhập
+  const handleAddToCart = (item) => {
+    const token = localStorage.getItem("token");
+    
+    if (!token) {
+      toast.warning("☕ Vui lòng đăng nhập để đặt món nhé!", {
+        position: "top-right",
+        autoClose: 3000,
+        theme: "colored",
+      });
+      return;
+    }
+
+    addToCart(item);
+    toast.success(`Đã thêm ${item.name} vào giỏ hàng!`);
+  };
 
   useEffect(() => {
     api
@@ -60,15 +78,14 @@ const Home = () => {
           <div className="d-flex gap-3">
             <Link
               to="/menu"
-              className="btn btn-primary px-5 py-3 rounded-pill fw-bold shadow-lg border-0"
-              style={{ backgroundColor: "#6F4E37" }}
+              className="btn btn-espresso-main px-5 py-3 rounded-pill fw-bold shadow-lg border-0 hover-scale-smooth"
             >
               KHÁM PHÁ MENU
             </Link>
             <a
               href="#footer"
               onClick={scrollToFooter}
-              className="btn btn-outline-light px-5 py-3 rounded-pill fw-bold"
+              className="btn btn-outline-light px-5 py-3 rounded-pill fw-bold hover-scale-smooth"
             >
               VỀ CHÚNG TÔI
             </a>
@@ -108,6 +125,52 @@ const Home = () => {
                 </div>
               </div>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* --- ABOUT STORY SECTION --- */}
+      <section className="py-5 bg-light overflow-hidden">
+        <div className="container py-5">
+          <div className="row align-items-center">
+            <div className="col-lg-6 mb-4 mb-lg-0">
+              <div className="position-relative">
+                 <img 
+                    src="/img/banner.jpg" 
+                    alt="Our Story" 
+                    className="img-fluid rounded-5 shadow-lg" 
+                    style={{ objectFit: 'cover', height: '450px', width: '100%' }} 
+                 />
+                 <div className="position-absolute bottom-0 end-0 bg-white p-4 rounded-4 shadow-lg m-3 d-none d-md-block">
+                    <h4 className="fw-bold mb-0" style={{ color: "#6F4E37" }}>10+</h4>
+                    <small className="text-muted text-uppercase fw-bold">Năm Kinh Nghiệm</small>
+                 </div>
+              </div>
+            </div>
+            <div className="col-lg-6 ps-lg-5">
+              <h6 className="text-uppercase fw-bold mb-2" style={{ color: "#D2691E", letterSpacing: '2px' }}>Câu chuyện thương hiệu</h6>
+              <h2 className="display-5 fw-bold mb-4" style={{ color: "#2C2420" }}>Hương vị nguyên bản, Trải nghiệm đích thực</h2>
+              <p className="text-muted fs-5 mb-4">
+                Tại Beans Café, chúng tôi không chỉ bán cà phê, chúng tôi trao gửi niềm đam mê. Mỗi hạt cà phê đều được tuyển chọn tỉ mỉ từ những vùng nguyên liệu trứ danh.
+              </p>
+              <div className="row g-3 mb-4">
+                 <div className="col-6">
+                    <div className="d-flex align-items-center">
+                       <i className="fa-solid fa-circle-check text-success me-2"></i>
+                       <span className="fw-bold">Hạt đạt chuẩn</span>
+                    </div>
+                 </div>
+                 <div className="col-6">
+                    <div className="d-flex align-items-center">
+                       <i className="fa-solid fa-circle-check text-success me-2"></i>
+                       <span className="fw-bold">Rang xay tại chỗ</span>
+                    </div>
+                 </div>
+              </div>
+              <Link to="/menu" className="btn btn-outline-dark px-5 py-3 rounded-pill fw-bold border-2 hover-scale-smooth">
+                TÌM HIỂU THÊM VỀ CHÚNG TÔI
+              </Link>
+            </div>
           </div>
         </div>
       </section>
@@ -152,22 +215,16 @@ const Home = () => {
                       backgroundColor: "#fff",
                     }}
                     onError={(e) => {
-                      e.target.src = "/img/default-coffee.jpg";
+                      e.target.src = "/img/bac-xiu.jpg";
                     }}
                   />
                 </div>
 
                 <div className="card-body text-center pt-0 px-3 pb-4">
-                  <h6
-                    className="text-muted small text-uppercase mb-1 fw-bold"
-                    style={{ color: "#8d8078" }}
-                  >
+                  <h6 className="text-muted small text-uppercase mb-1 fw-bold">
                     {item.category || "Beans Special"}
                   </h6>
-                  <h5
-                    className="fw-bold mb-2 text-dark"
-                    style={{ minHeight: "48px", fontSize: "1.1rem" }}
-                  >
+                  <h5 className="fw-bold mb-2 text-dark" style={{ minHeight: "48px", fontSize: "1.1rem" }}>
                     {item.name}
                   </h5>
                   <p className="fw-bold fs-4 mb-3" style={{ color: "#6F4E37" }}>
@@ -176,15 +233,14 @@ const Home = () => {
 
                   <div className="d-grid gap-2">
                     <button
-                      onClick={() => addToCart(item)}
-                      className="btn btn-cart-custom fw-bold rounded-pill py-2 shadow-sm"
+                      onClick={() => handleAddToCart(item)}
+                      className="btn btn-espresso-main fw-bold rounded-pill py-2 shadow-sm border-0"
                     >
                       <i className="fa-solid fa-cart-shopping me-2"></i>ĐẶT HÀNG
-                      NGAY
                     </button>
                     <Link
                       to={`/product/${item._id}`}
-                      className="btn btn-link-custom fw-bold rounded-pill py-2"
+                      className="btn btn-espresso-outline fw-bold rounded-pill py-2"
                     >
                       XEM CHI TIẾT
                     </Link>
@@ -198,7 +254,7 @@ const Home = () => {
         <div className="text-center mt-5">
           <Link
             to="/menu"
-            className="btn btn-dark px-5 py-3 rounded-pill fw-bold shadow-lg border-0 hover-scale"
+            className="btn btn-dark px-5 py-3 rounded-pill fw-bold shadow-lg border-0 hover-scale-smooth"
             style={{ backgroundColor: "#2C2420" }}
           >
             XEM TẤT CẢ SẢN PHẨM{" "}
@@ -225,7 +281,7 @@ const Home = () => {
           </p>
           <Link
             to="/register"
-            className="btn btn-light px-5 py-3 rounded-pill fw-bold text-dark shadow-lg border-0 hover-scale"
+            className="btn btn-light px-5 py-3 rounded-pill fw-bold text-dark shadow-lg border-0 hover-scale-smooth"
           >
             ĐĂNG KÝ THÀNH VIÊN NGAY
           </Link>

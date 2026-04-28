@@ -124,7 +124,7 @@ const ProductDetail = () => {
                 className="img-fluid w-100 rounded-5 shadow-inner"
                 style={{ maxHeight: "550px", objectFit: "cover" }}
                 onError={(e) => {
-                  e.target.src = "/img/default-coffee.jpg";
+                  e.target.src = "/img/bac-xiu.jpg";
                 }}
               />
             </div>

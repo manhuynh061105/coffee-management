@@ -1,64 +1,95 @@
+/* --- Card Sản Phẩm Tinh Chỉnh --- */
 .item-card-highlight {
   background-color: #ffffff;
   border-radius: 30px !important;
   transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   z-index: 1;
+  border: 1px solid rgba(0, 0, 0, 0.05) !important;
 }
 
 .item-card-highlight:hover {
   transform: translateY(-15px);
-  box-shadow: 0 25px 50px rgba(111, 78, 55, 0.25) !important;
+  box-shadow: 0 25px 50px rgba(111, 78, 55, 0.2) !important;
   background-color: #fffaf7;
 }
 
-.btn-cart-custom {
-  background-color: #6f4e37;
-  color: white;
-  border: none;
-  transition: 0.3s;
+/* --- HỆ THỐNG NÚT BẤM (ESPRESSO) --- */
+
+/* Nút Đặt Hàng & Nút chính */
+.btn-espresso-main {
+  background-color: #6f4e37 !important;
+  color: #ffffff !important;
+  border: none !important;
+  transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.btn-cart-custom:hover {
-  background-color: #2c2420;
-  color: white;
-  transform: scale(1.05);
+.btn-espresso-main:hover {
+  background-color: #2c2420 !important;
+  color: #ffffff !important;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(111, 78, 55, 0.3);
 }
 
-.btn-link-custom {
-  color: #6f4e37;
-  background: transparent;
-  border: 2px solid #6f4e37;
-  font-size: 0.85rem;
-  transition: 0.3s;
+/* Nút Xem Chi Tiết (Viền) */
+.btn-espresso-outline {
+  background-color: transparent !important;
+  color: #6f4e37 !important;
+  border: 2px solid #6f4e37 !important;
+  font-size: 0.9rem;
+  transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.btn-link-custom:hover {
-  background-color: #6f4e37;
-  color: white;
+.btn-espresso-outline:hover {
+  background-color: #6f4e37 !important;
+  color: #ffffff !important;
+  border-color: #6f4e37 !important;
+  text-decoration: none;
 }
 
-.hover-up {
-  transition: 0.3s;
-}
-.hover-up:hover {
-  transform: translateY(-10px);
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1) !important;
+/* --- HIỆU ỨNG CHUYỂN ĐỘNG SIÊU MƯỢT (NEW) --- */
+.hover-scale-smooth {
+  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  backface-visibility: hidden;
+  will-change: transform;
 }
 
-.hover-scale {
-  transition: 0.3s;
+.hover-scale-smooth:hover {
+  transform: scale(1.08) translateY(-5px) !important;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15) !important;
+  filter: brightness(1.05);
 }
-.hover-scale:hover {
-  transform: scale(1.05);
+
+/* --- HIỆU ỨNG HÌNH ẢNH --- */
+.image-container {
+  border-radius: 25px;
+  background-color: #fcfcfc;
 }
 
 .image-container img {
-  transition: 0.6s ease;
+  transition: transform 0.6s cubic-bezier(0.165, 0.84, 0.44, 1);
 }
+
 .item-card-highlight:hover .image-container img {
   transform: scale(1.08);
 }
 
+/* --- CÁC TIỆN ÍCH HOVER --- */
+.hover-up {
+  transition: all 0.3s ease;
+}
+
+.hover-up:hover {
+  transform: translateY(-10px);
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.08) !important;
+}
+
+/* --- ANIMATIONS --- */
 @keyframes fadeInLeft {
   from {
     opacity: 0;
@@ -69,6 +100,27 @@
     transform: translateX(0);
   }
 }
+
 .animate__fadeInLeft {
   animation: fadeInLeft 1s ease-out;
+}
+
+/* Hiệu ứng mượt cho các Section */
+section {
+  transition: opacity 0.5s ease;
+}
+
+/* Nút đăng ký thành viên (Light) khi hover */
+.btn-light.hover-scale-smooth:hover {
+  background-color: #ffffff !important;
+  color: #6f4e37 !important;
+  border: none !important;
+}
+
+/* Tối ưu hiển thị cho Badge HOT */
+.badge.bg-danger {
+  font-size: 0.75rem;
+  letter-spacing: 1px;
+  font-weight: 700;
+  box-shadow: 0 4px 8px rgba(220, 53, 69, 0.3);
 }

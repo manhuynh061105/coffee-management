@@ -46,29 +46,63 @@ const OrderHistory = () => {
     }
   }, []);
 
-  const handleConfirmReceived = async (orderId) => {
-    if (window.confirm("Bạn xác nhận đã nhận được đơn hàng này?")) {
-      try {
-        const response = await api.put(`/orders/${orderId}`, {
-          status: "completed",
-        });
-
-        if (response.data.success) {
-          setOrders((prevOrders) =>
-            prevOrders.map((ord) =>
-              ord._id === orderId ? { ...ord, status: "completed" } : ord,
-            ),
-          );
-          toast.success("Tuyệt vời! Chúc bạn thưởng thức cà phê ngon miệng.");
-        }
-      } catch (error) {
-        console.error("Lỗi xác nhận đơn hàng:", error);
-        toast.error(
-          error.response?.data?.message || "Không thể kết nối đến máy chủ!",
-        );
-      }
+  const handleConfirmReceived = (orderId) => {
+  // Tạo một Toast chứa nội dung và nút bấm xác nhận
+  toast.info(
+    ({ closeToast }) => (
+      <div>
+        <p className="mb-2 fw-bold" style={{ fontSize: '0.9rem' }}>
+          Bạn đã nhận được đơn hàng này?
+        </p>
+        <div className="d-flex gap-2 justify-content-end">
+          <button 
+            className="btn btn-sm btn-light border" 
+            onClick={closeToast}
+          >
+            Hủy
+          </button>
+          <button 
+            className="btn btn-sm btn-espresso text-white" 
+            onClick={async () => {
+              await proceedConfirmOrder(orderId); // Gọi hàm xử lý logic
+              closeToast(); // Đóng toast sau khi xác nhận
+            }}
+          >
+            Xác nhận
+          </button>
+        </div>
+      </div>
+    ),
+    {
+      position: "top-center",
+      autoClose: false, // Không tự đóng để chờ người dùng bấm
+      closeOnClick: false,
+      draggable: false,
+      icon: "☕"
     }
-  };
+  );
+};
+
+// Hàm phụ để xử lý logic gọi API sau khi người dùng bấm "Xác nhận" trên Toast
+const proceedConfirmOrder = async (orderId) => {
+  try {
+    const response = await api.put(`/orders/${orderId}`, {
+      status: "completed",
+    });
+
+    if (response.data.success) {
+      setOrders((prevOrders) =>
+        prevOrders.map((ord) =>
+          ord._id === orderId ? { ...ord, status: "completed" } : ord
+        )
+      );
+      toast.success("Tuyệt vời! Chúc bạn thưởng thức cà phê ngon miệng.");
+    }
+  } catch (error) {
+    console.error("Lỗi xác nhận đơn hàng:", error);
+    toast.error("Không thể kết nối đến máy chủ!");
+  }
+};
 
   return (
     <div
