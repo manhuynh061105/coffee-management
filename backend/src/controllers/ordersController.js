@@ -3,14 +3,18 @@ import Product from "../models/Product.js";
 
 export const createOrder = async (req, res) => {
   try {
-    const { items, phone, address, note, customerName } = req.body;
-    
-    // - Lấy userId từ token đã được verify bởi Middleware (đảm bảo middleware đã gán req.user)
+    const {
+      items,
+      phone,
+      address,
+      note,
+      customerName
+    } = req.body;
+
     const userId = req.user.id; 
 
     let total = 0;
     
-    // - Kiểm tra giỏ hàng
     if (!items || items.length === 0) {
       return res.status(400).json({
         success: false,
@@ -18,7 +22,6 @@ export const createOrder = async (req, res) => {
       });
     }
 
-    // Kiểm tra thông tin nhận hàng (Bao gồm cả customerName)
     if (!phone || !address || !customerName) {
         return res.status(400).json({
           success: false,
@@ -26,7 +29,7 @@ export const createOrder = async (req, res) => {
         });
     }
     
-    // - Tính toán tổng tiền dựa trên giá thực tế từ Database (tránh client sửa giá)
+    // - Logic tính tổng tiền dựa trên sản phẩm và số lượng
     for (const item of items) {
       const product = await Product.findById(item.productId);
       if (!product) {
@@ -38,7 +41,6 @@ export const createOrder = async (req, res) => {
       total += product.price * item.quantity;
     }
 
-    // - Tạo đơn hàng mới với trường customerName
     const newOrder = await Order.create({
       userId, 
       customerName,
@@ -95,7 +97,6 @@ export const getOrders = async (req, res) => {
 
 export const getOrdersByUser = async (req, res) => {
   try {
-    // - Ưu tiên lấy từ Token, nếu không có mới lấy từ Params
     const userId = req.user.id || req.params.userId;
 
     if (!userId) {
@@ -130,7 +131,6 @@ export const updateOrderStatus = async (req, res) => {
     const { id } = req.params;
     const { status } = req.body;
     
-    // - Lấy thông tin từ Middleware verifyToken (đảm bảo middleware đã gán req.user)
     const userIdFromToken = req.user.id; 
     const userRole = req.user.role;
 
@@ -143,7 +143,7 @@ export const updateOrderStatus = async (req, res) => {
       });
     }
 
-    // - Phân quyền: Admin có thể cập nhật mọi trạng thái, User chỉ được xác nhận 'completed' cho đơn hàng của chính mình
+    // - Phân quyền cập nhật trạng thái đơn hàng
     if (userRole === "admin") {
       // - Admin có toàn quyền
       order.status = status;
@@ -171,10 +171,8 @@ export const updateOrderStatus = async (req, res) => {
       }
     }
 
-    // - Lưu thay đổi
     await order.save();
     
-    // - Thực hiện populate một cách an toàn để trả về cho Frontend
     const updatedOrder = await Order
       .findById(id)
       .populate('items.productId');
@@ -246,7 +244,7 @@ export const getStats = async (req, res) => {
 
 export const confirmReceived = async (req, res) => {
   try {
-    const { id } = req.params; // ID của đơn hàng
+    const { id } = req.params;
 
     const order = await Order.findByIdAndUpdate(
       id,

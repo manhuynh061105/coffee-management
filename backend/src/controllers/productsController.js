@@ -22,7 +22,6 @@ export const getProductById = async (req, res) => {
   try {
     const { id } = req.params;
 
-    // - Tìm sản phẩm theo ID trong Database
     const product = await Product.findById(id);
 
     if (!product) {

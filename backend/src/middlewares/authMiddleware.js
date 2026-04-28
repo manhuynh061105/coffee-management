@@ -1,9 +1,8 @@
 import jwt from "jsonwebtoken";
 
 export const verifyToken = (req, res, next) => {
-  // - Lấy token từ header "Authorization"
   const authHeader = req.headers.authorization;
-  const token = authHeader && authHeader.split(" ")[1]; // Format: "Bearer TOKEN"
+  const token = authHeader && authHeader.split(" ")[1];
 
   if (!token) {
     return res.status(401).json({
@@ -14,8 +13,8 @@ export const verifyToken = (req, res, next) => {
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = decoded; // Lưu thông tin user vào request để các hàm sau sử dụng
-    next(); // Cho phép đi tiếp vào Controller
+    req.user = decoded;
+    next();
   }
   catch (error) {
     res.status(403).json({

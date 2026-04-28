@@ -18,8 +18,7 @@ const generateToken = (user) => {
 export const register = async (req, res) => {
   try {
     const { username, password, role } = req.body;
-
-    // - Kiểm tra dữ liệu đầu vào
+    
     if (!username || !password) {
       return res.status(400).json({
         success: false,
@@ -27,7 +26,6 @@ export const register = async (req, res) => {
       });
     }
 
-    // - Kiểm tra user tồn tại chưa
     const userExists = await User.findOne({ username });
     if (userExists) {
       return res.status(400).json({
@@ -36,17 +34,14 @@ export const register = async (req, res) => {
       });
     }
 
-    // - Mã hóa mật khẩu
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // - Tạo user mới
     const newUser = await User.create({
       username,
       password: hashedPassword,
       role: role || "user"
     });
 
-    // - Trả về đúng format em đã quy định
     res.status(201).json({
       success: true,
       message: "Đăng ký thành công",
@@ -70,7 +65,6 @@ export const login = async (req, res) => {
   try {
     const { username, password } = req.body;
 
-    // - Kiểm tra dữ liệu đầu vào
     if (!username || !password) {
       return res.status(400).json({
         success: false,
@@ -78,7 +72,6 @@ export const login = async (req, res) => {
       });
     }
 
-    // - Kiểm tra user có tồn tại không
     const user = await User.findOne({ username });
     if (!user) {
       return res.status(400).json({
@@ -87,7 +80,6 @@ export const login = async (req, res) => {
       });
     }
 
-    // - Kiểm tra mật khẩu (so sánh pass nhập vào với pass đã hash trong DB)
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
       return res.status(400).json({
@@ -96,7 +88,6 @@ export const login = async (req, res) => {
       });
     }
 
-    // - Tạo JWT Token
     const token = generateToken(user);
 
     return res.status(200).json({
@@ -112,7 +103,6 @@ export const login = async (req, res) => {
       },
     });
 
-    // - Trả về đúng format
     res.status(200).json({
       success: true,
       message: "Đăng nhập thành công",
