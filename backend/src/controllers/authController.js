@@ -2,11 +2,28 @@ import User from "../models/User.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 
+const generateToken = (user) => {
+  return jwt.sign(
+    {
+      id: user._id,
+      role: user.role,
+    },
+    process.env.JWT_SECRET,
+    {
+      expiresIn: "1d",
+    }
+  );
+};
+
 export const register = async (req, res) => {
   try {
     const { username, password, role } = req.body;
 
-    // 1. Kiểm tra user tồn tại chưa
+    
+
+
+
+    // - Kiểm tra user tồn tại chưa
     const userExists = await User.findOne({ username });
     if (userExists) {
       return res.status(400).json({

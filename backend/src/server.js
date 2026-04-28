@@ -41,7 +41,7 @@ app.use('/api/cart', cartRoutes);
 app.get("/", (req, res) => {
   res.status(200).json({
     success: true,
-    message: "Coffee Management API is running ☕",
+    message: "API Quản Lý Cà Phê Đang Chạy ☕",
   });
 });
 
@@ -50,14 +50,14 @@ app.get("/", (req, res) => {
 app.use((req, res) => {
   res.status(404).json({
     success: false,
-    message: "Route not found",
+    message: "Không tìm thấy endpoint này",
   });
 });
 
 // - Start the server
 app.listen(PORT, "0.0.0.0", () => {
     console.log(`
-🚀 Server is running!
+🚀 Máy chủ đang chạy!
 📡 Port: ${PORT}
 🌍 Mode: ${process.env.NODE_ENV || 'development'}
     `);
