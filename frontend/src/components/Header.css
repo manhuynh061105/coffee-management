@@ -1,4 +1,4 @@
-/* --- GIỮ NGUYÊN VÀ NÂNG CẤP PHẦN CŨ --- */
+/* --- KHUNG HEADER CHUNG --- */
 .header-custom {
   background-color: rgba(255, 255, 255, 0.98);
   backdrop-filter: blur(10px);
@@ -12,6 +12,7 @@
   color: #6f4e37;
 }
 
+/* --- NÚT BẤM ĐIỀU HƯỚNG (DESKTOP) --- */
 .btn-espresso-outline {
   background-color: transparent !important;
   color: #6f4e37 !important;
@@ -35,46 +36,12 @@
   box-shadow: 0 5px 15px rgba(111, 78, 55, 0.25);
 }
 
-/* --- TỐI ƯU CHO MOBILE (THÊM MỚI) --- */
-
-@media (max-width: 991.98px) {
-  /* Làm cho menu xổ xuống trông đẹp hơn */
-  .navbar-collapse {
-    background: white;
-    margin-top: 10px;
-    border-radius: 20px;
-    padding: 20px;
-    box-shadow: 0 10px 30px rgba(111, 78, 55, 0.15);
-    border: 1px solid rgba(111, 78, 55, 0.1);
-  }
-
-  .navbar-nav .nav-item {
-    width: 100%;
-  }
-
-  /* Nút bấm trên mobile dàn hàng dọc và rộng 100% */
-  .btn-espresso-outline {
-    width: 100%;
-    margin-bottom: 10px;
-    padding: 12px;
-    border-radius: 12px; /* Bo góc vuông vắn hơn trên mobile */
-  }
-
-  /* Chỉnh lại size logo để không chiếm diện tích */
-  .logo-section img {
-    width: 45px !important;
-    height: 45px !important;
-  }
-
-  /* Nút tài khoản gọn hơn trên mobile */
-  .btn-sm-custom {
-    padding: 6px 12px !important;
-    font-size: 0.8rem;
-    border-radius: 50px;
-  }
+/* Loại bỏ mũi tên mặc định của dropdown bootstrap nếu cần */
+.dropdown-toggle::after {
+  vertical-align: middle;
 }
 
-/* --- GIỎ HÀNG & BADGE --- */
+/* --- GIỎ HÀNG --- */
 .cart-icon-original {
   filter: sepia(100%) hue-rotate(350deg) saturate(300%) brightness(50%);
   transition: all 0.3s ease;
@@ -87,43 +54,67 @@
 
 .cart-badge-custom {
   position: absolute;
-  top: -2px;
-  right: -2px;
-  background-color: #d32f2f; /* Màu đỏ đô cho nổi bật */
+  top: -5px;
+  right: -5px;
+  background-color: #6f4e37;
   color: white;
-  font-size: 0.7rem;
+  font-size: 0.65rem;
   font-weight: bold;
-  min-width: 18px;
-  height: 18px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  padding: 2px 6px;
   border-radius: 50%;
-  border: 1.5px solid white;
+  border: 2px solid white;
 }
 
-/* --- DROPDOWN CUSTOM --- */
+/* --- DROPDOWN MENU CUSTOM --- */
 .dropdown-menu {
   border-radius: 18px;
-  padding: 10px;
-  min-width: 230px;
+  padding: 12px;
+  min-width: 250px; /* Tăng nhẹ để menu mobile không bị chật */
   border: none;
-  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.12);
-  margin-top: 10px !important;
+  box-shadow: 0 15px 50px rgba(0, 0, 0, 0.15);
+  margin-top: 15px !important;
 }
 
 .dropdown-item {
-  border-radius: 10px;
-  transition: 0.2s;
+  border-radius: 12px;
+  transition: 0.2s ease;
   font-weight: 600;
   color: #5d4037;
   padding: 10px 15px;
+  display: flex;
+  align-items: center;
+}
+
+.dropdown-item i {
+  width: 20px; /* Cố định độ rộng icon để text thẳng hàng */
+  text-align: center;
 }
 
 .dropdown-item:hover {
   background-color: #fdf8f5;
   color: #6f4e37;
   transform: translateX(5px);
+}
+
+/* --- MOBILE OPTIMIZATION --- */
+@media (max-width: 991.98px) {
+  .logo-section img {
+    width: 45px !important;
+    height: 45px !important;
+  }
+  
+  /* Thu nhỏ padding của nút dropdown trên mobile cho gọn */
+  .dropdown .btn-espresso-outline {
+    padding: 6px 12px;
+    font-size: 0.85rem;
+  }
+
+  /* Làm nổi bật các link điều hướng trong dropdown trên mobile */
+  .d-lg-none .dropdown-item {
+    color: #6f4e37;
+    background-color: #fcf9f7;
+    margin-bottom: 5px;
+  }
 }
 
 /* --- ANIMATIONS --- */
@@ -134,16 +125,10 @@
 @keyframes slideIn {
   from {
     opacity: 0;
-    transform: translateY(15px);
+    transform: translateY(10px);
   }
   to {
     opacity: 1;
     transform: translateY(0);
   }
-}
-
-/* Loại bỏ viền xanh khi bấm nút toggler trên mobile */
-.navbar-toggler:focus {
-  box-shadow: none;
-  outline: none;
 }
